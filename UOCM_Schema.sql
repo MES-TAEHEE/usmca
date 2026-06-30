@@ -12,6 +12,7 @@
      SYS System / Admin     (sys_*)      10 tables
    Conventions: PK = <table>_id IDENTITY (BIGINT) unless a natural code key.
                 Audit columns created_by/created_at/updated_by/updated_at.
+   Visual diagram: UOCM_ERD.html  ·  Browsable schema: UOCM_DB_Schema.html
                 All text NVARCHAR (Unicode, KO/EN). UTC via SYSUTCDATETIME().
    ============================================================================ */
 

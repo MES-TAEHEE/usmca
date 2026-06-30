@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>UOCM · Entity Relationship Diagram</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;600;700&family=Bebas+Neue&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --brand:#059669;--brand-dk:#047857;--navy:#0f2747;
+  --line:#e5eaf0;--border:#d3dce6;--bg:#f4f7fa;--surface:#fff;
+  --text:#1e2a38;--sub:#5b6b7d;--mut:#94a3b8;
+  --doc:#2563eb;--lbl:#7c3aed;--org:#0891b2;--aud:#dc2626;--int:#6366f1;--sys:#64748b;--md:#d97706;
+}
+html{scroll-behavior:smooth;}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);font-size:13px;line-height:1.6;}
+.uo-nav{position:sticky;top:0;z-index:9999;background:#fff;border-bottom:1px solid var(--line);box-shadow:0 1px 4px rgba(15,39,71,.06);}
+.uo-nav-inner{display:flex;align-items:stretch;overflow-x:auto;scrollbar-width:none;}
+.uo-nav-inner::-webkit-scrollbar{display:none;}
+.nav-home{display:flex;align-items:center;gap:8px;padding:0 16px;background:rgba(5,150,105,.08);border-right:1px solid var(--line);text-decoration:none;flex-shrink:0;min-height:42px;}
+.nav-home-logo{font-family:'Bebas Neue',sans-serif;font-size:17px;color:var(--brand);letter-spacing:2px;}
+.nav-home-sub{font-size:9px;color:var(--mut);}
+.nav-vol{display:flex;align-items:center;gap:5px;padding:0 12px;text-decoration:none;font-size:10px;font-weight:700;color:var(--sub);border-bottom:2px solid transparent;white-space:nowrap;min-height:42px;transition:color .12s,background .12s;}
+.nav-vol:hover{color:var(--navy);background:#f6f8fa;}
+.nav-vol .nv-code{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;}
+
+.l3-crumb{background:#f6f8fa;border-bottom:1px solid var(--line);padding:7px 24px;display:flex;align-items:center;gap:8px;font-size:10px;color:var(--sub);font-family:'JetBrains Mono',monospace;letter-spacing:.5px;}
+.l3-crumb a{color:var(--sub);text-decoration:none;}
+.l3-crumb a:hover{color:var(--navy);}
+.l3-crumb .arr{color:#cbd5e1;}
+.l3-crumb .current{color:var(--brand-dk);font-weight:700;}
+.l3-crumb .lvl{font-size:8px;padding:1px 6px;border:1px solid var(--border);border-radius:2px;color:var(--mut);margin-right:4px;}
+
+.hdr{padding:30px 40px 24px;background:linear-gradient(135deg,#ffffff,#eef6f2 60%,#eef3fb);border-bottom:1px solid var(--line);position:relative;overflow:hidden;}
+.hdr-eyebrow{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--brand-dk);margin-bottom:8px;}
+.hdr-title{font-family:'Bebas Neue',sans-serif;font-size:44px;letter-spacing:2px;color:var(--navy);line-height:1;}
+.hdr-ko{font-size:13px;color:var(--sub);margin-top:4px;letter-spacing:2px;}
+.hdr-meta{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;}
+.chip{display:flex;flex-direction:column;gap:2px;padding:8px 14px;background:#fff;border:1px solid var(--border);border-radius:6px;}
+.chip .l{font-family:'JetBrains Mono',monospace;font-size:8px;font-weight:700;letter-spacing:1px;color:var(--brand-dk);text-transform:uppercase;}
+.chip .v{font-size:12px;font-weight:700;color:var(--navy);}
+.chip a{color:var(--doc);text-decoration:none;}
+
+.wrap{max-width:1300px;margin:0 auto;padding:28px 36px 80px;}
+.sec-title{position:relative;display:flex;align-items:center;gap:12px;font-size:11px;font-weight:700;color:var(--navy);letter-spacing:2.5px;text-transform:uppercase;margin:30px 0 14px;padding-left:14px;}
+.sec-title::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:4px;height:18px;background:linear-gradient(180deg,var(--brand),rgba(5,150,105,.25));border-radius:2px;}
+.sec-title::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--border),transparent);}
+.sec-title .st-ko{color:var(--mut);font-weight:500;letter-spacing:.5px;text-transform:none;}
+
+.legend{display:flex;gap:16px;flex-wrap:wrap;margin:6px 0 14px;font-size:11px;color:var(--sub);}
+.legend b{font-family:'JetBrains Mono',monospace;color:var(--text);}
+.mod-key{display:inline-flex;align-items:center;gap:5px;}
+.mod-key i{width:11px;height:11px;border-radius:3px;display:inline-block;}
+
+.diagram-box{background:#fff;border:1px solid var(--border);border-radius:10px;padding:18px;box-shadow:0 1px 4px rgba(15,39,71,.04);overflow:auto;}
+.mermaid{font-family:'Noto Sans KR',sans-serif;}
+.note{font-size:11px;color:var(--sub);background:#fffaf0;border:1px solid #fde68a;border-left:3px solid #d97706;border-radius:0 6px 6px 0;padding:10px 14px;margin:10px 0;}
+.foot{margin-top:40px;border-top:1px solid var(--border);padding-top:18px;font-size:10px;color:var(--mut);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;font-family:'JetBrains Mono',monospace;}
+</style>
+</head>
+<body>
+<nav class="uo-nav"><div class="uo-nav-inner">
+  <a href="index.html" class="nav-home"><span class="nav-home-logo">UOCM</span><span class="nav-home-sub">◀ Index</span></a>
+  <a href="VOL01_Overview.html" class="nav-vol"><span class="nv-code" style="color:#059669;">OV</span><span>Overview</span></a>
+  <a href="VOL02_DOC_Document_Management.html" class="nav-vol"><span class="nv-code" style="color:#2563eb;">DOC</span><span>Document</span></a>
+  <a href="VOL03_LBL_Label_Management.html" class="nav-vol"><span class="nv-code" style="color:#7c3aed;">LBL</span><span>Label</span></a>
+  <a href="VOL04_ORG_Origin_Management.html" class="nav-vol"><span class="nv-code" style="color:#0891b2;">ORG</span><span>Origin</span></a>
+  <a href="VOL05_AUD_Audit_Support.html" class="nav-vol"><span class="nv-code" style="color:#dc2626;">AUD</span><span>Audit</span></a>
+  <a href="VOL06_INT_Integration.html" class="nav-vol"><span class="nv-code" style="color:#6366f1;">INT</span><span>Integration</span></a>
+  <a href="VOL07_SYS_System.html" class="nav-vol"><span class="nv-code" style="color:#64748b;">SYS</span><span>System</span></a>
+  <a href="VOL08_MD_Master_Data.html" class="nav-vol"><span class="nv-code" style="color:#d97706;">MD</span><span>Master Data</span></a>
+</div></nav>
+
+<div class="l3-crumb">
+  <span class="lvl">L1</span><a href="index.html">UOCM Index</a>
+  <span class="arr">▸</span>
+  <span class="current">Entity Relationship Diagram</span>
+</div>
+
+<div class="hdr">
+  <div class="hdr-eyebrow">◆ UOCM · Data Model</div>
+  <div class="hdr-title">ENTITY RELATIONSHIP DIAGRAM</div>
+  <div class="hdr-ko">개체 관계도 (ERD)</div>
+  <div class="hdr-meta">
+    <div class="chip"><span class="l">Engine</span><span class="v">MS SQL Server</span></div>
+    <div class="chip"><span class="l">Tables</span><span class="v">40</span></div>
+    <div class="chip"><span class="l">Modules</span><span class="v">7</span></div>
+    <div class="chip"><span class="l">Schema</span><span class="v"><a href="UOCM_DB_Schema.html">DB Schema ↗</a> · <a href="UOCM_Schema.sql" download>.sql ↓</a></span></div>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <!-- MODULE DEPENDENCY OVERVIEW -->
+  <div class="sec-title">Module Dependencies <span class="st-ko">모듈 의존 관계</span></div>
+  <div class="diagram-box">
+    <pre class="mermaid">
+flowchart LR
+  MD["🟧 MD<br/>Master Data"]:::md
+  DOC["🟦 DOC<br/>Document"]:::doc
+  LBL["🟪 LBL<br/>Label"]:::lbl
+  ORG["🟦 ORG<br/>Origin"]:::org
+  AUD["🟥 AUD<br/>Audit"]:::aud
+  INT["🟦 INT<br/>Integration"]:::int
+  SYS["⬛ SYS<br/>System"]:::sys
+
+  MD --> DOC
+  MD --> ORG
+  MD --> LBL
+  DOC --> LBL
+  DOC --> ORG
+  ORG --> LBL
+  DOC --> AUD
+  ORG --> AUD
+  LBL --> AUD
+  INT --> MD
+  INT --> ORG
+  SYS -.-> DOC
+  SYS -.-> LBL
+  SYS -.-> ORG
+  SYS -.-> AUD
+  SYS -.-> INT
+
+  classDef md fill:#fff7ed,stroke:#d97706,color:#92400e,stroke-width:2px;
+  classDef doc fill:#eff6ff,stroke:#2563eb,color:#1e40af,stroke-width:2px;
+  classDef lbl fill:#f5f3ff,stroke:#7c3aed,color:#5b21b6,stroke-width:2px;
+  classDef org fill:#ecfeff,stroke:#0891b2,color:#155e75,stroke-width:2px;
+  classDef aud fill:#fef2f2,stroke:#dc2626,color:#991b1b,stroke-width:2px;
+  classDef int fill:#eef2ff,stroke:#6366f1,color:#3730a3,stroke-width:2px;
+  classDef sys fill:#f8fafc,stroke:#64748b,color:#334155,stroke-width:2px;
+    </pre>
+  </div>
+  <div class="note">실선 = 데이터 의존(참조), 점선 = 공통 기반(SYS 권한·코드·알림). INT는 외부(SAP/SCM)에서 MD·ORG로 데이터를 공급합니다.</div>
+
+  <!-- FULL ERD -->
+  <div class="sec-title">Full Entity Relationship Diagram <span class="st-ko">전체 ERD — 40 테이블</span></div>
+  <div class="legend">
+    <span class="mod-key"><i style="background:#d97706"></i> MD</span>
+    <span class="mod-key"><i style="background:#2563eb"></i> DOC</span>
+    <span class="mod-key"><i style="background:#7c3aed"></i> LBL</span>
+    <span class="mod-key"><i style="background:#0891b2"></i> ORG</span>
+    <span class="mod-key"><i style="background:#dc2626"></i> AUD</span>
+    <span class="mod-key"><i style="background:#6366f1"></i> INT</span>
+    <span class="mod-key"><i style="background:#64748b"></i> SYS</span>
+    <span>· <b>PK</b> 기본키 · <b>FK</b> 외래키 · <b>UK</b> 유니크 · <b>||--o{</b> 1:N</span>
+  </div>
+  <div class="diagram-box">
+    <pre class="mermaid">
+erDiagram
+  %% ---- MASTER DATA (MD) ----
+  md_country ||--o{ md_supplier : "country_code"
+  md_country ||--o{ md_part : "default_origin_country"
+  md_hts ||--o{ md_part : "hts_id"
+  md_supplier ||--o{ md_part : "supplier_id"
+  md_part ||--o{ md_bom : "parent_part_id"
+  md_part ||--o{ md_bom : "child_part_id"
+  md_oem_customer ||--o{ md_label_template : "oem_id"
+  md_label_template ||--o| md_oem_customer : "default_label_template_id"
+  md_label_template ||--o{ md_label_template_field : "template_id"
+
+  %% ---- DOCUMENT (DOC) ----
+  md_cert_type ||--o{ doc_certificate : "cert_type_id"
+  md_supplier ||--o{ doc_certificate : "supplier_id"
+  md_country ||--o{ doc_certificate : "origin_country"
+  doc_certificate ||--o{ doc_file : "certificate_id"
+  doc_certificate ||--o{ doc_certificate_part : "certificate_id"
+  md_part ||--o{ doc_certificate_part : "part_id"
+  doc_certificate ||--o{ doc_version : "certificate_id"
+  doc_file ||--o| doc_version : "file_id"
+  doc_version ||--o| doc_certificate : "current_version_id"
+  doc_certificate ||--o{ doc_approval : "certificate_id"
+  doc_approval ||--o{ doc_approval_step : "approval_id"
+  doc_certificate ||--o{ doc_alert : "certificate_id"
+
+  %% ---- LABEL (LBL) ----
+  md_part ||--o{ lbl_issue : "part_id"
+  md_oem_customer ||--o{ lbl_issue : "oem_id"
+  md_label_template ||--o{ lbl_issue : "template_id"
+  doc_certificate ||--o{ lbl_issue : "certificate_id"
+  md_country ||--o{ lbl_issue : "origin_country"
+  lbl_issue ||--o{ lbl_reprint : "issue_id"
+  lbl_issue ||--o{ lbl_print_job : "issue_id"
+
+  %% ---- ORIGIN (ORG) ----
+  md_part ||--o{ org_part_origin : "part_id"
+  md_country ||--o{ org_part_origin : "origin_country"
+  doc_certificate ||--o{ org_part_origin : "certificate_id"
+  md_part ||--o{ org_origin_change : "part_id"
+  md_part ||--o{ org_rollup_result : "fg_part_id"
+  md_country ||--o{ org_rollup_result : "result_origin"
+  md_part ||--o{ org_rvc_calc : "fg_part_id"
+
+  %% ---- AUDIT (AUD) ----
+  aud_package ||--o{ aud_package_item : "package_id"
+
+  %% ---- INTEGRATION (INT) ----
+  int_connection ||--o{ int_endpoint : "connection_id"
+  int_endpoint ||--o{ int_job : "endpoint_id"
+
+  %% ---- SYSTEM (SYS) ----
+  sys_user ||--o{ sys_user_role : "user_id"
+  sys_role ||--o{ sys_user_role : "role_id"
+  sys_role ||--o{ sys_role_permission : "role_id"
+  sys_permission ||--o{ sys_role_permission : "permission_code"
+  sys_user ||--o{ sys_audit_log : "actor_user_id"
+  sys_notif_channel ||--o{ sys_notif_rule : "channel_id"
+  sys_code_group ||--o{ sys_code : "group_code"
+
+  %% ================= ENTITY ATTRIBUTES (keys) =================
+  md_country {
+    char country_code PK
+    nvarchar country_name
+    bit usmca_member
+  }
+  md_supplier {
+    bigint supplier_id PK
+    nvarchar supplier_code UK
+    char country_code FK
+  }
+  md_hts {
+    bigint hts_id PK
+    nvarchar hts_code UK
+    decimal rvc_threshold
+  }
+  md_part {
+    bigint part_id PK
+    nvarchar part_code UK
+    bigint hts_id FK
+    char default_origin_country FK
+    bigint supplier_id FK
+  }
+  md_bom {
+    bigint bom_id PK
+    bigint parent_part_id FK
+    bigint child_part_id FK
+    decimal cost_ratio
+  }
+  md_oem_customer {
+    bigint oem_id PK
+    nvarchar oem_code UK
+    bigint default_label_template_id FK
+  }
+  md_cert_type {
+    int cert_type_id PK
+    nvarchar cert_type_code UK
+    int validity_months
+  }
+  md_label_template {
+    bigint template_id PK
+    nvarchar template_code
+    bigint oem_id FK
+  }
+  md_label_template_field {
+    bigint field_id PK
+    bigint template_id FK
+    nvarchar field_key
+  }
+
+  doc_certificate {
+    bigint certificate_id PK
+    nvarchar cert_no
+    int cert_type_id FK
+    bigint supplier_id FK
+    char origin_country FK
+    date expiry_date
+    nvarchar status
+  }
+  doc_file {
+    bigint file_id PK
+    bigint certificate_id FK
+  }
+  doc_certificate_part {
+    bigint cert_part_id PK
+    bigint certificate_id FK
+    bigint part_id FK
+  }
+  doc_version {
+    bigint version_id PK
+    bigint certificate_id FK
+    bigint file_id FK
+    bit is_current
+  }
+  doc_approval {
+    bigint approval_id PK
+    bigint certificate_id FK
+    nvarchar status
+  }
+  doc_approval_step {
+    bigint step_id PK
+    bigint approval_id FK
+    int stage_no
+  }
+  doc_alert {
+    bigint alert_id PK
+    bigint certificate_id FK
+    nvarchar tier
+  }
+
+  lbl_issue {
+    bigint issue_id PK
+    nvarchar serial_no UK
+    bigint part_id FK
+    bigint oem_id FK
+    bigint template_id FK
+    bigint certificate_id FK
+  }
+  lbl_reprint {
+    bigint reprint_id PK
+    bigint issue_id FK
+  }
+  lbl_print_job {
+    bigint print_job_id PK
+    bigint issue_id FK
+  }
+
+  org_part_origin {
+    bigint origin_id PK
+    bigint part_id FK
+    char origin_country FK
+    bigint certificate_id FK
+  }
+  org_origin_change {
+    bigint change_id PK
+    bigint part_id FK
+  }
+  org_rollup_result {
+    bigint rollup_id PK
+    bigint fg_part_id FK
+    char result_origin FK
+  }
+  org_rvc_calc {
+    bigint rvc_id PK
+    bigint fg_part_id FK
+    nvarchar result
+  }
+
+  aud_report {
+    bigint report_id PK
+    nvarchar report_type
+  }
+  aud_package {
+    bigint package_id PK
+    nvarchar status
+  }
+  aud_package_item {
+    bigint item_id PK
+    bigint package_id FK
+  }
+
+  int_connection {
+    bigint connection_id PK
+    nvarchar system_name
+  }
+  int_endpoint {
+    bigint endpoint_id PK
+    bigint connection_id FK
+  }
+  int_job {
+    bigint job_id PK
+    bigint endpoint_id FK
+  }
+  int_integrity_issue {
+    bigint issue_id PK
+    nvarchar severity
+  }
+
+  sys_user {
+    bigint user_id PK
+    nvarchar login_id UK
+  }
+  sys_role {
+    int role_id PK
+    nvarchar role_code UK
+  }
+  sys_permission {
+    nvarchar permission_code PK
+  }
+  sys_user_role {
+    bigint user_id PK
+    int role_id PK
+  }
+  sys_role_permission {
+    int role_id PK
+    nvarchar permission_code PK
+  }
+  sys_audit_log {
+    bigint log_id PK
+    bigint actor_user_id FK
+  }
+  sys_notif_channel {
+    int channel_id PK
+  }
+  sys_notif_rule {
+    int rule_id PK
+    int channel_id FK
+  }
+  sys_code_group {
+    nvarchar group_code PK
+  }
+  sys_code {
+    bigint code_id PK
+    nvarchar group_code FK
+  }
+    </pre>
+  </div>
+  <div class="note">전체 컬럼 정의는 <a href="UOCM_DB_Schema.html" style="color:#047857;font-weight:700;">DB Schema</a>를, 실행 가능한 DDL은 <a href="UOCM_Schema.sql" download style="color:#047857;font-weight:700;">UOCM_Schema.sql</a>를 참조하세요. (ERD는 키 컬럼 중심으로 표시)</div>
+
+  <div class="foot">
+    <span>UOCM · USMCA Origin Compliance Management System · Entity Relationship Diagram</span>
+    <span>40 Tables · MS SQL Server</span>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script>
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: 'neutral',
+    er: { layoutDirection: 'TB', entityPadding: 12, useMaxWidth: false },
+    flowchart: { useMaxWidth: true, htmlLabels: true }
+  });
+</script>
+</body>
+</html>
