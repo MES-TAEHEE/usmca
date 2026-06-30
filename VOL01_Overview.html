@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>UOCM · VOL.1 · Overview — Scope · Options · Roadmap · Tech Stack</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;600;700&family=Bebas+Neue&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --brand:#059669;--brand-dk:#047857;--navy:#0f2747;
+  --line:#e5eaf0;--border:#d3dce6;--bg:#f4f7fa;--surface:#fff;
+  --text:#1e2a38;--sub:#5b6b7d;--mut:#94a3b8;
+  --doc:#2563eb;--lbl:#7c3aed;--org:#0891b2;--aud:#dc2626;--int:#6366f1;--sys:#64748b;--md:#d97706;
+}
+html{scroll-behavior:smooth;}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);font-size:13px;line-height:1.65;}
+
+.uo-nav{position:sticky;top:0;z-index:9999;background:#fff;border-bottom:1px solid var(--line);box-shadow:0 1px 4px rgba(15,39,71,.06);}
+.uo-nav-inner{display:flex;align-items:stretch;overflow-x:auto;scrollbar-width:none;}
+.uo-nav-inner::-webkit-scrollbar{display:none;}
+.nav-home{display:flex;align-items:center;gap:8px;padding:0 16px;background:rgba(5,150,105,.08);border-right:1px solid var(--line);text-decoration:none;flex-shrink:0;min-height:42px;}
+.nav-home-logo{font-family:'Bebas Neue',sans-serif;font-size:17px;color:var(--brand);letter-spacing:2px;}
+.nav-home-sub{font-size:9px;color:var(--mut);}
+.nav-vol{display:flex;align-items:center;gap:5px;padding:0 12px;text-decoration:none;font-size:10px;font-weight:700;color:var(--sub);border-bottom:2px solid transparent;white-space:nowrap;min-height:42px;transition:color .12s,background .12s;}
+.nav-vol:hover{color:var(--navy);background:#f6f8fa;}
+.nav-vol.active{color:var(--navy);border-bottom-color:var(--brand);}
+.nav-vol .nv-code{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;}
+
+.wrap{max-width:1140px;margin:0 auto;padding:34px 40px 80px;}
+
+/* HERO */
+.hero{position:relative;background:linear-gradient(135deg,#ffffff,#eef6f2 55%,#eef3fb);border:1px solid var(--line);border-radius:14px;padding:40px 42px;margin-bottom:28px;overflow:hidden;box-shadow:0 2px 12px rgba(15,39,71,.05);}
+.hero::after{content:'';position:absolute;top:-90px;right:-70px;width:300px;height:300px;background:radial-gradient(circle,rgba(5,150,105,.1),transparent 65%);pointer-events:none;}
+.hero-eyebrow{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;letter-spacing:3px;color:var(--brand-dk);text-transform:uppercase;margin-bottom:10px;}
+.hero-title{font-family:'Bebas Neue',sans-serif;font-size:54px;letter-spacing:3px;line-height:1;color:var(--navy);}
+.hero-sub{font-size:13px;color:var(--sub);margin-top:8px;max-width:760px;line-height:1.9;}
+
+.sec-title{position:relative;display:flex;align-items:center;gap:12px;font-size:11px;font-weight:700;color:var(--navy);letter-spacing:2.5px;text-transform:uppercase;margin:40px 0 16px;padding-left:14px;}
+.sec-title::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:4px;height:18px;background:linear-gradient(180deg,var(--brand),rgba(5,150,105,.25));border-radius:2px;}
+.sec-title::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--border),transparent);}
+.sec-title .st-ko{color:var(--mut);font-weight:500;letter-spacing:.5px;text-transform:none;}
+
+/* OPTION CARDS */
+.opt-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+.opt{background:#fff;border:1px solid var(--border);border-radius:10px;padding:18px 18px 16px;border-top:3px solid var(--c);box-shadow:0 1px 3px rgba(15,39,71,.04);position:relative;}
+.opt.rec{box-shadow:0 8px 24px rgba(5,150,105,.13);border-color:var(--brand);}
+.opt-tag{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;color:#fff;background:var(--c);padding:3px 10px;border-radius:3px;letter-spacing:1px;}
+.opt-rec-badge{position:absolute;top:14px;right:14px;font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;color:var(--brand-dk);background:#d1fae5;border:1px solid #6ee7b7;border-radius:10px;padding:2px 9px;}
+.opt-name{font-size:15px;font-weight:800;color:var(--navy);margin:10px 0 2px;}
+.opt-name-ko{font-size:11px;color:var(--sub);margin-bottom:10px;padding-bottom:10px;border-bottom:1px dashed var(--border);}
+.opt-li{font-size:11px;color:var(--sub);line-height:1.8;padding-left:14px;position:relative;}
+.opt-li::before{content:'✓';position:absolute;left:0;color:var(--c);font-weight:700;}
+.opt-foot{margin-top:10px;font-size:10px;color:var(--mut);font-style:italic;}
+
+/* MATRIX */
+.matrix{width:100%;border-collapse:collapse;font-size:12px;background:#fff;border:1px solid var(--border);border-radius:8px;overflow:hidden;box-shadow:0 1px 3px rgba(15,39,71,.04);}
+.matrix th{background:#f0f3f7;color:var(--navy);padding:10px 12px;text-align:left;font-size:11px;font-weight:700;border-bottom:1px solid var(--border);}
+.matrix th.opt-h{text-align:center;}
+.matrix td{padding:9px 12px;border-bottom:1px solid var(--line);color:var(--text);}
+.matrix td.c{text-align:center;}
+.matrix tr:last-child td{border-bottom:none;}
+.matrix tr:nth-child(even) td{background:#fafbfd;}
+.matrix .rowh{font-weight:700;color:var(--sub);font-size:11px;}
+.lvl{display:inline-block;font-size:10px;font-weight:700;padding:2px 9px;border-radius:10px;}
+.lvl-lo{background:#dcfce7;color:#166534;}
+.lvl-mid{background:#fef9c3;color:#92400e;}
+.lvl-hi{background:#fee2e2;color:#991b1b;}
+.lvl-n{background:#eef2f7;color:#475569;font-family:'JetBrains Mono',monospace;}
+
+/* RECOMMEND */
+.rec-box{background:linear-gradient(135deg,#ecfdf5,#fff);border:1px solid #a7f3d0;border-left:4px solid var(--brand);border-radius:0 8px 8px 0;padding:18px 22px;margin-bottom:14px;}
+.rec-box b{color:var(--brand-dk);}
+.reason-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px;}
+.reason{background:#fff;border:1px solid var(--border);border-radius:8px;padding:13px 15px;box-shadow:0 1px 3px rgba(15,39,71,.04);}
+.reason-n{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--brand);line-height:1;}
+.reason-t{font-size:12px;font-weight:700;color:var(--navy);margin:4px 0 3px;}
+.reason-d{font-size:10.5px;color:var(--sub);line-height:1.6;}
+
+/* ROADMAP */
+.road{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+.road-card{background:#fff;border:1px solid var(--border);border-radius:10px;padding:16px;border-top:3px solid var(--c);box-shadow:0 1px 3px rgba(15,39,71,.04);}
+.road-p{font-family:'Bebas Neue',sans-serif;font-size:26px;color:var(--c);letter-spacing:2px;line-height:1;}
+.road-t{font-size:12px;font-weight:700;color:var(--navy);margin:6px 0 3px;}
+.road-tko{font-size:10px;color:var(--mut);margin-bottom:10px;}
+.road-li{font-size:10px;color:var(--sub);line-height:1.7;padding-left:12px;position:relative;}
+.road-li::before{content:'▸';position:absolute;left:0;color:var(--c);}
+.road-owner{margin-top:10px;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.5px;padding:3px 8px;border-radius:3px;display:inline-block;}
+.owner-법인{background:#d1fae5;color:#047857;border:1px solid #6ee7b7;}
+.owner-전사{background:#e0e7ff;color:#4338ca;border:1px solid #a5b4fc;}
+
+/* TECH STACK */
+.tech-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;}
+.tech{background:#fff;border:1px solid var(--border);border-radius:8px;padding:14px 16px;border-left:3px solid var(--c);box-shadow:0 1px 3px rgba(15,39,71,.04);}
+.tech-l{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;color:var(--c);letter-spacing:1px;text-transform:uppercase;}
+.tech-v{font-size:13px;font-weight:700;color:var(--navy);margin:4px 0 3px;}
+.tech-d{font-size:10px;color:var(--sub);line-height:1.6;}
+.tech-chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px;}
+.tech-chip{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;color:var(--sub);background:#f4f7fa;border:1px solid var(--border);border-radius:3px;padding:2px 7px;}
+.note{font-size:10.5px;color:var(--mut);font-style:italic;margin-top:10px;}
+
+.foot{margin-top:54px;border-top:1px solid var(--border);padding-top:20px;font-size:10px;color:var(--mut);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;font-family:'JetBrains Mono',monospace;}
+
+@media(max-width:860px){.opt-grid,.road{grid-template-columns:1fr;}.matrix{font-size:11px;}}
+</style>
+</head>
+<body>
+<nav class="uo-nav"><div class="uo-nav-inner">
+  <a href="index.html" class="nav-home"><span class="nav-home-logo">UOCM</span><span class="nav-home-sub">◀ Index</span></a>
+  <a href="VOL01_Overview.html" class="nav-vol active"><span class="nv-code" style="color:#059669;">OV</span><span>Overview</span></a>
+  <a href="VOL02_DOC_Document_Management.html" class="nav-vol"><span class="nv-code" style="color:#2563eb;">DOC</span><span>Document</span></a>
+  <a href="VOL03_LBL_Label_Management.html" class="nav-vol"><span class="nv-code" style="color:#7c3aed;">LBL</span><span>Label</span></a>
+  <a href="VOL04_ORG_Origin_Management.html" class="nav-vol"><span class="nv-code" style="color:#0891b2;">ORG</span><span>Origin</span></a>
+  <a href="VOL05_AUD_Audit_Support.html" class="nav-vol"><span class="nv-code" style="color:#dc2626;">AUD</span><span>Audit</span></a>
+  <a href="VOL06_INT_Integration.html" class="nav-vol"><span class="nv-code" style="color:#6366f1;">INT</span><span>Integration</span></a>
+  <a href="VOL07_SYS_System.html" class="nav-vol"><span class="nv-code" style="color:#64748b;">SYS</span><span>System</span></a>
+  <a href="VOL08_MD_Master_Data.html" class="nav-vol"><span class="nv-code" style="color:#d97706;">MD</span><span>Master Data</span></a>
+</div></nav>
+
+<div class="wrap">
+
+  <div class="hero">
+    <div class="hero-eyebrow">VOL.1 · Project Overview</div>
+    <div class="hero-title">SCOPE · OPTIONS · ROADMAP</div>
+    <div class="hero-sub">범위 정의 · 옵션 비교 · 단계적 추진 방안 · 기술 스택. 현업의 "FTA-PASS 같은 시스템" 요구에 대해, 전체 기능을 한 번에 목표하지 않고 <b style="color:var(--navy)">"USMCA Compliance Management"</b> 범위부터 단계적으로 확보하는 전략을 정의합니다. (PPT 제안서 기준)</div>
+  </div>
+
+  <!-- SCOPE OPTIONS -->
+  <div class="sec-title">Scope Options <span class="st-ko">구축 범위 — 3가지 옵션 (A / B / C)</span></div>
+  <div class="opt-grid">
+    <div class="opt rec" style="--c:#2563eb">
+      <span class="opt-rec-badge">★ 권장 시작점</span>
+      <span class="opt-tag">OPTION A</span>
+      <div class="opt-name">Document Repository</div>
+      <div class="opt-name-ko">증빙 문서 중앙 보관소</div>
+      <div class="opt-li">Supplier Certificate 중앙 저장</div>
+      <div class="opt-li">만료 알림 · 통합 검색</div>
+      <div class="opt-li">승인 워크플로우</div>
+      <div class="opt-foot">문서 관리 중심 — 가장 빠른 착수</div>
+    </div>
+    <div class="opt rec" style="--c:#7c3aed">
+      <span class="opt-rec-badge">★ 권장 확장</span>
+      <span class="opt-tag">OPTION B</span>
+      <div class="opt-name">Origin Management System</div>
+      <div class="opt-name-ko">A + 원산지 · 라벨 관리</div>
+      <div class="opt-li">COO · Country Tracking</div>
+      <div class="opt-li">변경 이력 관리</div>
+      <div class="opt-li">원산지/고객 라벨 발행</div>
+      <div class="opt-foot">원산지 운영 체계 확보</div>
+    </div>
+    <div class="opt" style="--c:#6366f1">
+      <span class="opt-tag">OPTION C</span>
+      <div class="opt-name">Enterprise Trade Platform</div>
+      <div class="opt-name-ko">B + 전사 연계 · 자동화</div>
+      <div class="opt-li">SAP · BOM · Supplier 연계</div>
+      <div class="opt-li">자동 원산지 판정(RVC)</div>
+      <div class="opt-li">KORUS 등 다국 FTA 확장</div>
+      <div class="opt-foot">전사 컴플라이언스 플랫폼 · 장기</div>
+    </div>
+  </div>
+
+  <!-- COMPARISON MATRIX -->
+  <div class="sec-title">Option Evaluation <span class="st-ko">옵션 비교 평가 매트릭스</span></div>
+  <table class="matrix">
+    <thead><tr>
+      <th style="width:150px;">평가 항목 · Criteria</th>
+      <th class="opt-h" style="color:#2563eb;">A · Repository</th>
+      <th class="opt-h" style="color:#7c3aed;">B · Origin Mgmt</th>
+      <th class="opt-h" style="color:#6366f1;">C · Platform</th>
+    </tr></thead>
+    <tbody>
+      <tr><td class="rowh">구축 난이도 · Difficulty</td><td class="c"><span class="lvl lvl-lo">낮음</span></td><td class="c"><span class="lvl lvl-mid">중간</span></td><td class="c"><span class="lvl lvl-hi">높음</span></td></tr>
+      <tr><td class="rowh">개발 규모 · Dev Size</td><td class="c"><span class="lvl lvl-lo">소 (S)</span></td><td class="c"><span class="lvl lvl-mid">중 (M)</span></td><td class="c"><span class="lvl lvl-hi">대 (L)</span></td></tr>
+      <tr><td class="rowh">비용 수준 · Cost</td><td class="c"><span class="lvl lvl-n">$</span></td><td class="c"><span class="lvl lvl-n">$$</span></td><td class="c"><span class="lvl lvl-n">$$$$</span></td></tr>
+      <tr><td class="rowh">운영 복잡도 · Ops</td><td class="c"><span class="lvl lvl-lo">낮음</span></td><td class="c"><span class="lvl lvl-mid">중간</span></td><td class="c"><span class="lvl lvl-hi">높음</span></td></tr>
+      <tr><td class="rowh">커버 범위 · Coverage</td><td class="c">문서 관리</td><td class="c">원산지 + 문서</td><td class="c">전사 컴플라이언스</td></tr>
+      <tr><td class="rowh">권장 적용 시점 · When</td><td class="c"><b style="color:#2563eb;">Phase 1</b></td><td class="c"><b style="color:#7c3aed;">Phase 2–3</b></td><td class="c"><b style="color:#6366f1;">Phase 4 / 장기</b></td></tr>
+    </tbody>
+  </table>
+  <div class="note">핵심 시사점: A→B→C로 갈수록 가치는 커지나 난이도·비용·리스크가 급증 — 단계적 접근이 합리적.</div>
+
+  <!-- RECOMMENDATION -->
+  <div class="sec-title">Recommendation <span class="st-ko">권고 — "USMCA Compliance Management"부터 시작</span></div>
+  <div class="rec-box">
+    FTA-PASS 전체 기능을 목표로 하지 않습니다. 가장 시급·명확한 USMCA 대응을 중심으로 <b>Option A → B를 단계적으로 추진</b>할 것을 권고합니다. 법인은 문서·라벨까지 직접(빠른 ROI), 원산지 통합·전사 연계·자동 판정(RVC)은 본사/전사 과제로 분리·후속 추진합니다.
+  </div>
+  <div class="reason-grid">
+    <div class="reason"><div class="reason-n">1</div><div class="reason-t">요구사항 미정의</div><div class="reason-d">전체를 한 번에 구축하는 Big-bang은 재작업·예산 초과 리스크가 큼.</div></div>
+    <div class="reason"><div class="reason-n">2</div><div class="reason-t">USMCA가 최우선 동인</div><div class="reason-d">관세 추징·특혜 배제 리스크가 직접적이고 측정 가능.</div></div>
+    <div class="reason"><div class="reason-n">3</div><div class="reason-t">빠른 ROI</div><div class="reason-d">감사 대응 시간 단축·만료 누락 방지는 초기 단계에서 즉시 효과.</div></div>
+    <div class="reason"><div class="reason-n">4</div><div class="reason-t">데이터 정합성 선행</div><div class="reason-d">ERP/BOM 연계·자동 판정은 표준 데이터 모델 확보 후 안전하게 확장.</div></div>
+    <div class="reason"><div class="reason-n">5</div><div class="reason-t">확장성 보장</div><div class="reason-d">KORUS 등 타 FTA는 동일 데이터 기반 위에 모듈로 추가.</div></div>
+  </div>
+
+  <!-- ROADMAP -->
+  <div class="sec-title">Phased Roadmap <span class="st-ko">단계별 추진 로드맵 (Phase 1 – 4)</span></div>
+  <div class="road">
+    <div class="road-card" style="--c:#2563eb">
+      <div class="road-p">P1</div><div class="road-t">Document &amp; Evidence</div><div class="road-tko">문서 · 증빙 관리</div>
+      <div class="road-li">중앙 Repository 구축</div><div class="road-li">Supplier Certificate</div><div class="road-li">만료 알림 · 승인 W/F</div>
+      <div class="road-owner owner-법인">법인 직접</div>
+    </div>
+    <div class="road-card" style="--c:#7c3aed">
+      <div class="road-p">P2</div><div class="road-t">Label</div><div class="road-tko">라벨 관리</div>
+      <div class="road-li">COO 원산지 라벨 발행</div><div class="road-li">OEM 양식별 템플릿</div><div class="road-li">발행 이력 관리</div>
+      <div class="road-owner owner-법인">법인 직접</div>
+    </div>
+    <div class="road-card" style="--c:#0891b2">
+      <div class="road-p">P3</div><div class="road-t">Origin Integration</div><div class="road-tko">원산지 통합관리</div>
+      <div class="road-li">COO · Country Tracking</div><div class="road-li">원산지 변경 이력</div><div class="road-li">판정 근거 BOM 연계</div>
+      <div class="road-owner owner-전사">전사 / 본사</div>
+    </div>
+    <div class="road-card" style="--c:#6366f1">
+      <div class="road-p">P4</div><div class="road-t">Enterprise &amp; Auto</div><div class="road-tko">전사 연계 · 자동화</div>
+      <div class="road-li">SAP · BOM · Supplier 연계</div><div class="road-li">자동 원산지 판정(RVC)</div><div class="road-li">다국 FTA 확장</div>
+      <div class="road-owner owner-전사">전사 / 본사</div>
+    </div>
+  </div>
+
+  <!-- TECH STACK -->
+  <div class="sec-title">Proposed Tech Stack <span class="st-ko">제안 기술 스택 (기존 AMES .NET 생태계 정합)</span></div>
+  <div class="tech-grid">
+    <div class="tech" style="--c:#2563eb"><div class="tech-l">Web · UI</div><div class="tech-v">Blazor / ASP.NET Core</div><div class="tech-d">관리자·실무자 Web 화면. 반응형 그리드·드로어·대시보드.</div><div class="tech-chips"><span class="tech-chip">.NET 8</span><span class="tech-chip">Blazor</span><span class="tech-chip">Bootstrap</span></div></div>
+    <div class="tech" style="--c:#6366f1"><div class="tech-l">API</div><div class="tech-v">.NET Web API (REST)</div><div class="tech-d">Bearer 인증 게이트. 모듈별 엔드포인트. AMES API 패턴 재사용.</div><div class="tech-chips"><span class="tech-chip">REST</span><span class="tech-chip">JWT/Bearer</span><span class="tech-chip">OpenAPI</span></div></div>
+    <div class="tech" style="--c:#dc2626"><div class="tech-l">Database</div><div class="tech-v">MS SQL Server</div><div class="tech-d">증빙 메타·원산지·BOM·이력. MS_Description 컬럼 주석 체계.</div><div class="tech-chips"><span class="tech-chip">MSSQL</span><span class="tech-chip">EF Core</span></div></div>
+    <div class="tech" style="--c:#d97706"><div class="tech-l">Document Store</div><div class="tech-v">Blob / File Storage</div><div class="tech-d">증빙 원본(PDF/이미지) 저장. 버전·불변 보존. 바이러스 스캔.</div><div class="tech-chips"><span class="tech-chip">Blob</span><span class="tech-chip">버전관리</span></div></div>
+    <div class="tech" style="--c:#7c3aed"><div class="tech-l">Auth · RBAC</div><div class="tech-v">AD / SSO + 역할기반</div><div class="tech-d">DOC.View/Edit/Approve 등 권한. 사내 계정 연동.</div><div class="tech-chips"><span class="tech-chip">SSO</span><span class="tech-chip">RBAC</span></div></div>
+    <div class="tech" style="--c:#0891b2"><div class="tech-l">Integration</div><div class="tech-v">SAP · SCM Connector</div><div class="tech-d">BOM·Supplier Master 동기화(Phase 4). 정합성 검증.</div><div class="tech-chips"><span class="tech-chip">SAP</span><span class="tech-chip">SCM</span><span class="tech-chip">배치/실시간</span></div></div>
+  </div>
+  <div class="note">※ 제안(Draft) 스택입니다. 기존 AMES(.NET · Blazor · MSSQL) 생태계와 정합하도록 구성했으며, 현업 인터뷰·인프라 표준 확정 후 최종화합니다.</div>
+
+  <div class="foot">
+    <span>USMCA Origin Compliance Management System · UI Design Specification</span>
+    <span>UOCM · VOL.1 · Overview</span>
+  </div>
+
+</div>
+</body>
+</html>

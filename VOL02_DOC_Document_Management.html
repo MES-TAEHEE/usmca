@@ -184,14 +184,14 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
   <a class="sb-link" href="#kpi"><span class="sl-id">KPI</span><div><div class="sl-en">Module KPI</div><div class="sl-ko">핵심 지표</div></div></a>
   <div class="sb-section">Repository · 보관</div>
   <a class="sb-link on" href="#doc01"><span class="sl-id">DOC-01</span><div><div class="sl-en">Certificate Registry</div><div class="sl-ko">증빙 등록·보관</div></div><a class="sb-l3" href="VOL02_DOC01_Certificate_Registry.html" title="L3 상세 설계서" onclick="event.stopPropagation();">📋</a></a>
-  <a class="sb-link" href="#doc02"><span class="sl-id">DOC-02</span><div><div class="sl-en">Certificate Viewer</div><div class="sl-ko">증빙 상세·뷰어</div></div><span class="sb-l3" style="opacity:.4;cursor:default;" title="L3 예정">·</span></a>
+  <a class="sb-link" href="#doc02"><span class="sl-id">DOC-02</span><div><div class="sl-en">Certificate Viewer</div><div class="sl-ko">증빙 상세·뷰어</div></div><a class="sb-l3" href="VOL02_DOC02_Certificate_Viewer.html" title="L3 상세 설계서" onclick="event.stopPropagation();">📋</a></a>
   <div class="sb-section">Expiry · 만료</div>
-  <a class="sb-link" href="#doc03"><span class="sl-id">DOC-03</span><div><div class="sl-en">Expiry Dashboard</div><div class="sl-ko">만료 대시보드·알림</div></div><span class="sb-l3" style="opacity:.4;cursor:default;" title="L3 예정">·</span></a>
+  <a class="sb-link" href="#doc03"><span class="sl-id">DOC-03</span><div><div class="sl-en">Expiry Dashboard</div><div class="sl-ko">만료 대시보드·알림</div></div><a class="sb-l3" href="VOL02_DOC03_Expiry_Dashboard.html" title="L3 상세 설계서" onclick="event.stopPropagation();">📋</a></a>
   <div class="sb-section">Approval · 승인</div>
-  <a class="sb-link" href="#doc04"><span class="sl-id">DOC-04</span><div><div class="sl-en">Approval Workflow</div><div class="sl-ko">승인 워크플로우</div></div><span class="sb-l3" style="opacity:.4;cursor:default;" title="L3 예정">·</span></a>
-  <a class="sb-link" href="#doc05"><span class="sl-id">DOC-05</span><div><div class="sl-en">Version History</div><div class="sl-ko">버전 이력</div></div><span class="sb-l3" style="opacity:.4;cursor:default;" title="L3 예정">·</span></a>
+  <a class="sb-link" href="#doc04"><span class="sl-id">DOC-04</span><div><div class="sl-en">Approval Workflow</div><div class="sl-ko">승인 워크플로우</div></div><a class="sb-l3" href="VOL02_DOC04_Approval_Workflow.html" title="L3 상세 설계서" onclick="event.stopPropagation();">📋</a></a>
+  <a class="sb-link" href="#doc05"><span class="sl-id">DOC-05</span><div><div class="sl-en">Version History</div><div class="sl-ko">버전 이력</div></div><a class="sb-l3" href="VOL02_DOC05_Version_History.html" title="L3 상세 설계서" onclick="event.stopPropagation();">📋</a></a>
   <div class="sb-section">Intake · 수집</div>
-  <a class="sb-link" href="#doc06"><span class="sl-id">DOC-06</span><div><div class="sl-en">Supplier Upload Portal</div><div class="sl-ko">공급사 업로드</div></div><span class="sb-l3" style="opacity:.4;cursor:default;" title="L3 예정">·</span></a>
+  <a class="sb-link" href="#doc06"><span class="sl-id">DOC-06</span><div><div class="sl-en">Supplier Upload Portal</div><div class="sl-ko">공급사 업로드</div></div><a class="sb-l3" href="VOL02_DOC06_Supplier_Upload_Portal.html" title="L3 상세 설계서" onclick="event.stopPropagation();">📋</a></a>
   <div class="sb-sep"></div>
   <div class="sb-section">Reference · 참조</div>
   <a class="sb-link" href="#ref-types"><span class="sl-id">TYPE</span><div><div class="sl-en">Certificate Types</div><div class="sl-ko">증빙 유형</div></div></a>
@@ -210,7 +210,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
       </div>
       <div class="mod-meta-strip">
         <div class="mms-item"><div class="mms-l">Screens</div><div class="mms-v">6</div></div>
-        <div class="mms-item"><div class="mms-l">L3 Done</div><div class="mms-v">1 (DOC-01)</div></div>
+        <div class="mms-item"><div class="mms-l">L3 Done</div><div class="mms-v">6 / 6</div></div>
         <div class="mms-item"><div class="mms-l">Expiry Alert</div><div class="mms-v warn">4-Tier</div></div>
         <div class="mms-item"><div class="mms-l">Approval</div><div class="mms-v">Multi-step</div></div>
         <div class="mms-item"><div class="mms-l">Versioning</div><div class="mms-v">Full</div></div>
@@ -219,11 +219,11 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
       <div><span class="l3-hint">📋 각 화면 카드 / 사이드바 아이콘 클릭 시 L3 상세 설계서</span></div>
       <div class="screen-pills">
         <a class="sp" href="VOL02_DOC01_Certificate_Registry.html" title="L3 상세 · DOC-01"><span class="sp-id">DOC-01</span> Certificate Registry <span style="opacity:.5;font-size:8px;">📋</span></a>
-        <span class="sp"><span class="sp-id">DOC-02</span> Certificate Viewer</span>
-        <span class="sp"><span class="sp-id">DOC-03</span> Expiry Dashboard</span>
-        <span class="sp"><span class="sp-id">DOC-04</span> Approval Workflow</span>
-        <span class="sp"><span class="sp-id">DOC-05</span> Version History</span>
-        <span class="sp"><span class="sp-id">DOC-06</span> Supplier Upload</span>
+        <a class="sp" href="VOL02_DOC02_Certificate_Viewer.html" title="L3 상세 · DOC-02"><span class="sp-id">DOC-02</span> Certificate Viewer <span style="opacity:.5;font-size:8px;">📋</span></a>
+        <a class="sp" href="VOL02_DOC03_Expiry_Dashboard.html" title="L3 상세 · DOC-03"><span class="sp-id">DOC-03</span> Expiry Dashboard <span style="opacity:.5;font-size:8px;">📋</span></a>
+        <a class="sp" href="VOL02_DOC04_Approval_Workflow.html" title="L3 상세 · DOC-04"><span class="sp-id">DOC-04</span> Approval Workflow <span style="opacity:.5;font-size:8px;">📋</span></a>
+        <a class="sp" href="VOL02_DOC05_Version_History.html" title="L3 상세 · DOC-05"><span class="sp-id">DOC-05</span> Version History <span style="opacity:.5;font-size:8px;">📋</span></a>
+        <a class="sp" href="VOL02_DOC06_Supplier_Upload_Portal.html" title="L3 상세 · DOC-06"><span class="sp-id">DOC-06</span> Supplier Upload <span style="opacity:.5;font-size:8px;">📋</span></a>
       </div>
     </div>
   </div>
@@ -346,7 +346,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
           </div>
         </div>
         <div class="sc-tags"><span class="tag t-web">🖥 Web PC</span><span class="tag t-p1">Phase 1</span></div>
-        <span class="sc-l3-btn" style="opacity:.45;background:#cbd5e1;color:#475569;border-color:#cbd5e1;box-shadow:none;cursor:default;">L3 예정</span>
+        <a class="sc-l3-btn" href="VOL02_DOC02_Certificate_Viewer.html" title="View L3 detailed spec">📋 L3 Detail →</a>
       </div>
       <div class="sc-body">
         <div class="headline">
@@ -373,7 +373,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
           </div>
         </div>
         <div class="sc-tags"><span class="tag t-web">🖥 Web PC</span><span class="tag t-core">⚙ Core</span></div>
-        <span class="sc-l3-btn" style="opacity:.45;background:#cbd5e1;color:#475569;border-color:#cbd5e1;box-shadow:none;cursor:default;">L3 예정</span>
+        <a class="sc-l3-btn" href="VOL02_DOC03_Expiry_Dashboard.html" title="View L3 detailed spec">📋 L3 Detail →</a>
       </div>
       <div class="sc-body">
         <div class="headline">
@@ -400,7 +400,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
           </div>
         </div>
         <div class="sc-tags"><span class="tag t-web">🖥 Web PC</span><span class="tag t-p1">Phase 1</span></div>
-        <span class="sc-l3-btn" style="opacity:.45;background:#cbd5e1;color:#475569;border-color:#cbd5e1;box-shadow:none;cursor:default;">L3 예정</span>
+        <a class="sc-l3-btn" href="VOL02_DOC04_Approval_Workflow.html" title="View L3 detailed spec">📋 L3 Detail →</a>
       </div>
       <div class="sc-body">
         <div class="headline">
@@ -427,7 +427,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
           </div>
         </div>
         <div class="sc-tags"><span class="tag t-web">🖥 Web PC</span><span class="tag t-p1">Phase 1</span></div>
-        <span class="sc-l3-btn" style="opacity:.45;background:#cbd5e1;color:#475569;border-color:#cbd5e1;box-shadow:none;cursor:default;">L3 예정</span>
+        <a class="sc-l3-btn" href="VOL02_DOC05_Version_History.html" title="View L3 detailed spec">📋 L3 Detail →</a>
       </div>
       <div class="sc-body">
         <div class="headline">
@@ -454,7 +454,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
           </div>
         </div>
         <div class="sc-tags"><span class="tag t-portal">🌐 Portal</span><span class="tag t-p1">Phase 1</span></div>
-        <span class="sc-l3-btn" style="opacity:.45;background:#cbd5e1;color:#475569;border-color:#cbd5e1;box-shadow:none;cursor:default;">L3 예정</span>
+        <a class="sc-l3-btn" href="VOL02_DOC06_Supplier_Upload_Portal.html" title="View L3 detailed spec">📋 L3 Detail →</a>
       </div>
       <div class="sc-body">
         <div class="headline">

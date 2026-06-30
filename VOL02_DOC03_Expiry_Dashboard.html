@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>UOCM · VOL.2 · DOC-01 · Certificate Registry · 상세 설계서</title>
+<title>UOCM · VOL.2 · DOC-03 · Expiry Dashboard · 상세 설계서</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;600;700&family=Bebas+Neue&display=swap');
 :root{
@@ -135,20 +135,27 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
 .b{display:inline-block;font-size:9px;font-weight:700;padding:2px 7px;border-radius:8px;}
 .b-ok{background:#dcfce7;color:#166534;}.b-w{background:#fef9c3;color:#92400e;}.b-e{background:#fee2e2;color:#991b1b;}.b-i{background:#dbeafe;color:#1e40af;}.b-n{background:#f1f5f9;color:#475569;}
 
-/* DRAWER FORM MOCK */
-.drawer{background:#fff;border:1px solid var(--border);border-radius:6px;overflow:hidden;box-shadow:0 6px 24px rgba(0,0,0,.1);}
-.drawer-h{background:linear-gradient(135deg,#0e2148,#1d4ed8);color:#fff;padding:11px 16px;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:space-between;}
-.drawer-h .x{opacity:.6;}
-.drawer-b{padding:16px;display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-.fld{display:flex;flex-direction:column;gap:4px;}
-.fld.full{grid-column:1/3;}
-.fld-l{font-size:10px;font-weight:700;color:var(--sub);}
-.fld-l .req{color:#dc2626;}
-.fld-in{border:1px solid var(--border);border-radius:4px;padding:7px 10px;font-size:11px;color:var(--text);background:#fff;}
-.fld-in.ph{color:#9aa7b5;}
-.drop{grid-column:1/3;border:2px dashed #93c5fd;border-radius:8px;background:#eff6ff;padding:22px;text-align:center;color:#1e40af;}
-.drop .di{font-size:30px;}
-.drawer-f{border-top:1px solid var(--border);padding:12px 16px;display:flex;justify-content:flex-end;gap:8px;background:#f6f8fa;}
+/* BUCKET BOARD */
+.bb-wrap{display:flex;gap:10px;margin-bottom:14px;}
+.bb-col{flex:1;border:1px solid var(--border);border-radius:6px;background:#fafbfc;overflow:hidden;min-width:0;}
+.bb-col.warn{background:#fffbeb;border-color:#fde68a;}
+.bb-col.urgent{background:#fef2f2;border-color:#fecaca;}
+.bb-col.exp{background:#f0fdf4;border-color:#bbf7d0;}
+.bb-h{padding:8px 11px;font-size:10px;font-weight:700;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.bb-col .bb-h{color:#1e40af;}
+.bb-col.warn .bb-h{color:#92400e;border-color:#fde68a;}
+.bb-col.urgent .bb-h{color:#991b1b;border-color:#fecaca;}
+.bb-col.exp .bb-h{color:#166534;border-color:#bbf7d0;}
+.bb-h .cnt{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:900;}
+.bb-body{padding:8px;display:flex;flex-direction:column;gap:7px;min-height:60px;}
+.bb-card{background:#fff;border:1px solid var(--border);border-radius:4px;padding:7px 9px;cursor:pointer;transition:box-shadow .12s;}
+.bb-card:hover{box-shadow:0 2px 8px rgba(0,0,0,.08);}
+.bb-card .cn{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;color:var(--text);}
+.bb-card .sp{font-size:9px;color:var(--sub);margin-top:1px;}
+.bb-card .meta{display:flex;align-items:center;justify-content:space-between;margin-top:5px;}
+.bb-card .dd{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;}
+.bb-card .ow{font-size:8px;color:var(--sub);}
+.bb-empty{font-size:9px;color:var(--sub);text-align:center;padding:14px 0;font-style:italic;}
 
 /* COMPONENT SPEC */
 .cs-tbl{width:100%;border-collapse:collapse;font-size:11px;background:var(--surface);border:1px solid var(--border);border-radius:6px;overflow:hidden;}
@@ -243,7 +250,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
 .page-footer .pf-l{font-family:'JetBrains Mono',monospace;letter-spacing:.5px;}
 .page-footer .pf-r{color:#047857;font-family:'JetBrains Mono',monospace;}
 
-@media(max-width:1100px){.ov-grid{grid-template-columns:1fr;}.exc-grid{grid-template-columns:1fr;}.drawer-b{grid-template-columns:1fr;}.fld.full,.drop{grid-column:auto;}.scr-id-block{flex-direction:column;align-items:flex-start;gap:6px;}.scr-id{font-size:42px;}.scr-title-en{font-size:32px;}}
+@media(max-width:1100px){.ov-grid{grid-template-columns:1fr;}.exc-grid{grid-template-columns:1fr;}.bb-wrap{flex-wrap:wrap;}.bb-col{flex:1 1 45%;}.scr-id-block{flex-direction:column;align-items:flex-start;gap:6px;}.scr-id{font-size:42px;}.scr-title-en{font-size:32px;}}
 </style>
 </head>
 <body>
@@ -264,7 +271,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
   <span class="arr">▸</span>
   <span class="lvl">L2</span><a href="VOL02_DOC_Document_Management.html">VOL.2 · DOC Document</a>
   <span class="arr">▸</span>
-  <span class="lvl">L3</span><span class="current">DOC-01 · Certificate Registry</span>
+  <span class="lvl">L3</span><span class="current">DOC-03 · Expiry Dashboard</span>
 </div>
 
 <div class="page-wrap">
@@ -275,9 +282,9 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
     <div class="sb-mod-ko">증빙 문서 관리</div>
   </div>
   <div class="sb-section">L3 Screens · 화면 상세</div>
-  <a class="sb-link on" href="VOL02_DOC01_Certificate_Registry.html"><span class="sl-id">DOC-01</span><div><div class="sl-en">Certificate Registry</div><div class="sl-ko">증빙 등록·보관</div></div></a>
+  <a class="sb-link" href="VOL02_DOC01_Certificate_Registry.html"><span class="sl-id">DOC-01</span><div><div class="sl-en">Certificate Registry</div><div class="sl-ko">증빙 등록·보관</div></div></a>
   <a class="sb-link" href="VOL02_DOC02_Certificate_Viewer.html"><span class="sl-id">DOC-02</span><div><div class="sl-en">Certificate Viewer</div><div class="sl-ko">증빙 상세·뷰어</div></div></a>
-  <a class="sb-link" href="VOL02_DOC03_Expiry_Dashboard.html"><span class="sl-id">DOC-03</span><div><div class="sl-en">Expiry Dashboard</div><div class="sl-ko">만료 대시보드</div></div></a>
+  <a class="sb-link on" href="VOL02_DOC03_Expiry_Dashboard.html"><span class="sl-id">DOC-03</span><div><div class="sl-en">Expiry Dashboard</div><div class="sl-ko">만료 대시보드</div></div></a>
   <a class="sb-link" href="VOL02_DOC04_Approval_Workflow.html"><span class="sl-id">DOC-04</span><div><div class="sl-en">Approval Workflow</div><div class="sl-ko">승인 워크플로우</div></div></a>
   <a class="sb-link" href="VOL02_DOC05_Version_History.html"><span class="sl-id">DOC-05</span><div><div class="sl-en">Version History</div><div class="sl-ko">버전 이력</div></div></a>
   <a class="sb-link" href="VOL02_DOC06_Supplier_Upload_Portal.html"><span class="sl-id">DOC-06</span><div><div class="sl-en">Supplier Upload</div><div class="sl-ko">공급사 업로드</div></div></a>
@@ -296,18 +303,18 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
 <div class="main">
   <div class="scr-hdr">
     <div class="scr-hdr-inner">
-      <div class="scr-eyebrow"><span class="dot"></span>VOL.2 · DOC · Document Management · 증빙 등록·중앙 보관</div>
+      <div class="scr-eyebrow"><span class="dot"></span>DOC-03 · ⚙ CORE · 만료 누락 ZERO</div>
       <div class="scr-id-block">
-        <div class="scr-id">DOC-01</div>
-        <div><div class="scr-title-en">Certificate Registry</div></div>
+        <div class="scr-id">DOC-03</div>
+        <div><div class="scr-title-en">Expiry Dashboard &amp; Alerts</div></div>
       </div>
-      <div class="scr-title-ko">증 빙 등 록 · 중 앙 보 관</div>
+      <div class="scr-title-ko">만 료 대 시 보 드 · 알 림</div>
       <div class="scr-meta">
         <div class="meta-chip web"><span class="mc-lbl">Device</span><span class="mc-val">🖥 Web PC</span></div>
-        <div class="meta-chip phase"><span class="mc-lbl">Phase</span><span class="mc-val">1 · 법인 직접</span></div>
+        <div class="meta-chip phase"><span class="mc-lbl">Phase</span><span class="mc-val">1 · 법인 직접 (Core)</span></div>
         <div class="meta-chip role"><span class="mc-lbl">Role</span><span class="mc-val">Compliance / Purchasing (DOC.Edit)</span></div>
-        <div class="meta-chip"><span class="mc-lbl">Freq</span><span class="mc-val">상시 · 증빙 수취 시</span></div>
-        <div class="meta-chip"><span class="mc-lbl">URL</span><span class="mc-val" style="font-family:'JetBrains Mono',monospace;">/doc/registry</span></div>
+        <div class="meta-chip"><span class="mc-lbl">Freq</span><span class="mc-val">Daily scan + real-time</span></div>
+        <div class="meta-chip"><span class="mc-lbl">URL</span><span class="mc-val" style="font-family:'JetBrains Mono',monospace;">/doc/expiry</span></div>
       </div>
     </div>
   </div>
@@ -319,88 +326,105 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
     <div class="sec-hdr"><div class="sec-num">01</div><div class="sec-title-wrap"><div class="sec-title-en">Overview</div><div class="sec-title-ko">화면 개요</div></div><div class="sec-line"></div></div>
     <div class="ov-grid">
       <div class="ov-desc">
-        <div class="ov-desc-en">The <strong>Certificate Registry</strong> is the single source of truth for every origin-supporting document. A searchable grid lists all certificates with status color-coding (valid / expiring / expired), and a slide-in drawer registers new documents via <strong>drag-and-drop upload + mandatory metadata</strong>. On save, the system validates required fields (BR-DOC-01), schedules tiered expiry alerts (BR-DOC-03), sets status to <em>Pending Review</em> until approval (BR-DOC-02), and links the certificate to supplier / part / BOM entities for downstream traceability. This screen replaces the scattered email–Excel–shared-drive workflow that today has no single source of truth.</div>
-        <div class="ov-desc-ko"><strong>증빙 등록부</strong>는 모든 원산지 증빙의 단일 진실원천(SoT)입니다. 검색 가능한 그리드가 전 증빙을 상태별 색상(유효/임박/만료)으로 표시하며, 슬라이드 드로어에서 <strong>드래그앤드롭 업로드 + 필수 메타데이터</strong>로 신규 등록합니다. 저장 시 필수항목 검증(BR-DOC-01), 단계별 만료 알림 예약(BR-DOC-03), 승인 전까지 <em>검토중</em> 상태 설정(BR-DOC-02), 공급사·품목·BOM 연결(역추적 기반)을 수행합니다. 이메일·엑셀·공유폴더에 분산된 현행 방식을 대체합니다.</div>
+        <div class="ov-desc-en">The <strong>Expiry Dashboard</strong> is the highest-ROI, mission-critical screen of the DOC module — its single goal is <strong>zero missed expiry</strong>. It buckets every certificate by remaining validity into four tiers (<em>D-90 Notice / D-30 Warn / D-7 Urgent / Expired</em>), pushes tiered notifications to the document owner and procurement, tracks each alert's acknowledgement, and triggers supplier renewal requests routed to <strong>DOC-06</strong>. A daily scheduled scan re-buckets all certificates and a real-time recalculation fires on every new registration (BR-DOC-03). When a certificate expires it is flagged <em>Expired</em> and blocks label issuance downstream (BR-DOC-04), so the dashboard is the operational front line that prevents non-compliant shipments.</div>
+        <div class="ov-desc-ko"><strong>만료 대시보드</strong>는 DOC 모듈에서 ROI가 가장 높은 핵심 화면으로, 목표는 단 하나 — <strong>만료 누락 ZERO</strong>입니다. 모든 증빙을 잔여 유효기간 기준 4단계(<em>D-90 안내 / D-30 경고 / D-7 긴급 / 만료</em>)로 분류하고, 담당자·구매팀에 단계별 알림을 발송하며, 알림 확인(Ack)을 추적하고, 공급사 갱신 요청을 <strong>DOC-06</strong>으로 라우팅합니다. 매일 예약 스캔으로 전 증빙을 재분류하고, 신규 등록 시 실시간 재계산이 동작합니다(BR-DOC-03). 만료된 증빙은 <em>만료</em> 표시되어 하위 라벨 발행을 차단(BR-DOC-04)하므로, 이 대시보드는 비적합 출하를 막는 운영 최전선입니다.</div>
       </div>
       <div class="ov-meta">
-        <div class="ov-meta-row"><div class="ov-meta-k">Screen ID</div><div class="ov-meta-v"><code>DOC-01</code></div></div>
-        <div class="ov-meta-row"><div class="ov-meta-k">Entry</div><div class="ov-meta-v">메인 메뉴 · DOC-06 라우팅 <span class="ko">업로드 후 자동</span></div></div>
-        <div class="ov-meta-row"><div class="ov-meta-k">Layout</div><div class="ov-meta-v">Grid + Slide Drawer <span class="ko">그리드 + 드로어</span></div></div>
-        <div class="ov-meta-row"><div class="ov-meta-k">Storage</div><div class="ov-meta-v">Blob/File store + 메타 DB</div></div>
-        <div class="ov-meta-row"><div class="ov-meta-k">Tables</div><div class="ov-meta-v"><code>doc_certificate</code>, <code>doc_file</code>, <code>md_supplier</code></div></div>
+        <div class="ov-meta-row"><div class="ov-meta-k">Screen ID</div><div class="ov-meta-v"><code>DOC-03</code></div></div>
+        <div class="ov-meta-row"><div class="ov-meta-k">Entry</div><div class="ov-meta-v">메인 메뉴 · 알림 클릭 진입 <span class="ko">D-day 알림 링크</span></div></div>
+        <div class="ov-meta-row"><div class="ov-meta-k">Layout</div><div class="ov-meta-v">KPI + Bucket Board + Grid <span class="ko">티어 보드</span></div></div>
+        <div class="ov-meta-row"><div class="ov-meta-k">Trigger</div><div class="ov-meta-v">Daily scan + 등록 시 실시간</div></div>
+        <div class="ov-meta-row"><div class="ov-meta-k">Tables</div><div class="ov-meta-v"><code>doc_certificate</code>, <code>doc_alert</code>, <code>md_supplier</code></div></div>
         <div class="ov-meta-row"><div class="ov-meta-k">RBAC</div><div class="ov-meta-v"><code>DOC.View</code> / <code>DOC.Edit</code></div></div>
-        <div class="ov-meta-row"><div class="ov-meta-k">Export</div><div class="ov-meta-v">Excel · 감사용 목록</div></div>
+        <div class="ov-meta-row"><div class="ov-meta-k">Goal</div><div class="ov-meta-v">만료 누락 ZERO · 100% Ack</div></div>
       </div>
     </div>
   </section>
 
   <!-- 2. SCREEN MOCKUP -->
   <section class="sec" id="s2">
-    <div class="sec-hdr"><div class="sec-num">02</div><div class="sec-title-wrap"><div class="sec-title-en">Screen Mockup</div><div class="sec-title-ko">화면 목업 — Web 그리드 + 등록 드로어</div></div><div class="sec-line"></div></div>
+    <div class="sec-hdr"><div class="sec-num">02</div><div class="sec-title-wrap"><div class="sec-title-en">Screen Mockup</div><div class="sec-title-ko">화면 목업 — Web 티어 보드 + 만료 임박 목록</div></div><div class="sec-line"></div></div>
 
     <div class="mock-wrap">
-      <div class="mock-lbl">DOC-01 · Certificate Registry · Main Grid</div>
+      <div class="mock-lbl">DOC-03 · Expiry Dashboard · Tier Board</div>
       <div class="mock-win">
-        <div class="mock-tbar"><span class="dots"><span></span><span></span><span></span></span> UOCM — Certificate Registry <span class="bc">/doc/registry</span></div>
+        <div class="mock-tbar"><span class="dots"><span></span><span></span><span></span></span> UOCM — Expiry Dashboard <span class="bc">/doc/expiry</span></div>
         <div class="mock-toolbar">
           <select><option>공급사 · All Suppliers</option></select>
-          <select><option>원산지국 · All Origin</option></select>
           <select><option>유형 · All Types</option></select>
-          <select><option>상태 · All Status</option></select>
-          <input placeholder="🔍 인증서번호 · 품목 검색" style="min-width:180px;">
+          <select><option>담당자 · All Owners</option></select>
+          <input placeholder="🔍 인증서번호 · 공급사 검색" style="min-width:170px;">
           <span style="flex:1;"></span>
+          <button class="mbtn mbtn-ghost">⚙ 알림 설정</button>
           <button class="mbtn mbtn-ghost">⤓ Excel</button>
-          <button class="mbtn mbtn-pri">＋ 증빙 등록</button>
         </div>
         <div class="mock-body">
           <div class="kpi-strip">
-            <div class="kc"><div class="kv" style="color:#2563eb;">248</div><div class="kl">Active · 유효</div></div>
-            <div class="kc"><div class="kv" style="color:#a16207;">12</div><div class="kl">Expiring ≤30d · 임박</div></div>
-            <div class="kc"><div class="kv" style="color:#dc2626;">0</div><div class="kl">Expired · 만료</div></div>
-            <div class="kc"><div class="kv" style="color:#7c3aed;">5</div><div class="kl">Pending · 검토중</div></div>
-            <div class="kc"><div class="kv" style="color:#16a34a;">100%</div><div class="kl">SoT Coverage</div></div>
+            <div class="kc"><div class="kv" style="color:#2563eb;">18</div><div class="kl">D-90 Notice · 안내</div></div>
+            <div class="kc"><div class="kv" style="color:#a16207;">12</div><div class="kl">D-30 Warn · 경고</div></div>
+            <div class="kc"><div class="kv" style="color:#dc2626;">3</div><div class="kl">D-7 Urgent · 긴급</div></div>
+            <div class="kc"><div class="kv" style="color:#16a34a;">0</div><div class="kl">Expired · 만료</div></div>
+            <div class="kc"><div class="kv" style="color:#7c3aed;">7</div><div class="kl">Ack Pending · 확인대기</div></div>
           </div>
+
+          <div class="bb-wrap">
+            <div class="bb-col">
+              <div class="bb-h"><span>D-90 NOTICE · 안내</span><span class="cnt">18</span></div>
+              <div class="bb-body">
+                <div class="bb-card"><div class="cn">USMCA-25-0412</div><div class="sp">현대원단 (Hyundai Fabric)</div><div class="meta"><span class="dd" style="color:#16a34a;">D-86</span><span class="ow">@K.Park</span></div></div>
+                <div class="bb-card"><div class="cn">COO-25-1180</div><div class="sp">대성금속 (Daesung Metal)</div><div class="meta"><span class="dd" style="color:#16a34a;">D-77</span><span class="ow">@S.Lee</span></div></div>
+                <div class="bb-card"><div class="cn">MILL-25-0330</div><div class="sp">한라소재 (Halla Mat'l)</div><div class="meta"><span class="dd" style="color:#16a34a;">D-61</span><span class="ow">@J.Kim</span></div></div>
+              </div>
+            </div>
+            <div class="bb-col warn">
+              <div class="bb-h"><span>D-30 WARN · 경고</span><span class="cnt">12</span></div>
+              <div class="bb-body">
+                <div class="bb-card"><div class="cn">AFFID-25-0903</div><div class="sp">JS Components</div><div class="meta"><span class="dd" style="color:#a16207;">D-22</span><span class="ow">@K.Park</span></div></div>
+                <div class="bb-card"><div class="cn">COO-25-0855</div><div class="sp">신성정밀 (Shinsung)</div><div class="meta"><span class="dd" style="color:#a16207;">D-18</span><span class="ow">@S.Lee</span></div></div>
+                <div class="bb-card"><div class="cn">USMCA-25-0220</div><div class="sp">대성금속 (Daesung Metal)</div><div class="meta"><span class="dd" style="color:#a16207;">D-11</span><span class="ow">@J.Kim</span></div></div>
+              </div>
+            </div>
+            <div class="bb-col urgent">
+              <div class="bb-h"><span>D-7 URGENT · 긴급</span><span class="cnt">3</span></div>
+              <div class="bb-body">
+                <div class="bb-card"><div class="cn">USMCA-24-0771</div><div class="sp">한라소재 (Halla Mat'l)</div><div class="meta"><span class="dd" style="color:#dc2626;">D-6</span><span class="ow">@K.Park</span></div></div>
+                <div class="bb-card"><div class="cn">COO-24-2099</div><div class="sp">JS Components</div><div class="meta"><span class="dd" style="color:#dc2626;">D-3</span><span class="ow">@S.Lee</span></div></div>
+                <div class="bb-card"><div class="cn">AFFID-24-1140</div><div class="sp">신성정밀 (Shinsung)</div><div class="meta"><span class="dd" style="color:#dc2626;">D-1</span><span class="ow">@J.Kim</span></div></div>
+              </div>
+            </div>
+            <div class="bb-col exp">
+              <div class="bb-h"><span>EXPIRED · 만료</span><span class="cnt">0</span></div>
+              <div class="bb-body">
+                <div class="bb-empty">✓ 만료 증빙 없음<br>No expired certificates</div>
+              </div>
+            </div>
+          </div>
+
           <table class="tbl">
             <thead><tr>
-              <th style="width:120px;">Cert No.<span class="th-ko">인증서번호</span></th>
+              <th style="width:118px;">Cert No.<span class="th-ko">인증서번호</span></th>
               <th>Supplier<span class="th-ko">공급사</span></th>
-              <th>Part / Scope<span class="th-ko">품목/범위</span></th>
-              <th style="width:60px;">Origin<span class="th-ko">원산지</span></th>
               <th style="width:64px;">Type<span class="th-ko">유형</span></th>
               <th style="width:84px;">Expiry<span class="th-ko">만료일</span></th>
-              <th style="width:64px;">D-Day</th>
-              <th style="width:90px;">Status<span class="th-ko">상태</span></th>
+              <th style="width:60px;">D-Day</th>
+              <th style="width:78px;">Owner<span class="th-ko">담당자</span></th>
+              <th style="width:86px;">Ack<span class="th-ko">확인</span></th>
+              <th style="width:84px;">Action</th>
             </tr></thead>
             <tbody>
-              <tr class="rok"><td class="mono">USMCA-25-0412</td><td>현대원단 (Hyundai Fabric)</td><td>FAB-GY-C03 외 4</td><td>🇺🇸 US</td><td><span class="b b-i">USMCA</span></td><td class="mono">2026-12-31</td><td class="mono" style="color:#16a34a;">D-184</td><td><span class="b b-ok">유효</span></td></tr>
-              <tr class="rok"><td class="mono">COO-25-1180</td><td>대성금속 (Daesung Metal)</td><td>BRK-STL-09</td><td>🇲🇽 MX</td><td><span class="b b-i">COO</span></td><td class="mono">2026-09-15</td><td class="mono" style="color:#16a34a;">D-77</td><td><span class="b b-ok">유효</span></td></tr>
-              <tr class="rw"><td class="mono">AFFID-25-0903</td><td>JS Components</td><td>CONN-PA66-12</td><td>🇨🇳 CN</td><td><span class="b b-n">AFFID</span></td><td class="mono">2026-07-22</td><td class="mono" style="color:#a16207;">D-22</td><td><span class="b b-w">임박</span></td></tr>
-              <tr class="rw"><td class="mono">USMCA-24-0771</td><td>한라소재 (Halla Mat'l)</td><td>SEAL-EPDM-04</td><td>🇺🇸 US</td><td><span class="b b-i">USMCA</span></td><td class="mono">2026-07-08</td><td class="mono" style="color:#dc2626;">D-8</td><td><span class="b b-w">긴급</span></td></tr>
-              <tr><td class="mono">HTS-25-0044</td><td>대성금속 (Daesung Metal)</td><td>BRK-STL-09</td><td>—</td><td><span class="b b-n">HTS</span></td><td class="mono">상시</td><td class="mono" style="color:#475569;">—</td><td><span class="b b-ok">유효</span></td></tr>
-              <tr><td class="mono">COO-25-1201</td><td>신규공급사 (New Vendor)</td><td>BOLT-M8-22</td><td>🇨🇳 CN</td><td><span class="b b-i">COO</span></td><td class="mono">2027-01-31</td><td class="mono" style="color:#7c3aed;">—</td><td><span class="b b-n" style="background:#f3e8ff;color:#7c3aed;">검토중</span></td></tr>
+              <tr class="rd"><td class="mono">AFFID-24-1140</td><td>신성정밀 (Shinsung)</td><td><span class="b b-n">AFFID</span></td><td class="mono">2026-07-01</td><td class="mono" style="color:#dc2626;">D-1</td><td>@J.Kim</td><td><span class="b b-e">미확인</span></td><td><button class="mbtn mbtn-pri" style="padding:3px 9px;">Remind</button></td></tr>
+              <tr class="rd"><td class="mono">COO-24-2099</td><td>JS Components</td><td><span class="b b-i">COO</span></td><td class="mono">2026-07-03</td><td class="mono" style="color:#dc2626;">D-3</td><td>@S.Lee</td><td><span class="b b-w">확인대기</span></td><td><button class="mbtn mbtn-pri" style="padding:3px 9px;">Remind</button></td></tr>
+              <tr class="rd"><td class="mono">USMCA-24-0771</td><td>한라소재 (Halla Mat'l)</td><td><span class="b b-i">USMCA</span></td><td class="mono">2026-07-06</td><td class="mono" style="color:#dc2626;">D-6</td><td>@K.Park</td><td><span class="b b-ok">확인됨</span></td><td><button class="mbtn mbtn-sec" style="padding:3px 9px;">Remind</button></td></tr>
+              <tr class="rw"><td class="mono">USMCA-25-0220</td><td>대성금속 (Daesung Metal)</td><td><span class="b b-i">USMCA</span></td><td class="mono">2026-07-11</td><td class="mono" style="color:#a16207;">D-11</td><td>@J.Kim</td><td><span class="b b-w">확인대기</span></td><td><button class="mbtn mbtn-sec" style="padding:3px 9px;">Remind</button></td></tr>
+              <tr class="rw"><td class="mono">COO-25-0855</td><td>신성정밀 (Shinsung)</td><td><span class="b b-i">COO</span></td><td class="mono">2026-07-18</td><td class="mono" style="color:#a16207;">D-18</td><td>@S.Lee</td><td><span class="b b-ok">확인됨</span></td><td><button class="mbtn mbtn-sec" style="padding:3px 9px;">Remind</button></td></tr>
+              <tr class="rw"><td class="mono">AFFID-25-0903</td><td>JS Components</td><td><span class="b b-n">AFFID</span></td><td class="mono">2026-07-22</td><td class="mono" style="color:#a16207;">D-22</td><td>@K.Park</td><td><span class="b b-e">미확인</span></td><td><button class="mbtn mbtn-pri" style="padding:3px 9px;">Remind</button></td></tr>
             </tbody>
           </table>
-          <div style="margin-top:8px;font-size:9px;color:var(--sub);">행 클릭 → DOC-02 뷰어 · 노랑=D-30 임박 · 빨강=D-7 긴급 · 보라=승인 대기</div>
-        </div>
-      </div>
-
-      <div class="mock-lbl" style="margin-top:16px;">DOC-01 · ＋ 증빙 등록 Drawer · Register Drawer</div>
-      <div class="drawer">
-        <div class="drawer-h"><span>＋ 증빙 등록 · Register Certificate</span><span class="x">✕</span></div>
-        <div class="drawer-b">
-          <div class="drop"><div class="di">📤</div><div style="font-weight:700;font-size:12px;margin-top:4px;">PDF · 이미지 드래그 또는 클릭하여 업로드</div><div style="font-size:10px;opacity:.7;margin-top:2px;">Drag &amp; drop or click — PDF, JPG, PNG (≤ 20 MB)</div></div>
-          <div class="fld"><span class="fld-l">인증서번호 <span class="req">*</span></span><span class="fld-in ph">USMCA-25-XXXX</span></div>
-          <div class="fld"><span class="fld-l">증빙 유형 <span class="req">*</span></span><span class="fld-in">USMCA Certification ▾</span></div>
-          <div class="fld"><span class="fld-l">공급사 <span class="req">*</span></span><span class="fld-in">현대원단 (Hyundai Fabric) ▾</span></div>
-          <div class="fld"><span class="fld-l">원산지국 <span class="req">*</span></span><span class="fld-in">🇺🇸 United States ▾</span></div>
-          <div class="fld"><span class="fld-l">발급일 <span class="req">*</span></span><span class="fld-in mono">2026-01-01</span></div>
-          <div class="fld"><span class="fld-l">만료일 <span class="req">*</span></span><span class="fld-in mono">2026-12-31</span></div>
-          <div class="fld full"><span class="fld-l">적용 품목 / 범위 <span class="req">*</span></span><span class="fld-in ph">FAB-GY-C03, FAB-BK-C01 … (품목 검색·다중 선택)</span></div>
-          <div class="fld full"><span class="fld-l">비고 · Note</span><span class="fld-in ph">블랭킷 증명 / 특이사항 입력</span></div>
-        </div>
-        <div class="drawer-f">
-          <button class="mbtn mbtn-sec">취소</button>
-          <button class="mbtn mbtn-pri">저장 후 승인 상신 →</button>
+          <div style="margin-top:8px;font-size:9px;color:var(--sub);display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+            <span>⚙ 알림 티어 설정: D-90 안내 · D-30 경고 · D-7 긴급 · 만료 = 라벨 차단 ·</span>
+            <span>카드/행 클릭 → DOC-02 뷰어 ·</span>
+            <span>[Remind] → DOC-06 공급사 갱신 요청 + 알림 로그</span>
+          </div>
         </div>
       </div>
     </div>
@@ -409,29 +433,17 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
   <!-- 3. UI COMPONENTS -->
   <section class="sec" id="s3">
     <div class="sec-hdr"><div class="sec-num">03</div><div class="sec-title-wrap"><div class="sec-title-en">UI Component Specification</div><div class="sec-title-ko">UI 컴포넌트 명세</div></div><div class="sec-line"></div></div>
-    <h3 style="font-size:12px;font-weight:700;color:var(--sub);margin:6px 0 8px;">3.1 Grid &amp; Toolbar <span style="font-weight:400;">· 목록·툴바</span></h3>
     <table class="cs-tbl">
-      <thead><tr><th style="width:84px;">ID</th><th style="width:170px;">Component <span class="th-ko">컴포넌트</span></th><th style="width:110px;">Type</th><th style="width:50px;">Req</th><th>Validation / Behavior <span class="th-ko">검증·동작</span></th></tr></thead>
+      <thead><tr><th style="width:84px;">ID</th><th style="width:180px;">Component <span class="th-ko">컴포넌트</span></th><th style="width:110px;">Type</th><th style="width:50px;">Req</th><th>Validation / Behavior <span class="th-ko">검증·동작</span></th></tr></thead>
       <tbody>
-        <tr><td class="c-id">CMP-01</td><td class="c-name">Filter Bar<span class="ko">필터 바</span></td><td><span class="c-type">SELECT×4</span></td><td class="c-req n">N</td><td class="c-validation">공급사·원산지국·유형·상태 다중 조합 필터. 서버 사이드 페이징. 선택 즉시 그리드 갱신.</td></tr>
-        <tr><td class="c-id">CMP-02</td><td class="c-name">Search Box<span class="ko">검색</span></td><td><span class="c-type">TEXT</span></td><td class="c-req n">N</td><td class="c-validation">인증서번호·품목코드 부분일치 검색. <code>debounce 300ms</code>.</td></tr>
-        <tr><td class="c-id">CMP-03</td><td class="c-name">Status Grid<span class="ko">상태 그리드</span></td><td><span class="c-type">TABLE</span></td><td class="c-req y">Y</td><td class="c-validation">D-Day 자동 계산. 행 색상: 유효=흰/녹, 임박(≤30d)=노랑, 긴급(≤7d)=빨강, 검토중=보라. 행 클릭 → DOC-02.</td></tr>
-        <tr><td class="c-id">CMP-04</td><td class="c-name">[＋ 증빙 등록]<span class="ko">등록 버튼</span></td><td><span class="c-type">BUTTON</span></td><td class="c-req y">Y</td><td class="c-validation"><code>DOC.Edit</code> 권한 필요. 클릭 시 등록 드로어 오픈. 미권한 시 비활성.</td></tr>
-        <tr><td class="c-id">CMP-05</td><td class="c-name">[Excel Export]<span class="ko">엑셀</span></td><td><span class="c-type">BUTTON</span></td><td class="c-req n">N</td><td class="c-validation">현재 필터 결과를 Excel 출력(감사 목록용). 다운로드 이력 로그(BR-DOC-06).</td></tr>
-      </tbody>
-    </table>
-    <h3 style="font-size:12px;font-weight:700;color:var(--sub);margin:18px 0 8px;">3.2 Register Drawer <span style="font-weight:400;">· 등록 드로어</span></h3>
-    <table class="cs-tbl">
-      <thead><tr><th style="width:84px;">ID</th><th style="width:170px;">Component</th><th style="width:110px;">Type</th><th style="width:50px;">Req</th><th>Validation / Behavior</th></tr></thead>
-      <tbody>
-        <tr><td class="c-id">CMP-06</td><td class="c-name">File Dropzone<span class="ko">파일 업로드</span></td><td><span class="c-type">UPLOAD</span></td><td class="c-req y">Y</td><td class="c-validation">PDF/JPG/PNG, ≤20MB. 드래그앤드롭 + 클릭. 바이러스 스캔. 썸네일 미리보기.</td></tr>
-        <tr><td class="c-id">CMP-07</td><td class="c-name">Cert No.<span class="ko">인증서번호</span></td><td><span class="c-type">TEXT</span></td><td class="c-req y">Y</td><td class="c-validation">필수. 동일 번호 중복 등록 시 경고(갱신은 버전으로 처리, BR-DOC-05).</td></tr>
-        <tr><td class="c-id">CMP-08</td><td class="c-name">Type<span class="ko">증빙 유형</span></td><td><span class="c-type">SELECT</span></td><td class="c-req y">Y</td><td class="c-validation">COO/USMCA/AFFID/HTS/MILL/OEMDOC. 유형별 만료 정책 자동 적용.</td></tr>
-        <tr><td class="c-id">CMP-09</td><td class="c-name">Supplier<span class="ko">공급사</span></td><td><span class="c-type">LOOKUP</span></td><td class="c-req y">Y</td><td class="c-validation">MD Supplier 마스터 조회. 미등록 공급사는 선택 불가(MD 선등록 필요).</td></tr>
-        <tr><td class="c-id">CMP-10</td><td class="c-name">Origin Country<span class="ko">원산지국</span></td><td><span class="c-type">SELECT</span></td><td class="c-req y">Y</td><td class="c-validation">ISO 국가코드. KR/US/MX/CN 우선 노출.</td></tr>
-        <tr><td class="c-id">CMP-11</td><td class="c-name">Issue / Expiry Date<span class="ko">발급/만료일</span></td><td><span class="c-type">DATE×2</span></td><td class="c-req y">Y</td><td class="c-validation">만료일 ≥ 발급일 검증. HTS 등 무기한 유형은 "상시" 허용. 저장 시 D-90/30/7 알림 예약.</td></tr>
-        <tr><td class="c-id">CMP-12</td><td class="c-name">Applied Parts<span class="ko">적용 품목</span></td><td><span class="c-type">MULTI-LOOKUP</span></td><td class="c-req y">Y</td><td class="c-validation">MD Part 다중 선택. 역추적(AUD)·라벨(LBL) 연계 키. 최소 1건 필수.</td></tr>
-        <tr><td class="c-id">CMP-13</td><td class="c-name">[저장 후 상신]<span class="ko">저장·승인</span></td><td><span class="c-type">BUTTON</span></td><td class="c-req y">Y</td><td class="c-validation">필수항목 검증(BR-DOC-01) 통과 시 저장 → 상태 "검토중" → DOC-04 승인 라우팅.</td></tr>
+        <tr><td class="c-id">CMP-01</td><td class="c-name">Tier KPI Cards<span class="ko">티어 KPI</span></td><td><span class="c-type">KPI×5</span></td><td class="c-req y">Y</td><td class="c-validation">D-90 / D-30 / D-7 / Expired / Ack-Pending 실시간 집계. 클릭 시 해당 티어로 그리드 필터. 색상: 안내=청, 경고=황, 긴급=적, 만료=녹(0=정상).</td></tr>
+        <tr><td class="c-id">CMP-02</td><td class="c-name">Bucket Board<span class="ko">티어 보드</span></td><td><span class="c-type">BOARD×4</span></td><td class="c-req y">Y</td><td class="c-validation">D-day 자동 계산으로 4컬럼 자동 분류(드래그 불가, 시스템 산출). 미니카드 클릭 → DOC-02 뷰어. 경고=황 틴트, 긴급=적 틴트.</td></tr>
+        <tr><td class="c-id">CMP-03</td><td class="c-name">Expiring Grid<span class="ko">임박 목록</span></td><td><span class="c-type">TABLE</span></td><td class="c-req y">Y</td><td class="c-validation">D-day 오름차순 정렬. D-Day 색상 코딩. 행 hover 강조. 행 클릭 → DOC-02. <code>debounce 300ms</code> 검색.</td></tr>
+        <tr><td class="c-id">CMP-04</td><td class="c-name">Owner Assignment<span class="ko">담당자 지정</span></td><td><span class="c-type">LOOKUP</span></td><td class="c-req n">N</td><td class="c-validation">증빙별 담당자 지정/변경. 미지정 시 기본=구매팀(EXC-01). 알림 수신 대상 결정.</td></tr>
+        <tr><td class="c-id">CMP-05</td><td class="c-name">[Remind] Button<span class="ko">알림 발송</span></td><td><span class="c-type">BUTTON</span></td><td class="c-req n">N</td><td class="c-validation"><code>DOC.Edit</code> 필요. 클릭 시 담당자+공급사 알림 발송 + DOC-06 갱신 요청 생성 + <code>doc_alert</code> 로그(BR-DOC-06).</td></tr>
+        <tr><td class="c-id">CMP-06</td><td class="c-name">[Ack] Button<span class="ko">확인 처리</span></td><td><span class="c-type">BUTTON</span></td><td class="c-req n">N</td><td class="c-validation">담당자가 알림 확인 처리. 상태 미확인→확인됨 전환, 확인 시각·사용자 기록. 중복 알림 억제(EXC-04).</td></tr>
+        <tr><td class="c-id">CMP-07</td><td class="c-name">Alert-Tier Config<span class="ko">알림 티어 설정</span></td><td><span class="c-type">MODAL</span></td><td class="c-req n">N</td><td class="c-validation">D-90/30/7 임계일·채널(메일/메신저)·수신자 정책 설정. <code>DOC.Edit</code> 한정. 저장 시 재스케줄(BR-DOC-03).</td></tr>
+        <tr><td class="c-id">CMP-08</td><td class="c-name">[Excel Export]<span class="ko">엑셀</span></td><td><span class="c-type">BUTTON</span></td><td class="c-req n">N</td><td class="c-validation">현재 필터 결과(티어·D-day·Ack 상태) Excel 출력. 다운로드 이력 로그(BR-DOC-06).</td></tr>
       </tbody>
     </table>
   </section>
@@ -443,46 +455,55 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
       <div class="ef-step">
         <div class="ef-num">1</div>
         <div>
-          <div class="ef-trig"><span class="ef-trig-tag user">USER</span><span class="ef-trig-name">Click [＋ 증빙 등록]</span></div>
-          <div class="ef-action">사용자가 등록 버튼 클릭. <code>DOC.Edit</code> 권한 확인 후 드로어 오픈.</div>
-          <div class="ef-action-ko">권한 없으면 버튼 비활성 + 툴팁 안내.</div>
-          <div class="ef-result"><span class="er-lbl">RESULT</span>Register Drawer open · 등록 드로어 표시</div>
+          <div class="ef-trig"><span class="ef-trig-tag scheduled">SCHEDULED</span><span class="ef-trig-name">Daily expiry scan</span></div>
+          <div class="ef-action">매일 예약 배치가 전 증빙 만료일을 기준일과 비교, D-day 재계산. 신규 등록 시 실시간 재계산도 병행.</div>
+          <div class="ef-action-ko">스캔 대상: 유효 상태 전 증빙(<code>doc_certificate</code>).</div>
+          <div class="ef-result"><span class="er-lbl">RESULT</span>All certificates re-evaluated · 전수 재평가</div>
         </div>
       </div>
       <div class="ef-step">
         <div class="ef-num">2</div>
         <div>
-          <div class="ef-trig"><span class="ef-trig-tag user">USER</span><span class="ef-trig-name">Upload file + Fill metadata</span></div>
-          <div class="ef-action">파일 드래그앤드롭 + 메타데이터 입력. 업로드 시 바이러스 스캔 + 썸네일 생성.</div>
-          <div class="ef-action-ko">만료일 &lt; 발급일 등 인라인 검증.</div>
-          <div class="ef-result"><span class="er-lbl">RESULT</span>File staged · 임시 저장 + 미리보기</div>
+          <div class="ef-trig"><span class="ef-trig-tag system">SYSTEM</span><span class="ef-trig-name">Bucket by D-day</span></div>
+          <div class="ef-action">D-day 기준 4티어 분류: D-90 안내 / D-30 경고 / D-7 긴급 / 만료. 보드·KPI 갱신.</div>
+          <div class="ef-action-ko">경계값 통과 시 상위 티어로 승격.</div>
+          <div class="ef-result"><span class="er-lbl">RESULT</span>Tiers updated · 티어 재분류 완료</div>
         </div>
       </div>
       <div class="ef-step">
         <div class="ef-num">3</div>
         <div>
-          <div class="ef-trig"><span class="ef-trig-tag user">USER</span><span class="ef-trig-name">Click [저장 후 상신]</span></div>
-          <div class="ef-action">필수항목 검증(BR-DOC-01). 통과 시 <code>doc_certificate</code> insert + 파일 영구 저장.</div>
-          <div class="ef-action-ko">실패 시 누락 필드 빨강 표시 후 중단(→ EXC-01).</div>
-          <div class="ef-result"><span class="er-lbl">RESULT</span>Status = <code>Pending Review</code> · 검토중</div>
+          <div class="ef-trig"><span class="ef-trig-tag system">SYSTEM</span><span class="ef-trig-name">Push tier notifications</span></div>
+          <div class="ef-action">티어별 알림을 담당자 + 구매팀에 발송(BR-DOC-03). <code>doc_alert</code> 기록, 중복 발송 억제.</div>
+          <div class="ef-action-ko">담당자 미지정 시 기본 수신자=구매팀(EXC-01).</div>
+          <div class="ef-result"><span class="er-lbl">RESULT</span>Alerts sent · Ack = <code>Pending</code></div>
         </div>
       </div>
       <div class="ef-step">
         <div class="ef-num">4</div>
         <div>
-          <div class="ef-trig"><span class="ef-trig-tag system">SYSTEM</span><span class="ef-trig-name">Schedule alerts + Route approval</span></div>
-          <div class="ef-action">만료일 기준 D-90/D-30/D-7 알림 예약(BR-DOC-03). DOC-04 승인 워크플로우로 라우팅.</div>
-          <div class="ef-action-ko">품목·공급사·BOM 연결 키 생성(역추적 기반).</div>
-          <div class="ef-result"><span class="er-lbl">RESULT</span>Alerts scheduled · Approval routed</div>
+          <div class="ef-trig"><span class="ef-trig-tag user">USER</span><span class="ef-trig-name">Owner acknowledges + Remind</span></div>
+          <div class="ef-action">담당자가 [Ack]로 알림 확인 → 상태 확인됨. [Remind] 클릭 시 공급사 갱신 요청 발송.</div>
+          <div class="ef-action-ko">확인 시각·사용자 기록(BR-DOC-06).</div>
+          <div class="ef-result"><span class="er-lbl">RESULT</span>Ack logged · Renewal requested</div>
+        </div>
+      </div>
+      <div class="ef-step error">
+        <div class="ef-num">!</div>
+        <div>
+          <div class="ef-trig"><span class="ef-trig-tag system">SYSTEM</span><span class="ef-trig-name">Expired → Block label</span></div>
+          <div class="ef-action">D-day가 0 미만이면 상태 <code>Expired</code> 전환. 해당 증빙 참조 라벨 발행 차단(BR-DOC-04).</div>
+          <div class="ef-action-ko">긴급 에스컬레이션 알림 발송.</div>
+          <div class="ef-result"><span class="er-lbl">BLOCK</span>Label issuance blocked · 라벨 발행 차단</div>
         </div>
       </div>
       <div class="ef-step terminal">
         <div class="ef-num">✓</div>
         <div>
-          <div class="ef-trig"><span class="ef-trig-tag system">SYSTEM</span><span class="ef-trig-name">Approved → Valid in SoT</span></div>
-          <div class="ef-action">DOC-04 승인 완료 시 상태 <code>Valid</code> 전환. 그리드에 유효 증빙으로 노출, LBL/AUD에서 참조 가능.</div>
-          <div class="ef-action-ko">전 과정 감사 로그 기록(BR-DOC-06).</div>
-          <div class="ef-result"><span class="er-lbl">DONE</span>Certificate is now the source of truth · SoT 반영</div>
+          <div class="ef-trig"><span class="ef-trig-tag user">USER</span><span class="ef-trig-name">Renewal → DOC-06</span></div>
+          <div class="ef-action">공급사가 DOC-06 포털에서 갱신 증빙 업로드 → DOC-01 신규 버전 등록 → 만료 티어에서 제거.</div>
+          <div class="ef-action-ko">갱신 완료 시 만료 누락 ZERO 유지.</div>
+          <div class="ef-result"><span class="er-lbl">DONE</span>Certificate renewed · 만료 누락 ZERO 달성</div>
         </div>
       </div>
     </div>
@@ -492,41 +513,41 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
   <section class="sec" id="s5">
     <div class="sec-hdr"><div class="sec-num">05</div><div class="sec-title-wrap"><div class="sec-title-en">Exception Handling</div><div class="sec-title-ko">예외 처리</div></div><div class="sec-line"></div></div>
     <div class="exc-grid">
-      <div class="exc-card">
-        <div class="exc-hdr"><span class="exc-code">EXC-01</span><span class="exc-name">Missing Required Field<span class="ko">필수항목 누락</span></span></div>
-        <div class="exc-row"><span class="lbl">Trigger</span><span class="val">저장 시 필수 메타데이터 누락 (BR-DOC-01).</span></div>
-        <div class="exc-row"><span class="lbl">Action</span><span class="val">저장 차단. 누락 필드 빨강 테두리 + 포커스 이동.</span></div>
-        <div class="exc-msg">필수 항목을 입력하세요 · Required fields missing</div>
-      </div>
-      <div class="exc-card warn">
-        <div class="exc-hdr"><span class="exc-code">EXC-02</span><span class="exc-name">Duplicate Cert No.<span class="ko">인증서번호 중복</span></span></div>
-        <div class="exc-row"><span class="lbl">Trigger</span><span class="val">기존 인증서번호와 동일 번호 등록 시도.</span></div>
-        <div class="exc-row"><span class="lbl">Action</span><span class="val">경고 후 "신규 버전으로 등록" 옵션 제시 (BR-DOC-05).</span></div>
-        <div class="exc-msg">동일 번호 존재 — 버전 갱신으로 처리하시겠습니까?</div>
-      </div>
-      <div class="exc-card warn">
-        <div class="exc-hdr"><span class="exc-code">EXC-03</span><span class="exc-name">Invalid Date Range<span class="ko">유효기간 오류</span></span></div>
-        <div class="exc-row"><span class="lbl">Trigger</span><span class="val">만료일 &lt; 발급일.</span></div>
-        <div class="exc-row"><span class="lbl">Action</span><span class="val">인라인 검증 실패. 저장 비활성.</span></div>
-        <div class="exc-msg">만료일은 발급일 이후여야 합니다</div>
-      </div>
       <div class="exc-card info">
-        <div class="exc-hdr"><span class="exc-code">EXC-04</span><span class="exc-name">Unregistered Supplier<span class="ko">미등록 공급사</span></span></div>
-        <div class="exc-row"><span class="lbl">Trigger</span><span class="val">MD에 없는 공급사 선택 시도.</span></div>
-        <div class="exc-row"><span class="lbl">Action</span><span class="val">선택 불가. MD Supplier 선등록 안내 링크 제공.</span></div>
-        <div class="exc-msg">공급사를 기준정보(MD)에 먼저 등록하세요</div>
+        <div class="exc-hdr"><span class="exc-code">EXC-01</span><span class="exc-name">No Owner Assigned<span class="ko">담당자 미지정</span></span></div>
+        <div class="exc-row"><span class="lbl">Trigger</span><span class="val">증빙에 담당자가 지정되지 않음.</span></div>
+        <div class="exc-row"><span class="lbl">Action</span><span class="val">기본 수신자=구매팀으로 알림 발송. 담당자 지정 권고 배지 표시.</span></div>
+        <div class="exc-msg">담당자 미지정 — 구매팀으로 기본 발송</div>
       </div>
       <div class="exc-card">
-        <div class="exc-hdr"><span class="exc-code">EXC-05</span><span class="exc-name">File Too Large / Type<span class="ko">파일 용량·형식</span></span></div>
-        <div class="exc-row"><span class="lbl">Trigger</span><span class="val">20MB 초과 또는 비허용 형식.</span></div>
-        <div class="exc-row"><span class="lbl">Action</span><span class="val">업로드 거부. 허용 형식·용량 안내.</span></div>
-        <div class="exc-msg">PDF/JPG/PNG · 20MB 이하만 업로드 가능</div>
+        <div class="exc-hdr"><span class="exc-code">EXC-02</span><span class="exc-name">Expired Blocks Label<span class="ko">만료 라벨 차단</span></span></div>
+        <div class="exc-row"><span class="lbl">Trigger</span><span class="val">만료 증빙 참조 라벨 발행 시도 (BR-DOC-04).</span></div>
+        <div class="exc-row"><span class="lbl">Action</span><span class="val">발행 차단 + 에러. 갱신 증빙 등록 안내(→ DOC-06).</span></div>
+        <div class="exc-msg">만료 증빙 — 라벨 발행 불가 (갱신 필요)</div>
+      </div>
+      <div class="exc-card warn">
+        <div class="exc-hdr"><span class="exc-code">EXC-03</span><span class="exc-name">Alert Send Failure<span class="ko">알림 발송 실패</span></span></div>
+        <div class="exc-row"><span class="lbl">Trigger</span><span class="val">메일/메신저 발송 실패 또는 미수신.</span></div>
+        <div class="exc-row"><span class="lbl">Action</span><span class="val">자동 재시도(N회) 후 미성공 시 상위자 에스컬레이션.</span></div>
+        <div class="exc-msg">알림 발송 실패 — 재시도 후 에스컬레이션</div>
       </div>
       <div class="exc-card info">
-        <div class="exc-hdr"><span class="exc-code">EXC-06</span><span class="exc-name">No Edit Permission<span class="ko">권한 없음</span></span></div>
-        <div class="exc-row"><span class="lbl">Trigger</span><span class="val"><code>DOC.View</code>만 보유한 사용자.</span></div>
-        <div class="exc-row"><span class="lbl">Action</span><span class="val">등록 버튼 비활성. 열람만 가능.</span></div>
-        <div class="exc-msg">등록 권한이 없습니다 (DOC.Edit 필요)</div>
+        <div class="exc-hdr"><span class="exc-code">EXC-04</span><span class="exc-name">Duplicate Alert Suppression<span class="ko">중복 알림 억제</span></span></div>
+        <div class="exc-row"><span class="lbl">Trigger</span><span class="val">동일 티어·동일 증빙에 대해 반복 알림 발생.</span></div>
+        <div class="exc-row"><span class="lbl">Action</span><span class="val">티어당 1회 발송 후 억제. Ack 또는 티어 상승 시에만 재발송.</span></div>
+        <div class="exc-msg">동일 티어 알림 — 중복 억제됨</div>
+      </div>
+      <div class="exc-card warn">
+        <div class="exc-hdr"><span class="exc-code">EXC-05</span><span class="exc-name">Bulk Expiry Spike<span class="ko">대량 만료 급증</span></span></div>
+        <div class="exc-row"><span class="lbl">Trigger</span><span class="val">동일 기간 다수 증빙이 긴급 티어로 동시 진입.</span></div>
+        <div class="exc-row"><span class="lbl">Action</span><span class="val">관리자 경고 배너 + 일괄 갱신 요청 권고. 우선순위 정렬.</span></div>
+        <div class="exc-msg">대량 만료 임박 — 일괄 갱신 검토 권고</div>
+      </div>
+      <div class="exc-card warn">
+        <div class="exc-hdr"><span class="exc-code">EXC-06</span><span class="exc-name">Notification Channel Down<span class="ko">알림 채널 장애</span></span></div>
+        <div class="exc-row"><span class="lbl">Trigger</span><span class="val">메일/메신저 채널 전체 장애.</span></div>
+        <div class="exc-row"><span class="lbl">Action</span><span class="val">대체 채널로 폴백 + 대시보드 인앱 배너로 강제 노출.</span></div>
+        <div class="exc-msg">알림 채널 장애 — 인앱 배너로 대체 통지</div>
       </div>
     </div>
   </section>
@@ -536,19 +557,18 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
     <div class="sec-hdr"><div class="sec-num">06</div><div class="sec-title-wrap"><div class="sec-title-en">Linked Screens</div><div class="sec-title-ko">연계 화면</div></div><div class="sec-line"></div></div>
     <div class="lnk-wrap">
       <div class="lnk-row">
-        <a class="lnk-node up" href="VOL02_DOC06_Supplier_Upload_Portal.html"><div class="lnk-id">DOC-06</div><div class="lnk-name">Supplier Upload</div><div class="lnk-ko">증빙 수집 ▸ 등록</div></a>
+        <a class="lnk-node up" href="VOL02_DOC01_Certificate_Registry.html"><div class="lnk-id">DOC-01</div><div class="lnk-name">Certificate Registry</div><div class="lnk-ko">데이터 출처 ▸ 만료 산출</div></a>
         <span class="lnk-arr">→</span>
-        <div class="lnk-node cur"><div class="lnk-id">DOC-01</div><div class="lnk-name">Certificate Registry</div><div class="lnk-ko">현재 화면</div></div>
+        <div class="lnk-node cur"><div class="lnk-id">DOC-03</div><div class="lnk-name">Expiry Dashboard</div><div class="lnk-ko">현재 화면</div></div>
         <span class="lnk-arr">→</span>
-        <a class="lnk-node down" href="VOL02_DOC04_Approval_Workflow.html"><div class="lnk-id">DOC-04</div><div class="lnk-name">Approval W/F</div><div class="lnk-ko">승인 라우팅</div></a>
+        <a class="lnk-node down" href="VOL02_DOC06_Supplier_Upload_Portal.html"><div class="lnk-id">DOC-06</div><div class="lnk-name">Supplier Upload</div><div class="lnk-ko">갱신 요청</div></a>
       </div>
       <div class="lnk-row" style="margin-top:14px;">
-        <a class="lnk-node down" href="VOL02_DOC02_Certificate_Viewer.html"><div class="lnk-id">DOC-02</div><div class="lnk-name">Viewer</div><div class="lnk-ko">행 클릭 열람</div></a>
-        <a class="lnk-node down" href="VOL02_DOC03_Expiry_Dashboard.html"><div class="lnk-id">DOC-03</div><div class="lnk-name">Expiry Dash</div><div class="lnk-ko">만료 모니터링</div></a>
-        <a class="lnk-node down" href="VOL05_AUD_Audit_Support.html"><div class="lnk-id">AUD</div><div class="lnk-name">Audit Support</div><div class="lnk-ko">역추적·리포트</div></a>
-        <a class="lnk-node down" href="VOL03_LBL_Label_Management.html"><div class="lnk-id">LBL</div><div class="lnk-name">Label</div><div class="lnk-ko">유효 증빙 참조</div></a>
+        <a class="lnk-node down" href="VOL02_DOC02_Certificate_Viewer.html"><div class="lnk-id">DOC-02</div><div class="lnk-name">Viewer</div><div class="lnk-ko">카드/행 열람</div></a>
+        <a class="lnk-node down" href="VOL03_LBL_Label_Management.html"><div class="lnk-id">LBL</div><div class="lnk-name">Label</div><div class="lnk-ko">만료 시 발행 차단</div></a>
+        <a class="lnk-node down" href="VOL07_SYS_System.html"><div class="lnk-id">SYS</div><div class="lnk-name">System</div><div class="lnk-ko">알림 설정·채널</div></a>
       </div>
-      <div style="text-align:center;font-size:10px;color:var(--sub);margin-top:14px;">상위: 증빙 수집/등록 진입 · 하위: 승인·열람·만료·역추적·라벨 발행으로 분기</div>
+      <div style="text-align:center;font-size:10px;color:var(--sub);margin-top:14px;">상위: DOC-01 증빙 데이터 출처 · 하위: 갱신 요청(DOC-06)·열람(DOC-02)·라벨 차단(LBL)·알림 설정(SYS)으로 분기</div>
     </div>
   </section>
 
@@ -558,11 +578,9 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
     <table class="br-mini">
       <thead><tr><th style="width:96px;">ID</th><th>Rule · 규칙</th><th style="width:80px;">Action</th></tr></thead>
       <tbody>
-        <tr><td class="br-id">BR-DOC-01</td><td><div class="br-en">Mandatory metadata — cert no., supplier, origin country, type, issue/expiry date, applied parts (≥1) required before save.</div><div class="br-ko">등록 시 인증서번호·공급사·원산지국·유형·발급/만료일·적용품목(1건+) 필수.</div></td><td class="br-act"><span class="blk">차단</span></td></tr>
-        <tr><td class="br-id">BR-DOC-02</td><td><div class="br-en">Approval before valid — document stays "Pending Review" until DOC-04 approval; not counted as valid SoT evidence until then.</div><div class="br-ko">승인 전까지 "검토중", 승인 후에만 유효 증빙으로 인정.</div></td><td class="br-act"><span class="blk">차단</span></td></tr>
-        <tr><td class="br-id">BR-DOC-03</td><td><div class="br-en">Tiered expiry alerts — on save, schedule D-90 / D-30 / D-7 / expired notifications to owner + procurement.</div><div class="br-ko">저장 시 D-90/30/7/만료 알림 자동 예약 (담당자·구매팀).</div></td><td class="br-act"><span class="aut">자동</span></td></tr>
-        <tr><td class="br-id">BR-DOC-05</td><td><div class="br-en">Immutable versioning — approved certificates cannot be deleted; renewals create a new version, prior versions preserved.</div><div class="br-ko">승인 증빙 삭제 불가. 갱신은 신규 버전 생성, 이전 버전 보존.</div></td><td class="br-act"><span class="blk">차단</span></td></tr>
-        <tr><td class="br-id">BR-DOC-06</td><td><div class="br-en">Audit trail — every view, download, and status change is logged (who / when / what) for audit retention.</div><div class="br-ko">조회·다운로드·상태변경 전수 로그 기록(감사 보존).</div></td><td class="br-act"><span class="aut">자동</span></td></tr>
+        <tr><td class="br-id">BR-DOC-03</td><td><div class="br-en">Tiered expiry alerts — daily scan buckets certificates into D-90 / D-30 / D-7 / Expired and pushes tiered notifications to owner + procurement, with acknowledgement tracking.</div><div class="br-ko">일일 스캔으로 증빙을 D-90/30/7/만료 티어로 분류, 담당자·구매팀에 단계별 알림 발송 및 확인(Ack) 추적.</div></td><td class="br-act"><span class="aut">자동</span></td></tr>
+        <tr><td class="br-id">BR-DOC-04</td><td><div class="br-en">Expired blocks label — once a certificate expires it is flagged Expired and any label issuance referencing it is blocked until a renewed version is registered.</div><div class="br-ko">만료 증빙은 만료 표시되며, 해당 증빙 참조 라벨 발행은 갱신 버전 등록 전까지 차단.</div></td><td class="br-act"><span class="blk">차단</span></td></tr>
+        <tr><td class="br-id">BR-DOC-06</td><td><div class="br-en">Audit trail — every alert send, acknowledgement, reminder, and export is logged (who / when / what) for audit retention.</div><div class="br-ko">알림 발송·확인·리마인드·내보내기 전수 로그 기록(감사 보존).</div></td><td class="br-act"><span class="aut">자동</span></td></tr>
       </tbody>
     </table>
   </section>
@@ -570,7 +588,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
   </div>
   <div class="page-footer">
     <span class="pf-l">UOCM · USMCA Origin Compliance Management System</span>
-    <span class="pf-r">VOL.2 · DOC-01 · Certificate Registry · L3 Spec</span>
+    <span class="pf-r">VOL.2 · DOC-03 · Expiry Dashboard · L3 Spec</span>
   </div>
 </div>
 </div>
