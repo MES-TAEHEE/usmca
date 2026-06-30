@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>UOCM · Database Schema · 데이터베이스 스키마</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;600;700&family=Bebas+Neue&display=swap');
+:root{
+  --brand:#059669;--brand-dk:#047857;
+  --ink:#0a1422;--ink2:#101d2e;--ink3:#1c2c40;
+  --surface:#fff;--bg:#f4f7fa;--border:#d3dce6;--text:#1e2a38;--sub:#5b6b7d;
+  --doc:#2563eb;--doc-dk:#1d4ed8;
+  --md:#d97706;--lbl:#7c3aed;--org:#0891b2;--aud:#dc2626;--int:#6366f1;--sys:#64748b;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);font-size:13px;line-height:1.6;}
+
+/* NAV */
+.uo-nav{position:sticky;top:0;z-index:9999;background:#fff;border-bottom:1px solid #e5eaf0;box-shadow:0 1px 4px rgba(15,39,71,.06);}
+.uo-nav-inner{display:flex;align-items:stretch;overflow-x:auto;scrollbar-width:none;}
+.uo-nav-inner::-webkit-scrollbar{display:none;}
+.nav-home{display:flex;align-items:center;gap:8px;padding:0 16px;background:rgba(5,150,105,.08);border-right:1px solid #e5eaf0;text-decoration:none;flex-shrink:0;min-height:42px;}
+.nav-home-logo{font-family:'Bebas Neue',sans-serif;font-size:17px;color:var(--brand);letter-spacing:2px;}
+.nav-home-sub{font-size:9px;color:#94a3b8;}
+.nav-vol{display:flex;align-items:center;gap:5px;padding:0 12px;text-decoration:none;font-size:10px;font-weight:700;color:#5b6b7d;border-bottom:2px solid transparent;white-space:nowrap;min-height:42px;transition:color .12s;}
+.nav-vol:hover{color:#0f2747;background:#f6f8fa;}
+.nav-vol.active{color:#0f2747;border-bottom-color:#059669;}
+.nav-vol .nv-code{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;}
+
+/* BREADCRUMB */
+.l3-crumb{background:#f6f8fa;border-bottom:1px solid #e5eaf0;padding:7px 24px;display:flex;align-items:center;gap:8px;font-size:10px;color:#5b6b7d;font-family:'JetBrains Mono',monospace;letter-spacing:.5px;}
+.l3-crumb a{color:#5b6b7d;text-decoration:none;transition:color .12s;}
+.l3-crumb a:hover{color:#0f2747;}
+.l3-crumb .arr{color:#cbd5e1;}
+.l3-crumb .current{color:#047857;font-weight:700;}
+.l3-crumb .lvl{font-size:8px;padding:1px 6px;border:1px solid #d3dce6;border-radius:2px;color:#94a3b8;margin-right:4px;}
+
+/* LAYOUT */
+.page-wrap{display:flex;}
+.sidebar{width:240px;min-width:240px;background:#f6f8fa;position:sticky;top:69px;height:calc(100vh - 69px);overflow-y:auto;scrollbar-width:thin;border-right:1px solid #e5eaf0;}
+.sb-head{padding:16px 14px 12px;border-bottom:1px solid #e5eaf0;}
+.sb-vol{font-family:'JetBrains Mono',monospace;font-size:9px;color:#047857;letter-spacing:2px;margin-bottom:4px;}
+.sb-mod-en{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1px;color:#0f2747;}
+.sb-mod-ko{font-size:10px;color:#94a3b8;}
+.sb-grp{margin-top:4px;}
+.sb-grp-hdr{display:flex;align-items:center;gap:8px;padding:10px 14px 5px;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;}
+.sb-grp-hdr .dot{width:8px;height:8px;border-radius:2px;flex-shrink:0;}
+.sb-grp-hdr .cnt{margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:9px;color:#94a3b8;font-weight:400;}
+.sb-link{display:flex;align-items:center;gap:7px;padding:4px 14px 4px 24px;text-decoration:none;color:#5b6b7d;font-size:11px;border-left:2px solid transparent;transition:all .12s;font-family:'JetBrains Mono',monospace;}
+.sb-link:hover{color:#0f2747;background:#eef2f7;}
+
+.main{flex:1;min-width:0;}
+
+/* SCREEN HEADER */
+.scr-hdr{padding:32px 48px 26px;background:linear-gradient(135deg,#eef4ff,#ffffff);position:relative;overflow:hidden;border-bottom:1px solid #e5eaf0;}
+.scr-hdr::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(37,99,235,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(37,99,235,.05) 1px,transparent 1px);background-size:32px 32px;pointer-events:none;}
+.scr-hdr::after{content:'';position:absolute;top:-40%;right:-10%;width:380px;height:380px;background:radial-gradient(circle,rgba(5,150,105,.12),transparent 70%);pointer-events:none;}
+.scr-hdr-inner{position:relative;z-index:1;}
+.scr-eyebrow{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--brand-dk);margin-bottom:12px;display:flex;align-items:center;gap:10px;}
+.scr-eyebrow .dot{width:5px;height:5px;background:#34d399;border-radius:50%;box-shadow:0 0 8px #34d399;}
+.scr-id-block{display:flex;align-items:flex-end;gap:18px;margin-bottom:14px;}
+.scr-title-en{font-family:'Bebas Neue',sans-serif;font-size:50px;letter-spacing:1.5px;color:#0f2747;line-height:.95;}
+.scr-title-ko{font-size:13px;color:#5b6b7d;letter-spacing:3px;}
+.scr-meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px;}
+.meta-chip{display:flex;align-items:center;gap:6px;padding:5px 11px;background:#f6f8fa;border:1px solid #d3dce6;border-radius:3px;font-size:10px;color:#1e2a38;text-decoration:none;}
+.meta-chip .mc-lbl{font-family:'JetBrains Mono',monospace;font-size:8px;color:#94a3b8;letter-spacing:1px;text-transform:uppercase;}
+.meta-chip .mc-val{font-weight:700;}
+.meta-chip.phase{border-color:rgba(16,185,129,.3);color:#047857;}
+.meta-chip.dl{border-color:rgba(37,99,235,.3);color:#2563eb;}
+.meta-chip.dl:hover{background:#eef4ff;}
+
+.content{padding:0 48px 60px;}
+.sec{margin-top:40px;scroll-margin-top:80px;}
+.sec-hdr{display:flex;align-items:center;gap:14px;margin-bottom:18px;padding:10px 16px;border-radius:6px;color:#fff;}
+.sec-code{font-family:'Bebas Neue',sans-serif;font-size:30px;letter-spacing:2px;line-height:1;}
+.sec-title-wrap{flex:1;}
+.sec-title-en{font-size:18px;font-weight:800;letter-spacing:-.3px;}
+.sec-title-ko{font-size:11px;opacity:.85;margin-top:1px;}
+.sec-cnt{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;background:rgba(255,255,255,.2);padding:4px 12px;border-radius:20px;}
+
+/* TABLE CARD */
+.tcard{background:var(--surface);border:1px solid var(--border);border-radius:8px;margin-bottom:18px;overflow:hidden;scroll-margin-top:80px;box-shadow:0 1px 3px rgba(15,39,71,.04);}
+.tcard-hdr{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;border-left:4px solid var(--border);}
+.tcard-name{font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:700;color:var(--text);}
+.tcard-purpose{font-size:11px;color:var(--sub);flex:1;min-width:200px;}
+.tcard-tag{font-family:'JetBrains Mono',monospace;font-size:8px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:2px 8px;border-radius:3px;background:#f1f5f9;color:#475569;}
+
+/* COMPONENT SPEC TABLE (cs-tbl) */
+.cs-tbl{width:100%;border-collapse:collapse;font-size:11px;background:var(--surface);}
+.cs-tbl th{background:#eef4ff;color:#1d4ed8;padding:8px 10px;text-align:left;font-size:9px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;border-bottom:1px solid #cdddf5;}
+.cs-tbl td{padding:7px 10px;border-bottom:1px solid var(--border);vertical-align:top;}
+.cs-tbl tr:last-child td{border-bottom:none;}
+.cs-tbl tr:hover td{background:#f9fafb;}
+.cs-tbl .c-col{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:var(--text);white-space:nowrap;}
+.cs-tbl .c-type{font-family:'JetBrains Mono',monospace;font-size:10px;color:#7c3aed;background:#f5f3ff;padding:2px 6px;border-radius:3px;display:inline-block;white-space:nowrap;}
+.cs-tbl .c-null{font-family:'JetBrains Mono',monospace;font-size:9px;}
+.cs-tbl .c-null.nn{color:#dc2626;font-weight:700;}
+.cs-tbl .c-null.y{color:#94a3b8;}
+.cs-tbl .c-def{font-family:'JetBrains Mono',monospace;font-size:9px;color:#0891b2;}
+.cs-tbl .c-desc{font-size:10px;color:var(--text);line-height:1.55;}
+.cs-tbl tr.audit td{background:#fafbfc;}
+.cs-tbl tr.audit:hover td{background:#f4f6f8;}
+.cs-tbl tr.audit .c-col{color:#94a3b8;font-weight:400;}
+.cs-tbl tr.audit .c-type{color:#a78bda;background:#f8f6fd;}
+
+/* KEY BADGES */
+.kb{display:inline-block;font-size:8px;font-weight:700;padding:2px 6px;border-radius:3px;font-family:'JetBrains Mono',monospace;letter-spacing:.5px;margin:1px 2px 1px 0;text-decoration:none;}
+.kb-pk{background:#fef3c7;color:#92400e;border:1px solid #fde68a;}
+.kb-fk{background:#ede9fe;color:#6d28d9;border:1px solid #ddd6fe;}
+.kb-fk:hover{background:#ddd6fe;}
+.kb-uq{background:#dbeafe;color:#1e40af;border:1px solid #bfdbfe;}
+
+/* RELATIONSHIPS NOTE */
+.rel-note{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--brand);border-radius:0 6px 6px 0;padding:14px 18px;margin-top:20px;}
+.rel-note h4{font-size:12px;color:var(--text);margin-bottom:8px;}
+.rel-note p{font-size:11px;color:var(--sub);line-height:1.75;}
+.rel-note code{font-family:'JetBrains Mono',monospace;font-size:10px;background:#f0f3f7;padding:1px 5px;border-radius:3px;color:var(--brand-dk);}
+.legend{display:flex;flex-wrap:wrap;gap:14px;margin-top:12px;align-items:center;}
+.legend .li{display:flex;align-items:center;gap:6px;font-size:10px;color:var(--sub);}
+
+.page-footer{padding:24px 48px;border-top:1px solid #e5eaf0;background:#f6f8fa;color:#94a3b8;display:flex;justify-content:space-between;align-items:center;font-size:10px;}
+.page-footer .pf-l{font-family:'JetBrains Mono',monospace;letter-spacing:.5px;}
+.page-footer .pf-r{color:#047857;font-family:'JetBrains Mono',monospace;}
+
+@media(max-width:1100px){.sidebar{display:none;}.scr-id-block{flex-direction:column;align-items:flex-start;gap:6px;}.scr-title-en{font-size:36px;}.content,.scr-hdr,.page-footer{padding-left:20px;padding-right:20px;}}
+</style>
+</head>
+<body>
+<nav class="uo-nav"><div class="uo-nav-inner">
+  <a href="index.html" class="nav-home"><span class="nav-home-logo">UOCM</span><span class="nav-home-sub">Index</span></a>
+  <a href="VOL01_Overview.html" class="nav-vol"><span class="nv-code" style="color:#10b981;">OV</span><span>Overview</span></a>
+  <a href="VOL02_DOC_Document_Management.html" class="nav-vol"><span class="nv-code" style="color:#2563eb;">DOC</span><span>Document</span></a>
+  <a href="VOL03_LBL_Label_Management.html" class="nav-vol"><span class="nv-code" style="color:#7c3aed;">LBL</span><span>Label</span></a>
+  <a href="VOL04_ORG_Origin_Management.html" class="nav-vol"><span class="nv-code" style="color:#0891b2;">ORG</span><span>Origin</span></a>
+  <a href="VOL05_AUD_Audit_Support.html" class="nav-vol"><span class="nv-code" style="color:#dc2626;">AUD</span><span>Audit</span></a>
+  <a href="VOL06_INT_Integration.html" class="nav-vol"><span class="nv-code" style="color:#6366f1;">INT</span><span>Integration</span></a>
+  <a href="VOL07_SYS_System.html" class="nav-vol"><span class="nv-code" style="color:#64748b;">SYS</span><span>System</span></a>
+  <a href="VOL08_MD_Master_Data.html" class="nav-vol"><span class="nv-code" style="color:#d97706;">MD</span><span>Master Data</span></a>
+</div></nav>
+
+<div class="l3-crumb">
+  <span class="lvl">L1</span><a href="index.html">UOCM Index</a>
+  <span class="arr">▸</span>
+  <span class="current">Database Schema</span>
+</div>
+
+<div class="page-wrap">
+<nav class="sidebar">
+  <div class="sb-head">
+    <div class="sb-vol">CROSS-CUTTING · DB</div>
+    <div class="sb-mod-en">DB SCHEMA</div>
+    <div class="sb-mod-ko">데이터베이스 스키마 · 40 Tables</div>
+  </div>
+
+  <div class="sb-grp">
+    <div class="sb-grp-hdr" style="color:var(--md);"><span class="dot" style="background:var(--md);"></span>MD · Master Data<span class="cnt">9</span></div>
+    <a class="sb-link" href="#md_country">md_country</a>
+    <a class="sb-link" href="#md_hts">md_hts</a>
+    <a class="sb-link" href="#md_supplier">md_supplier</a>
+    <a class="sb-link" href="#md_part">md_part</a>
+    <a class="sb-link" href="#md_bom">md_bom</a>
+    <a class="sb-link" href="#md_label_template">md_label_template</a>
+    <a class="sb-link" href="#md_label_template_field">md_label_template_field</a>
+    <a class="sb-link" href="#md_oem_customer">md_oem_customer</a>
+    <a class="sb-link" href="#md_cert_type">md_cert_type</a>
+  </div>
+
+  <div class="sb-grp">
+    <div class="sb-grp-hdr" style="color:var(--doc);"><span class="dot" style="background:var(--doc);"></span>DOC · Document<span class="cnt">7</span></div>
+    <a class="sb-link" href="#doc_certificate">doc_certificate</a>
+    <a class="sb-link" href="#doc_file">doc_file</a>
+    <a class="sb-link" href="#doc_certificate_part">doc_certificate_part</a>
+    <a class="sb-link" href="#doc_version">doc_version</a>
+    <a class="sb-link" href="#doc_approval">doc_approval</a>
+    <a class="sb-link" href="#doc_approval_step">doc_approval_step</a>
+    <a class="sb-link" href="#doc_alert">doc_alert</a>
+  </div>
+
+  <div class="sb-grp">
+    <div class="sb-grp-hdr" style="color:var(--lbl);"><span class="dot" style="background:var(--lbl);"></span>LBL · Label<span class="cnt">3</span></div>
+    <a class="sb-link" href="#lbl_issue">lbl_issue</a>
+    <a class="sb-link" href="#lbl_reprint">lbl_reprint</a>
+    <a class="sb-link" href="#lbl_print_job">lbl_print_job</a>
+  </div>
+
+  <div class="sb-grp">
+    <div class="sb-grp-hdr" style="color:var(--org);"><span class="dot" style="background:var(--org);"></span>ORG · Origin<span class="cnt">4</span></div>
+    <a class="sb-link" href="#org_part_origin">org_part_origin</a>
+    <a class="sb-link" href="#org_origin_change">org_origin_change</a>
+    <a class="sb-link" href="#org_rollup_result">org_rollup_result</a>
+    <a class="sb-link" href="#org_rvc_calc">org_rvc_calc</a>
+  </div>
+
+  <div class="sb-grp">
+    <div class="sb-grp-hdr" style="color:var(--aud);"><span class="dot" style="background:var(--aud);"></span>AUD · Audit<span class="cnt">3</span></div>
+    <a class="sb-link" href="#aud_report">aud_report</a>
+    <a class="sb-link" href="#aud_package">aud_package</a>
+    <a class="sb-link" href="#aud_package_item">aud_package_item</a>
+  </div>
+
+  <div class="sb-grp">
+    <div class="sb-grp-hdr" style="color:var(--int);"><span class="dot" style="background:var(--int);"></span>INT · Integration<span class="cnt">4</span></div>
+    <a class="sb-link" href="#int_connection">int_connection</a>
+    <a class="sb-link" href="#int_endpoint">int_endpoint</a>
+    <a class="sb-link" href="#int_job">int_job</a>
+    <a class="sb-link" href="#int_integrity_issue">int_integrity_issue</a>
+  </div>
+
+  <div class="sb-grp">
+    <div class="sb-grp-hdr" style="color:var(--sys);"><span class="dot" style="background:var(--sys);"></span>SYS · System<span class="cnt">10</span></div>
+    <a class="sb-link" href="#sys_user">sys_user</a>
+    <a class="sb-link" href="#sys_role">sys_role</a>
+    <a class="sb-link" href="#sys_permission">sys_permission</a>
+    <a class="sb-link" href="#sys_user_role">sys_user_role</a>
+    <a class="sb-link" href="#sys_role_permission">sys_role_permission</a>
+    <a class="sb-link" href="#sys_audit_log">sys_audit_log</a>
+    <a class="sb-link" href="#sys_notif_channel">sys_notif_channel</a>
+    <a class="sb-link" href="#sys_notif_rule">sys_notif_rule</a>
+    <a class="sb-link" href="#sys_code_group">sys_code_group</a>
+    <a class="sb-link" href="#sys_code">sys_code</a>
+  </div>
+</nav>
+
+<div class="main">
+  <div class="scr-hdr">
+    <div class="scr-hdr-inner">
+      <div class="scr-eyebrow"><span class="dot"></span>CROSS-CUTTING · PHYSICAL DATA MODEL · 물리 데이터 모델</div>
+      <div class="scr-id-block">
+        <div><div class="scr-title-en">Database Schema</div></div>
+      </div>
+      <div class="scr-title-ko">데 이 터 베 이 스 스 키 마</div>
+      <div class="scr-meta">
+        <div class="meta-chip"><span class="mc-lbl">Engine</span><span class="mc-val">MS SQL Server</span></div>
+        <div class="meta-chip phase"><span class="mc-lbl">Tables</span><span class="mc-val">40</span></div>
+        <div class="meta-chip"><span class="mc-lbl">Modules</span><span class="mc-val">7</span></div>
+        <a class="meta-chip dl" href="UOCM_Schema.sql" download><span class="mc-lbl">Source</span><span class="mc-val" style="font-family:'JetBrains Mono',monospace;">⤓ UOCM_Schema.sql</span></a>
+      </div>
+    </div>
+  </div>
+
+  <div class="content">
+
+  <!-- RELATIONSHIPS / LEGEND -->
+  <div class="rel-note">
+    <h4>Schema Conventions &amp; Relationships · 스키마 규약 · 관계</h4>
+    <p>PK = <code>&lt;table&gt;_id</code> IDENTITY (BIGINT) unless a natural code key (e.g. <code>md_country.country_code</code>, <code>sys_code_group.group_code</code>). All audit columns: <code>created_by</code> / <code>created_at</code> / <code>updated_by</code> / <code>updated_at</code>. All text is NVARCHAR (Unicode KO/EN); timestamps are UTC via <code>SYSUTCDATETIME()</code>. Two circular references are resolved via <code>ALTER … ADD</code>: <code>md_label_template.oem_id ↔ md_oem_customer</code> and <code>doc_certificate.current_version_id ↔ doc_version</code>. Foreign-key cells below name and link to the referenced table.</p>
+    <p style="margin-top:8px;"><strong>Source note ·</strong> The header comment in <code>UOCM_Schema.sql</code> states 41 tables (SYS 11), but the DDL physically defines <strong>40</strong> <code>CREATE TABLE</code> statements (SYS = 10). This page renders all 40 tables exactly as defined in the SQL; the two <code>ALTER TABLE … ADD CONSTRAINT</code> blocks add circular FKs, not new tables.</p>
+    <div class="legend">
+      <span class="li"><span class="kb kb-pk">PK</span> Primary Key</span>
+      <span class="li"><span class="kb kb-fk">FK →</span> Foreign Key (links to target)</span>
+      <span class="li"><span class="kb kb-uq">UQ</span> Unique Constraint</span>
+      <span class="li"><span style="display:inline-block;width:14px;height:10px;background:#fafbfc;border:1px solid var(--border);"></span> Audit columns (de-emphasized)</span>
+    </div>
+  </div>
+
+<!-- ===================== 1. MASTER DATA (MD) ===================== -->
+<section class="sec" id="mod-md">
+  <div class="sec-hdr" style="background:linear-gradient(135deg,#d97706,#b45309);">
+    <div class="sec-code">MD</div>
+    <div class="sec-title-wrap"><div class="sec-title-en">Master Data</div><div class="sec-title-ko">기준정보 · md_*</div></div>
+    <div class="sec-cnt">9 Tables</div>
+  </div>
+
+  <div class="tcard" id="md_country">
+    <div class="tcard-hdr" style="border-left-color:var(--md);"><span class="tcard-name">md_country</span><span class="tcard-purpose">MD-04 Country master — natural PK is ISO 3166-1 alpha-2 code; flags USMCA membership.</span><span class="tcard-tag">MD-04</span></div>
+    <table class="cs-tbl"><thead><tr><th style="width:170px;">Column</th><th style="width:130px;">Type</th><th style="width:120px;">Key</th><th style="width:50px;">Null</th><th style="width:150px;">Default</th><th>Description</th></tr></thead><tbody>
+      <tr><td class="c-col">country_code</td><td><span class="c-type">CHAR(2)</span></td><td><span class="kb kb-pk">PK</span></td><td class="c-null nn">NOT NULL</td><td></td><td class="c-desc">ISO 3166-1 alpha-2</td></tr>
+      <tr><td class="c-col">country_code3</td><td><span class="c-type">CHAR(3)</span></td><td><span class="kb kb-uq">UQ</span></td><td class="c-null y">NULL</td><td></td><td class="c-desc">ISO alpha-3</td></tr>
+      <tr><td class="c-col">country_name</td><td><span class="c-type">NVARCHAR(80)</span></td><td></td><td class="c-null nn">NOT NULL</td><td></td><td class="c-desc">Country name (EN)</td></tr>
+      <tr><td class="c-col">country_name_ko</td><td><span class="c-type">NVARCHAR(80)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">국가명 (KO)</td></tr>
+      <tr><td class="c-col">region</td><td><span class="c-type">NVARCHAR(40)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Region grouping</td></tr>
+      <tr><td class="c-col">usmca_member</td><td><span class="c-type">BIT</span></td><td></td><td class="c-null nn">NOT NULL</td><td class="c-def">0</td><td class="c-desc">USMCA 회원국 여부</td></tr>
+      <tr><td class="c-col">fta_flags</td><td><span class="c-type">NVARCHAR(100)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">e.g. 'KORUS'</td></tr>
+      <tr><td class="c-col">is_active</td><td><span class="c-type">BIT</span></td><td></td><td class="c-null nn">NOT NULL</td><td class="c-def">1</td><td class="c-desc">Active flag</td></tr>
+      <tr><td class="c-col">sort_order</td><td><span class="c-type">INT</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Display order</td></tr>
+      <tr class="audit"><td class="c-col">created_by</td><td><span class="c-type">NVARCHAR(50)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Audit · creator</td></tr>
+      <tr class="audit"><td class="c-col">created_at</td><td><span class="c-type">DATETIME2</span></td><td></td><td class="c-null nn">NOT NULL</td><td class="c-def">SYSUTCDATETIME()</td><td class="c-desc">Audit · created (UTC)</td></tr>
+      <tr class="audit"><td class="c-col">updated_by</td><td><span class="c-type">NVARCHAR(50)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Audit · updater</td></tr>
+      <tr class="audit"><td class="c-col">updated_at</td><td><span class="c-type">DATETIME2</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Audit · updated (UTC)</td></tr>
+    </tbody></table>
+  </div>
+
+  <div class="tcard" id="md_hts">
+    <div class="tcard-hdr" style="border-left-color:var(--md);"><span class="tcard-name">md_hts</span><span class="tcard-purpose">MD-05 HTS code master — tariff classification, duty/preference rates, origin rule &amp; RVC threshold.</span><span class="tcard-tag">MD-05</span></div>
+    <table class="cs-tbl"><thead><tr><th style="width:170px;">Column</th><th style="width:130px;">Type</th><th style="width:120px;">Key</th><th style="width:50px;">Null</th><th style="width:150px;">Default</th><th>Description</th></tr></thead><tbody>
+      <tr><td class="c-col">hts_id</td><td><span class="c-type">BIGINT</span></td><td><span class="kb kb-pk">PK</span></td><td class="c-null nn">NOT NULL</td><td class="c-def">IDENTITY</td><td class="c-desc">Surrogate key</td></tr>
+      <tr><td class="c-col">hts_code</td><td><span class="c-type">NVARCHAR(12)</span></td><td><span class="kb kb-uq">UQ</span></td><td class="c-null nn">NOT NULL</td><td></td><td class="c-desc">e.g. 8708.30</td></tr>
+      <tr><td class="c-col">description</td><td><span class="c-type">NVARCHAR(200)</span></td><td></td><td class="c-null nn">NOT NULL</td><td></td><td class="c-desc">Description (EN)</td></tr>
+      <tr><td class="c-col">description_ko</td><td><span class="c-type">NVARCHAR(200)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">설명 (KO)</td></tr>
+      <tr><td class="c-col">chapter</td><td><span class="c-type">CHAR(2)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">HS chapter</td></tr>
+      <tr><td class="c-col">heading</td><td><span class="c-type">CHAR(4)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">HS heading</td></tr>
+      <tr><td class="c-col">base_duty_rate</td><td><span class="c-type">DECIMAL(6,3)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Base duty rate (CK ≥ 0)</td></tr>
+      <tr><td class="c-col">usmca_pref_rate</td><td><span class="c-type">DECIMAL(6,3)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">USMCA preferential rate (CK ≥ 0)</td></tr>
+      <tr><td class="c-col">origin_rule</td><td><span class="c-type">NVARCHAR(200)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">tariff shift / RVC rule</td></tr>
+      <tr><td class="c-col">rvc_threshold</td><td><span class="c-type">DECIMAL(5,2)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">e.g. 75.00</td></tr>
+      <tr><td class="c-col">effective_from</td><td><span class="c-type">DATE</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Effective date</td></tr>
+      <tr><td class="c-col">is_active</td><td><span class="c-type">BIT</span></td><td></td><td class="c-null nn">NOT NULL</td><td class="c-def">1</td><td class="c-desc">Active flag</td></tr>
+      <tr class="audit"><td class="c-col">created_by</td><td><span class="c-type">NVARCHAR(50)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Audit · creator</td></tr>
+      <tr class="audit"><td class="c-col">created_at</td><td><span class="c-type">DATETIME2</span></td><td></td><td class="c-null nn">NOT NULL</td><td class="c-def">SYSUTCDATETIME()</td><td class="c-desc">Audit · created (UTC)</td></tr>
+      <tr class="audit"><td class="c-col">updated_by</td><td><span class="c-type">NVARCHAR(50)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Audit · updater</td></tr>
+      <tr class="audit"><td class="c-col">updated_at</td><td><span class="c-type">DATETIME2</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Audit · updated (UTC)</td></tr>
+    </tbody></table>
+  </div>
+
+  <div class="tcard" id="md_supplier">
+    <div class="tcard-hdr" style="border-left-color:var(--md);"><span class="tcard-name">md_supplier</span><span class="tcard-purpose">MD-01 Supplier master — vendor info, USMCA eligibility, SAP sync key.</span><span class="tcard-tag">MD-01</span></div>
+    <table class="cs-tbl"><thead><tr><th style="width:170px;">Column</th><th style="width:130px;">Type</th><th style="width:120px;">Key</th><th style="width:50px;">Null</th><th style="width:150px;">Default</th><th>Description</th></tr></thead><tbody>
+      <tr><td class="c-col">supplier_id</td><td><span class="c-type">BIGINT</span></td><td><span class="kb kb-pk">PK</span></td><td class="c-null nn">NOT NULL</td><td class="c-def">IDENTITY</td><td class="c-desc">Surrogate key</td></tr>
+      <tr><td class="c-col">supplier_code</td><td><span class="c-type">NVARCHAR(20)</span></td><td><span class="kb kb-uq">UQ</span></td><td class="c-null nn">NOT NULL</td><td></td><td class="c-desc">Business supplier code</td></tr>
+      <tr><td class="c-col">supplier_name</td><td><span class="c-type">NVARCHAR(100)</span></td><td></td><td class="c-null nn">NOT NULL</td><td></td><td class="c-desc">Supplier name (KO)</td></tr>
+      <tr><td class="c-col">supplier_name_en</td><td><span class="c-type">NVARCHAR(100)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Supplier name (EN)</td></tr>
+      <tr><td class="c-col">country_code</td><td><span class="c-type">CHAR(2)</span></td><td><a class="kb kb-fk" href="#md_country">FK → md_country</a></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Country of supplier</td></tr>
+      <tr><td class="c-col">biz_reg_no</td><td><span class="c-type">NVARCHAR(30)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Business registration no.</td></tr>
+      <tr><td class="c-col">address</td><td><span class="c-type">NVARCHAR(200)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Address</td></tr>
+      <tr><td class="c-col">contact_name</td><td><span class="c-type">NVARCHAR(50)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Contact name</td></tr>
+      <tr><td class="c-col">contact_email</td><td><span class="c-type">NVARCHAR(100)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Contact email</td></tr>
+      <tr><td class="c-col">contact_phone</td><td><span class="c-type">NVARCHAR(30)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Contact phone</td></tr>
+      <tr><td class="c-col">usmca_eligible</td><td><span class="c-type">BIT</span></td><td></td><td class="c-null nn">NOT NULL</td><td class="c-def">0</td><td class="c-desc">USMCA eligible flag</td></tr>
+      <tr><td class="c-col">sap_vendor_no</td><td><span class="c-type">NVARCHAR(20)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">INT sync key</td></tr>
+      <tr><td class="c-col">rating</td><td><span class="c-type">NVARCHAR(2)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Supplier rating</td></tr>
+      <tr><td class="c-col">status</td><td><span class="c-type">NVARCHAR(10)</span></td><td></td><td class="c-null nn">NOT NULL</td><td class="c-def">'active'</td><td class="c-desc">CK: active / inactive</td></tr>
+      <tr class="audit"><td class="c-col">created_by</td><td><span class="c-type">NVARCHAR(50)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Audit · creator</td></tr>
+      <tr class="audit"><td class="c-col">created_at</td><td><span class="c-type">DATETIME2</span></td><td></td><td class="c-null nn">NOT NULL</td><td class="c-def">SYSUTCDATETIME()</td><td class="c-desc">Audit · created (UTC)</td></tr>
+      <tr class="audit"><td class="c-col">updated_by</td><td><span class="c-type">NVARCHAR(50)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Audit · updater</td></tr>
+      <tr class="audit"><td class="c-col">updated_at</td><td><span class="c-type">DATETIME2</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Audit · updated (UTC)</td></tr>
+    </tbody></table>
+  </div>
+
+  <div class="tcard" id="md_part">
+    <div class="tcard-hdr" style="border-left-color:var(--md);"><span class="tcard-name">md_part</span><span class="tcard-purpose">MD-02 Part / Item master — HTS link, default origin, supplier (null = in-house), cost.</span><span class="tcard-tag">MD-02</span></div>
+    <table class="cs-tbl"><thead><tr><th style="width:170px;">Column</th><th style="width:130px;">Type</th><th style="width:120px;">Key</th><th style="width:50px;">Null</th><th style="width:150px;">Default</th><th>Description</th></tr></thead><tbody>
+      <tr><td class="c-col">part_id</td><td><span class="c-type">BIGINT</span></td><td><span class="kb kb-pk">PK</span></td><td class="c-null nn">NOT NULL</td><td class="c-def">IDENTITY</td><td class="c-desc">Surrogate key</td></tr>
+      <tr><td class="c-col">part_code</td><td><span class="c-type">NVARCHAR(30)</span></td><td><span class="kb kb-uq">UQ</span></td><td class="c-null nn">NOT NULL</td><td></td><td class="c-desc">Business part code</td></tr>
+      <tr><td class="c-col">part_name</td><td><span class="c-type">NVARCHAR(100)</span></td><td></td><td class="c-null nn">NOT NULL</td><td></td><td class="c-desc">Part name (KO)</td></tr>
+      <tr><td class="c-col">part_name_en</td><td><span class="c-type">NVARCHAR(100)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Part name (EN)</td></tr>
+      <tr><td class="c-col">part_type</td><td><span class="c-type">NVARCHAR(20)</span></td><td></td><td class="c-null nn">NOT NULL</td><td></td><td class="c-desc">raw/component/sub_assy/finished</td></tr>
+      <tr><td class="c-col">uom</td><td><span class="c-type">NVARCHAR(10)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Unit of measure</td></tr>
+      <tr><td class="c-col">hts_id</td><td><span class="c-type">BIGINT</span></td><td><a class="kb kb-fk" href="#md_hts">FK → md_hts</a></td><td class="c-null y">NULL</td><td></td><td class="c-desc">HTS classification</td></tr>
+      <tr><td class="c-col">default_origin_country</td><td><span class="c-type">CHAR(2)</span></td><td><a class="kb kb-fk" href="#md_country">FK → md_country</a></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Default origin country</td></tr>
+      <tr><td class="c-col">supplier_id</td><td><span class="c-type">BIGINT</span></td><td><a class="kb kb-fk" href="#md_supplier">FK → md_supplier</a></td><td class="c-null y">NULL</td><td></td><td class="c-desc">null = in-house</td></tr>
+      <tr><td class="c-col">unit_cost</td><td><span class="c-type">DECIMAL(18,4)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Unit cost</td></tr>
+      <tr><td class="c-col">currency</td><td><span class="c-type">CHAR(3)</span></td><td></td><td class="c-null nn">NOT NULL</td><td class="c-def">'USD'</td><td class="c-desc">Cost currency</td></tr>
+      <tr><td class="c-col">sap_material_no</td><td><span class="c-type">NVARCHAR(20)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">SAP material no.</td></tr>
+      <tr><td class="c-col">status</td><td><span class="c-type">NVARCHAR(10)</span></td><td></td><td class="c-null nn">NOT NULL</td><td class="c-def">'active'</td><td class="c-desc">Status (CK part_type list)</td></tr>
+      <tr class="audit"><td class="c-col">created_by</td><td><span class="c-type">NVARCHAR(50)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Audit · creator</td></tr>
+      <tr class="audit"><td class="c-col">created_at</td><td><span class="c-type">DATETIME2</span></td><td></td><td class="c-null nn">NOT NULL</td><td class="c-def">SYSUTCDATETIME()</td><td class="c-desc">Audit · created (UTC)</td></tr>
+      <tr class="audit"><td class="c-col">updated_by</td><td><span class="c-type">NVARCHAR(50)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Audit · updater</td></tr>
+      <tr class="audit"><td class="c-col">updated_at</td><td><span class="c-type">DATETIME2</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Audit · updated (UTC)</td></tr>
+    </tbody></table>
+  </div>
+
+  <div class="tcard" id="md_bom">
+    <div class="tcard-hdr" style="border-left-color:var(--md);"><span class="tcard-name">md_bom</span><span class="tcard-purpose">MD-03 Bill of Materials — self-referential via md_part (parent ↔ child); RVC cost weight.</span><span class="tcard-tag">MD-03</span></div>
+    <table class="cs-tbl"><thead><tr><th style="width:170px;">Column</th><th style="width:130px;">Type</th><th style="width:120px;">Key</th><th style="width:50px;">Null</th><th style="width:150px;">Default</th><th>Description</th></tr></thead><tbody>
+      <tr><td class="c-col">bom_id</td><td><span class="c-type">BIGINT</span></td><td><span class="kb kb-pk">PK</span></td><td class="c-null nn">NOT NULL</td><td class="c-def">IDENTITY</td><td class="c-desc">Surrogate key</td></tr>
+      <tr><td class="c-col">parent_part_id</td><td><span class="c-type">BIGINT</span></td><td><a class="kb kb-fk" href="#md_part">FK → md_part</a> <span class="kb kb-uq">UQ</span></td><td class="c-null nn">NOT NULL</td><td></td><td class="c-desc">Parent part (UQ w/ child, version)</td></tr>
+      <tr><td class="c-col">child_part_id</td><td><span class="c-type">BIGINT</span></td><td><a class="kb kb-fk" href="#md_part">FK → md_part</a> <span class="kb kb-uq">UQ</span></td><td class="c-null nn">NOT NULL</td><td></td><td class="c-desc">Child part (CK ≠ parent)</td></tr>
+      <tr><td class="c-col">bom_level</td><td><span class="c-type">INT</span></td><td></td><td class="c-null nn">NOT NULL</td><td class="c-def">1</td><td class="c-desc">BOM level</td></tr>
+      <tr><td class="c-col">quantity</td><td><span class="c-type">DECIMAL(18,4)</span></td><td></td><td class="c-null nn">NOT NULL</td><td></td><td class="c-desc">Qty (CK &gt; 0)</td></tr>
+      <tr><td class="c-col">uom</td><td><span class="c-type">NVARCHAR(10)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Unit of measure</td></tr>
+      <tr><td class="c-col">cost_ratio</td><td><span class="c-type">DECIMAL(9,6)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">RVC weight</td></tr>
+      <tr><td class="c-col">unit_cost</td><td><span class="c-type">DECIMAL(18,4)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Unit cost</td></tr>
+      <tr><td class="c-col">bom_version</td><td><span class="c-type">NVARCHAR(20)</span></td><td><span class="kb kb-uq">UQ</span></td><td class="c-null nn">NOT NULL</td><td class="c-def">'v1'</td><td class="c-desc">BOM version (part of UQ)</td></tr>
+      <tr><td class="c-col">effective_from</td><td><span class="c-type">DATE</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Effective from</td></tr>
+      <tr><td class="c-col">effective_to</td><td><span class="c-type">DATE</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Effective to (CK ≥ from)</td></tr>
+      <tr><td class="c-col">sap_bom_no</td><td><span class="c-type">NVARCHAR(20)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">SAP BOM no.</td></tr>
+      <tr class="audit"><td class="c-col">created_by</td><td><span class="c-type">NVARCHAR(50)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Audit · creator</td></tr>
+      <tr class="audit"><td class="c-col">created_at</td><td><span class="c-type">DATETIME2</span></td><td></td><td class="c-null nn">NOT NULL</td><td class="c-def">SYSUTCDATETIME()</td><td class="c-desc">Audit · created (UTC)</td></tr>
+      <tr class="audit"><td class="c-col">updated_by</td><td><span class="c-type">NVARCHAR(50)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Audit · updater</td></tr>
+      <tr class="audit"><td class="c-col">updated_at</td><td><span class="c-type">DATETIME2</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Audit · updated (UTC)</td></tr>
+    </tbody></table>
+  </div>
+
+  <div class="tcard" id="md_label_template">
+    <div class="tcard-hdr" style="border-left-color:var(--md);"><span class="tcard-name">md_label_template</span><span class="tcard-purpose">MD-08 Label template header — oem_id FK added later (circular with md_oem_customer).</span><span class="tcard-tag">MD-08</span></div>
+    <table class="cs-tbl"><thead><tr><th style="width:170px;">Column</th><th style="width:130px;">Type</th><th style="width:120px;">Key</th><th style="width:50px;">Null</th><th style="width:150px;">Default</th><th>Description</th></tr></thead><tbody>
+      <tr><td class="c-col">template_id</td><td><span class="c-type">BIGINT</span></td><td><span class="kb kb-pk">PK</span></td><td class="c-null nn">NOT NULL</td><td class="c-def">IDENTITY</td><td class="c-desc">Surrogate key</td></tr>
+      <tr><td class="c-col">template_code</td><td><span class="c-type">NVARCHAR(20)</span></td><td><span class="kb kb-uq">UQ</span></td><td class="c-null nn">NOT NULL</td><td></td><td class="c-desc">Template code (UQ w/ version)</td></tr>
+      <tr><td class="c-col">template_name</td><td><span class="c-type">NVARCHAR(100)</span></td><td></td><td class="c-null nn">NOT NULL</td><td></td><td class="c-desc">Template name</td></tr>
+      <tr><td class="c-col">oem_id</td><td><span class="c-type">BIGINT</span></td><td><a class="kb kb-fk" href="#md_oem_customer">FK → md_oem_customer</a></td><td class="c-null y">NULL</td><td></td><td class="c-desc">null = COO standard (circular FK)</td></tr>
+      <tr><td class="c-col">label_type</td><td><span class="c-type">NVARCHAR(20)</span></td><td></td><td class="c-null nn">NOT NULL</td><td class="c-def">'COO'</td><td class="c-desc">COO / OEM</td></tr>
+      <tr><td class="c-col">paper_size</td><td><span class="c-type">NVARCHAR(20)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Paper size</td></tr>
+      <tr><td class="c-col">barcode_type</td><td><span class="c-type">NVARCHAR(20)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Code128/QR/DataMatrix</td></tr>
+      <tr><td class="c-col">version</td><td><span class="c-type">INT</span></td><td><span class="kb kb-uq">UQ</span></td><td class="c-null nn">NOT NULL</td><td class="c-def">1</td><td class="c-desc">Version (part of UQ)</td></tr>
+      <tr><td class="c-col">approval_status</td><td><span class="c-type">NVARCHAR(10)</span></td><td></td><td class="c-null nn">NOT NULL</td><td class="c-def">'draft'</td><td class="c-desc">CK: draft / approved</td></tr>
+      <tr><td class="c-col">is_active</td><td><span class="c-type">BIT</span></td><td></td><td class="c-null nn">NOT NULL</td><td class="c-def">1</td><td class="c-desc">Active flag</td></tr>
+      <tr class="audit"><td class="c-col">created_by</td><td><span class="c-type">NVARCHAR(50)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Audit · creator</td></tr>
+      <tr class="audit"><td class="c-col">created_at</td><td><span class="c-type">DATETIME2</span></td><td></td><td class="c-null nn">NOT NULL</td><td class="c-def">SYSUTCDATETIME()</td><td class="c-desc">Audit · created (UTC)</td></tr>
+      <tr class="audit"><td class="c-col">updated_by</td><td><span class="c-type">NVARCHAR(50)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Audit · updater</td></tr>
+      <tr class="audit"><td class="c-col">updated_at</td><td><span class="c-type">DATETIME2</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Audit · updated (UTC)</td></tr>
+    </tbody></table>
+  </div>
+
+  <div class="tcard" id="md_label_template_field">
+    <div class="tcard-hdr" style="border-left-color:var(--md);"><span class="tcard-name">md_label_template_field</span><span class="tcard-purpose">MD-08 child — per-template field layout (key, label text, data source, position).</span><span class="tcard-tag">MD-08</span></div>
+    <table class="cs-tbl"><thead><tr><th style="width:170px;">Column</th><th style="width:130px;">Type</th><th style="width:120px;">Key</th><th style="width:50px;">Null</th><th style="width:150px;">Default</th><th>Description</th></tr></thead><tbody>
+      <tr><td class="c-col">field_id</td><td><span class="c-type">BIGINT</span></td><td><span class="kb kb-pk">PK</span></td><td class="c-null nn">NOT NULL</td><td class="c-def">IDENTITY</td><td class="c-desc">Surrogate key</td></tr>
+      <tr><td class="c-col">template_id</td><td><span class="c-type">BIGINT</span></td><td><a class="kb kb-fk" href="#md_label_template">FK → md_label_template</a></td><td class="c-null nn">NOT NULL</td><td></td><td class="c-desc">Parent template (ON DELETE CASCADE)</td></tr>
+      <tr><td class="c-col">field_key</td><td><span class="c-type">NVARCHAR(40)</span></td><td></td><td class="c-null nn">NOT NULL</td><td></td><td class="c-desc">origin_country/part/lot/cert_no/serial</td></tr>
+      <tr><td class="c-col">label_text</td><td><span class="c-type">NVARCHAR(60)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Printed label text</td></tr>
+      <tr><td class="c-col">data_source</td><td><span class="c-type">NVARCHAR(60)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Data binding source</td></tr>
+      <tr><td class="c-col">is_required</td><td><span class="c-type">BIT</span></td><td></td><td class="c-null nn">NOT NULL</td><td class="c-def">0</td><td class="c-desc">Required flag</td></tr>
+      <tr><td class="c-col">pos_x</td><td><span class="c-type">INT</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">X position</td></tr>
+      <tr><td class="c-col">pos_y</td><td><span class="c-type">INT</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Y position</td></tr>
+      <tr><td class="c-col">sort_order</td><td><span class="c-type">INT</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Field order</td></tr>
+    </tbody></table>
+  </div>
+
+  <div class="tcard" id="md_oem_customer">
+    <div class="tcard-hdr" style="border-left-color:var(--md);"><span class="tcard-name">md_oem_customer</span><span class="tcard-purpose">MD-06 OEM customer — HMC/KIA/MOBIS; default label template, submission format.</span><span class="tcard-tag">MD-06</span></div>
+    <table class="cs-tbl"><thead><tr><th style="width:170px;">Column</th><th style="width:130px;">Type</th><th style="width:120px;">Key</th><th style="width:50px;">Null</th><th style="width:150px;">Default</th><th>Description</th></tr></thead><tbody>
+      <tr><td class="c-col">oem_id</td><td><span class="c-type">BIGINT</span></td><td><span class="kb kb-pk">PK</span></td><td class="c-null nn">NOT NULL</td><td class="c-def">IDENTITY</td><td class="c-desc">Surrogate key</td></tr>
+      <tr><td class="c-col">oem_code</td><td><span class="c-type">NVARCHAR(10)</span></td><td><span class="kb kb-uq">UQ</span></td><td class="c-null nn">NOT NULL</td><td></td><td class="c-desc">HMC / KIA / MOBIS</td></tr>
+      <tr><td class="c-col">oem_name</td><td><span class="c-type">NVARCHAR(100)</span></td><td></td><td class="c-null nn">NOT NULL</td><td></td><td class="c-desc">OEM name (KO)</td></tr>
+      <tr><td class="c-col">oem_name_en</td><td><span class="c-type">NVARCHAR(100)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">OEM name (EN)</td></tr>
+      <tr><td class="c-col">customer_part_prefix</td><td><span class="c-type">NVARCHAR(20)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Customer part prefix</td></tr>
+      <tr><td class="c-col">default_label_template_id</td><td><span class="c-type">BIGINT</span></td><td><a class="kb kb-fk" href="#md_label_template">FK → md_label_template</a></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Default label template</td></tr>
+      <tr><td class="c-col">coo_form_required</td><td><span class="c-type">BIT</span></td><td></td><td class="c-null nn">NOT NULL</td><td class="c-def">1</td><td class="c-desc">COO form required flag</td></tr>
+      <tr><td class="c-col">submission_format</td><td><span class="c-type">NVARCHAR(50)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">portal/email/EDI</td></tr>
+      <tr><td class="c-col">contact_name</td><td><span class="c-type">NVARCHAR(50)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Contact name</td></tr>
+      <tr><td class="c-col">contact_email</td><td><span class="c-type">NVARCHAR(100)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Contact email</td></tr>
+      <tr><td class="c-col">status</td><td><span class="c-type">NVARCHAR(10)</span></td><td></td><td class="c-null nn">NOT NULL</td><td class="c-def">'active'</td><td class="c-desc">CK: active / inactive</td></tr>
+      <tr class="audit"><td class="c-col">created_by</td><td><span class="c-type">NVARCHAR(50)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Audit · creator</td></tr>
+      <tr class="audit"><td class="c-col">created_at</td><td><span class="c-type">DATETIME2</span></td><td></td><td class="c-null nn">NOT NULL</td><td class="c-def">SYSUTCDATETIME()</td><td class="c-desc">Audit · created (UTC)</td></tr>
+      <tr class="audit"><td class="c-col">updated_by</td><td><span class="c-type">NVARCHAR(50)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Audit · updater</td></tr>
+      <tr class="audit"><td class="c-col">updated_at</td><td><span class="c-type">DATETIME2</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Audit · updated (UTC)</td></tr>
+    </tbody></table>
+  </div>
+
+  <div class="tcard" id="md_cert_type">
+    <div class="tcard-hdr" style="border-left-color:var(--md);"><span class="tcard-name">md_cert_type</span><span class="tcard-purpose">MD-07 Certificate type — COO/USMCA/AFFID/HTS/MILL/OEMDOC; validity &amp; alert tiers.</span><span class="tcard-tag">MD-07</span></div>
+    <table class="cs-tbl"><thead><tr><th style="width:170px;">Column</th><th style="width:130px;">Type</th><th style="width:120px;">Key</th><th style="width:50px;">Null</th><th style="width:150px;">Default</th><th>Description</th></tr></thead><tbody>
+      <tr><td class="c-col">cert_type_id</td><td><span class="c-type">INT</span></td><td><span class="kb kb-pk">PK</span></td><td class="c-null nn">NOT NULL</td><td class="c-def">IDENTITY</td><td class="c-desc">Surrogate key</td></tr>
+      <tr><td class="c-col">cert_type_code</td><td><span class="c-type">NVARCHAR(10)</span></td><td><span class="kb kb-uq">UQ</span></td><td class="c-null nn">NOT NULL</td><td></td><td class="c-desc">COO/USMCA/AFFID/HTS/MILL/OEMDOC</td></tr>
+      <tr><td class="c-col">type_name</td><td><span class="c-type">NVARCHAR(80)</span></td><td></td><td class="c-null nn">NOT NULL</td><td></td><td class="c-desc">Type name (EN)</td></tr>
+      <tr><td class="c-col">type_name_ko</td><td><span class="c-type">NVARCHAR(80)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">유형명 (KO)</td></tr>
+      <tr><td class="c-col">validity_months</td><td><span class="c-type">INT</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">NULL = no expiry (CK &gt; 0)</td></tr>
+      <tr><td class="c-col">requires_approval</td><td><span class="c-type">BIT</span></td><td></td><td class="c-null nn">NOT NULL</td><td class="c-def">1</td><td class="c-desc">Requires approval flag</td></tr>
+      <tr><td class="c-col">blanket_allowed</td><td><span class="c-type">BIT</span></td><td></td><td class="c-null nn">NOT NULL</td><td class="c-def">0</td><td class="c-desc">Blanket certification allowed</td></tr>
+      <tr><td class="c-col">default_alert_tiers</td><td><span class="c-type">NVARCHAR(40)</span></td><td></td><td class="c-null y">NULL</td><td class="c-def">'90,30,7'</td><td class="c-desc">Default alert tier days</td></tr>
+      <tr><td class="c-col">description</td><td><span class="c-type">NVARCHAR(200)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Description</td></tr>
+      <tr><td class="c-col">sort_order</td><td><span class="c-type">INT</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Display order</td></tr>
+      <tr><td class="c-col">is_active</td><td><span class="c-type">BIT</span></td><td></td><td class="c-null nn">NOT NULL</td><td class="c-def">1</td><td class="c-desc">Active flag</td></tr>
+      <tr class="audit"><td class="c-col">created_by</td><td><span class="c-type">NVARCHAR(50)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Audit · creator</td></tr>
+      <tr class="audit"><td class="c-col">created_at</td><td><span class="c-type">DATETIME2</span></td><td></td><td class="c-null nn">NOT NULL</td><td class="c-def">SYSUTCDATETIME()</td><td class="c-desc">Audit · created (UTC)</td></tr>
+      <tr class="audit"><td class="c-col">updated_by</td><td><span class="c-type">NVARCHAR(50)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Audit · updater</td></tr>
+      <tr class="audit"><td class="c-col">updated_at</td><td><span class="c-type">DATETIME2</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Audit · updated (UTC)</td></tr>
+    </tbody></table>
+  </div>
+</section>
+
+<!-- ===================== 2. DOCUMENT MGMT (DOC) ===================== -->
+<section class="sec" id="mod-doc">
+  <div class="sec-hdr" style="background:linear-gradient(135deg,#2563eb,#1d4ed8);">
+    <div class="sec-code">DOC</div>
+    <div class="sec-title-wrap"><div class="sec-title-en">Document Management</div><div class="sec-title-ko">증빙 문서 관리 · doc_*</div></div>
+    <div class="sec-cnt">7 Tables</div>
+  </div>
+
+  <div class="tcard" id="doc_certificate">
+    <div class="tcard-hdr" style="border-left-color:var(--doc);"><span class="tcard-name">doc_certificate</span><span class="tcard-purpose">DOC-01 Certificate — single source of truth; current_version_id FK added after doc_version.</span><span class="tcard-tag">DOC-01</span></div>
+    <table class="cs-tbl"><thead><tr><th style="width:170px;">Column</th><th style="width:130px;">Type</th><th style="width:120px;">Key</th><th style="width:50px;">Null</th><th style="width:150px;">Default</th><th>Description</th></tr></thead><tbody>
+      <tr><td class="c-col">certificate_id</td><td><span class="c-type">BIGINT</span></td><td><span class="kb kb-pk">PK</span></td><td class="c-null nn">NOT NULL</td><td class="c-def">IDENTITY</td><td class="c-desc">Surrogate key</td></tr>
+      <tr><td class="c-col">cert_no</td><td><span class="c-type">NVARCHAR(40)</span></td><td></td><td class="c-null nn">NOT NULL</td><td></td><td class="c-desc">Certificate number</td></tr>
+      <tr><td class="c-col">cert_type_id</td><td><span class="c-type">INT</span></td><td><a class="kb kb-fk" href="#md_cert_type">FK → md_cert_type</a></td><td class="c-null nn">NOT NULL</td><td></td><td class="c-desc">Certificate type</td></tr>
+      <tr><td class="c-col">supplier_id</td><td><span class="c-type">BIGINT</span></td><td><a class="kb kb-fk" href="#md_supplier">FK → md_supplier</a></td><td class="c-null nn">NOT NULL</td><td></td><td class="c-desc">Issuing supplier</td></tr>
+      <tr><td class="c-col">origin_country</td><td><span class="c-type">CHAR(2)</span></td><td><a class="kb kb-fk" href="#md_country">FK → md_country</a></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Origin country</td></tr>
+      <tr><td class="c-col">issue_date</td><td><span class="c-type">DATE</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Issue date</td></tr>
+      <tr><td class="c-col">expiry_date</td><td><span class="c-type">DATE</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">NULL = no expiry (e.g. HTS); CK ≥ issue</td></tr>
+      <tr><td class="c-col">status</td><td><span class="c-type">NVARCHAR(15)</span></td><td></td><td class="c-null nn">NOT NULL</td><td class="c-def">'pending'</td><td class="c-desc">pending/valid/expired/rejected</td></tr>
+      <tr><td class="c-col">current_version_id</td><td><span class="c-type">BIGINT</span></td><td><a class="kb kb-fk" href="#doc_version">FK → doc_version</a></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Current version (circular FK)</td></tr>
+      <tr><td class="c-col">note</td><td><span class="c-type">NVARCHAR(300)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Note</td></tr>
+      <tr class="audit"><td class="c-col">created_by</td><td><span class="c-type">NVARCHAR(50)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Audit · creator</td></tr>
+      <tr class="audit"><td class="c-col">created_at</td><td><span class="c-type">DATETIME2</span></td><td></td><td class="c-null nn">NOT NULL</td><td class="c-def">SYSUTCDATETIME()</td><td class="c-desc">Audit · created (UTC)</td></tr>
+      <tr class="audit"><td class="c-col">updated_by</td><td><span class="c-type">NVARCHAR(50)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Audit · updater</td></tr>
+      <tr class="audit"><td class="c-col">updated_at</td><td><span class="c-type">DATETIME2</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Audit · updated (UTC)</td></tr>
+    </tbody></table>
+  </div>
+
+  <div class="tcard" id="doc_file">
+    <div class="tcard-hdr" style="border-left-color:var(--doc);"><span class="tcard-name">doc_file</span><span class="tcard-purpose">File storage — current + historical via doc_version; virus-scan flag.</span><span class="tcard-tag">DOC</span></div>
+    <table class="cs-tbl"><thead><tr><th style="width:170px;">Column</th><th style="width:130px;">Type</th><th style="width:120px;">Key</th><th style="width:50px;">Null</th><th style="width:150px;">Default</th><th>Description</th></tr></thead><tbody>
+      <tr><td class="c-col">file_id</td><td><span class="c-type">BIGINT</span></td><td><span class="kb kb-pk">PK</span></td><td class="c-null nn">NOT NULL</td><td class="c-def">IDENTITY</td><td class="c-desc">Surrogate key</td></tr>
+      <tr><td class="c-col">certificate_id</td><td><span class="c-type">BIGINT</span></td><td><a class="kb kb-fk" href="#doc_certificate">FK → doc_certificate</a></td><td class="c-null nn">NOT NULL</td><td></td><td class="c-desc">Owning certificate</td></tr>
+      <tr><td class="c-col">file_name</td><td><span class="c-type">NVARCHAR(200)</span></td><td></td><td class="c-null nn">NOT NULL</td><td></td><td class="c-desc">Original file name</td></tr>
+      <tr><td class="c-col">file_path</td><td><span class="c-type">NVARCHAR(400)</span></td><td></td><td class="c-null nn">NOT NULL</td><td></td><td class="c-desc">Storage path</td></tr>
+      <tr><td class="c-col">mime_type</td><td><span class="c-type">NVARCHAR(60)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">MIME type</td></tr>
+      <tr><td class="c-col">file_size</td><td><span class="c-type">BIGINT</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">File size (bytes)</td></tr>
+      <tr><td class="c-col">virus_scanned</td><td><span class="c-type">BIT</span></td><td></td><td class="c-null nn">NOT NULL</td><td class="c-def">0</td><td class="c-desc">Virus-scanned flag</td></tr>
+      <tr class="audit"><td class="c-col">uploaded_by</td><td><span class="c-type">NVARCHAR(50)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Audit · uploader</td></tr>
+      <tr class="audit"><td class="c-col">uploaded_at</td><td><span class="c-type">DATETIME2</span></td><td></td><td class="c-null nn">NOT NULL</td><td class="c-def">SYSUTCDATETIME()</td><td class="c-desc">Audit · uploaded (UTC)</td></tr>
+    </tbody></table>
+  </div>
+
+  <div class="tcard" id="doc_certificate_part">
+    <div class="tcard-hdr" style="border-left-color:var(--doc);"><span class="tcard-name">doc_certificate_part</span><span class="tcard-purpose">M:N junction — certificate ↔ applied parts (UQ on the pair).</span><span class="tcard-tag">DOC</span></div>
+    <table class="cs-tbl"><thead><tr><th style="width:170px;">Column</th><th style="width:130px;">Type</th><th style="width:120px;">Key</th><th style="width:50px;">Null</th><th style="width:150px;">Default</th><th>Description</th></tr></thead><tbody>
+      <tr><td class="c-col">cert_part_id</td><td><span class="c-type">BIGINT</span></td><td><span class="kb kb-pk">PK</span></td><td class="c-null nn">NOT NULL</td><td class="c-def">IDENTITY</td><td class="c-desc">Surrogate key</td></tr>
+      <tr><td class="c-col">certificate_id</td><td><span class="c-type">BIGINT</span></td><td><a class="kb kb-fk" href="#doc_certificate">FK → doc_certificate</a> <span class="kb kb-uq">UQ</span></td><td class="c-null nn">NOT NULL</td><td></td><td class="c-desc">Certificate (UQ w/ part)</td></tr>
+      <tr><td class="c-col">part_id</td><td><span class="c-type">BIGINT</span></td><td><a class="kb kb-fk" href="#md_part">FK → md_part</a> <span class="kb kb-uq">UQ</span></td><td class="c-null nn">NOT NULL</td><td></td><td class="c-desc">Applied part (UQ w/ certificate)</td></tr>
+    </tbody></table>
+  </div>
+
+  <div class="tcard" id="doc_version">
+    <div class="tcard-hdr" style="border-left-color:var(--doc);"><span class="tcard-name">doc_version</span><span class="tcard-purpose">DOC-05 Version history — immutable chain; UQ on (certificate, version_no).</span><span class="tcard-tag">DOC-05</span></div>
+    <table class="cs-tbl"><thead><tr><th style="width:170px;">Column</th><th style="width:130px;">Type</th><th style="width:120px;">Key</th><th style="width:50px;">Null</th><th style="width:150px;">Default</th><th>Description</th></tr></thead><tbody>
+      <tr><td class="c-col">version_id</td><td><span class="c-type">BIGINT</span></td><td><span class="kb kb-pk">PK</span></td><td class="c-null nn">NOT NULL</td><td class="c-def">IDENTITY</td><td class="c-desc">Surrogate key</td></tr>
+      <tr><td class="c-col">certificate_id</td><td><span class="c-type">BIGINT</span></td><td><a class="kb kb-fk" href="#doc_certificate">FK → doc_certificate</a> <span class="kb kb-uq">UQ</span></td><td class="c-null nn">NOT NULL</td><td></td><td class="c-desc">Certificate (UQ w/ version_no)</td></tr>
+      <tr><td class="c-col">version_no</td><td><span class="c-type">INT</span></td><td><span class="kb kb-uq">UQ</span></td><td class="c-null nn">NOT NULL</td><td></td><td class="c-desc">Version number (part of UQ)</td></tr>
+      <tr><td class="c-col">file_id</td><td><span class="c-type">BIGINT</span></td><td><a class="kb kb-fk" href="#doc_file">FK → doc_file</a></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Version file</td></tr>
+      <tr><td class="c-col">change_reason</td><td><span class="c-type">NVARCHAR(200)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Change reason</td></tr>
+      <tr><td class="c-col">is_current</td><td><span class="c-type">BIT</span></td><td></td><td class="c-null nn">NOT NULL</td><td class="c-def">1</td><td class="c-desc">Current-version flag</td></tr>
+      <tr class="audit"><td class="c-col">changed_by</td><td><span class="c-type">NVARCHAR(50)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Audit · changer</td></tr>
+      <tr class="audit"><td class="c-col">changed_at</td><td><span class="c-type">DATETIME2</span></td><td></td><td class="c-null nn">NOT NULL</td><td class="c-def">SYSUTCDATETIME()</td><td class="c-desc">Audit · changed (UTC)</td></tr>
+      <tr><td class="c-col">superseded_at</td><td><span class="c-type">DATETIME2</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Superseded timestamp</td></tr>
+    </tbody></table>
+  </div>
+
+  <div class="tcard" id="doc_approval">
+    <div class="tcard-hdr" style="border-left-color:var(--doc);"><span class="tcard-name">doc_approval</span><span class="tcard-purpose">DOC-04 Approval workflow header — current stage &amp; status.</span><span class="tcard-tag">DOC-04</span></div>
+    <table class="cs-tbl"><thead><tr><th style="width:170px;">Column</th><th style="width:130px;">Type</th><th style="width:120px;">Key</th><th style="width:50px;">Null</th><th style="width:150px;">Default</th><th>Description</th></tr></thead><tbody>
+      <tr><td class="c-col">approval_id</td><td><span class="c-type">BIGINT</span></td><td><span class="kb kb-pk">PK</span></td><td class="c-null nn">NOT NULL</td><td class="c-def">IDENTITY</td><td class="c-desc">Surrogate key</td></tr>
+      <tr><td class="c-col">certificate_id</td><td><span class="c-type">BIGINT</span></td><td><a class="kb kb-fk" href="#doc_certificate">FK → doc_certificate</a></td><td class="c-null nn">NOT NULL</td><td></td><td class="c-desc">Certificate under approval</td></tr>
+      <tr><td class="c-col">current_stage</td><td><span class="c-type">INT</span></td><td></td><td class="c-null nn">NOT NULL</td><td class="c-def">1</td><td class="c-desc">Current stage no.</td></tr>
+      <tr><td class="c-col">status</td><td><span class="c-type">NVARCHAR(12)</span></td><td></td><td class="c-null nn">NOT NULL</td><td class="c-def">'submitted'</td><td class="c-desc">submitted/pending/approved/rejected</td></tr>
+      <tr class="audit"><td class="c-col">submitted_by</td><td><span class="c-type">NVARCHAR(50)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Audit · submitter</td></tr>
+      <tr class="audit"><td class="c-col">submitted_at</td><td><span class="c-type">DATETIME2</span></td><td></td><td class="c-null nn">NOT NULL</td><td class="c-def">SYSUTCDATETIME()</td><td class="c-desc">Audit · submitted (UTC)</td></tr>
+      <tr><td class="c-col">completed_at</td><td><span class="c-type">DATETIME2</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Completion timestamp</td></tr>
+    </tbody></table>
+  </div>
+
+  <div class="tcard" id="doc_approval_step">
+    <div class="tcard-hdr" style="border-left-color:var(--doc);"><span class="tcard-name">doc_approval_step</span><span class="tcard-purpose">DOC-04 Approval steps — per-stage role, approver, action &amp; checklist.</span><span class="tcard-tag">DOC-04</span></div>
+    <table class="cs-tbl"><thead><tr><th style="width:170px;">Column</th><th style="width:130px;">Type</th><th style="width:120px;">Key</th><th style="width:50px;">Null</th><th style="width:150px;">Default</th><th>Description</th></tr></thead><tbody>
+      <tr><td class="c-col">step_id</td><td><span class="c-type">BIGINT</span></td><td><span class="kb kb-pk">PK</span></td><td class="c-null nn">NOT NULL</td><td class="c-def">IDENTITY</td><td class="c-desc">Surrogate key</td></tr>
+      <tr><td class="c-col">approval_id</td><td><span class="c-type">BIGINT</span></td><td><a class="kb kb-fk" href="#doc_approval">FK → doc_approval</a></td><td class="c-null nn">NOT NULL</td><td></td><td class="c-desc">Parent approval (ON DELETE CASCADE)</td></tr>
+      <tr><td class="c-col">stage_no</td><td><span class="c-type">INT</span></td><td></td><td class="c-null nn">NOT NULL</td><td></td><td class="c-desc">Stage number</td></tr>
+      <tr><td class="c-col">role_code</td><td><span class="c-type">NVARCHAR(20)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Approver role code</td></tr>
+      <tr><td class="c-col">approver_id</td><td><span class="c-type">BIGINT</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Approver (user)</td></tr>
+      <tr><td class="c-col">action</td><td><span class="c-type">NVARCHAR(12)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">approve/reject/pending</td></tr>
+      <tr><td class="c-col">reason</td><td><span class="c-type">NVARCHAR(300)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Action reason</td></tr>
+      <tr><td class="c-col">checklist_json</td><td><span class="c-type">NVARCHAR(MAX)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Checklist (JSON)</td></tr>
+      <tr><td class="c-col">acted_at</td><td><span class="c-type">DATETIME2</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Acted timestamp</td></tr>
+    </tbody></table>
+  </div>
+
+  <div class="tcard" id="doc_alert">
+    <div class="tcard-hdr" style="border-left-color:var(--doc);"><span class="tcard-name">doc_alert</span><span class="tcard-purpose">DOC-03 Expiry alerts — tiered D-90/30/7/expired notifications.</span><span class="tcard-tag">DOC-03</span></div>
+    <table class="cs-tbl"><thead><tr><th style="width:170px;">Column</th><th style="width:130px;">Type</th><th style="width:120px;">Key</th><th style="width:50px;">Null</th><th style="width:150px;">Default</th><th>Description</th></tr></thead><tbody>
+      <tr><td class="c-col">alert_id</td><td><span class="c-type">BIGINT</span></td><td><span class="kb kb-pk">PK</span></td><td class="c-null nn">NOT NULL</td><td class="c-def">IDENTITY</td><td class="c-desc">Surrogate key</td></tr>
+      <tr><td class="c-col">certificate_id</td><td><span class="c-type">BIGINT</span></td><td><a class="kb kb-fk" href="#doc_certificate">FK → doc_certificate</a></td><td class="c-null nn">NOT NULL</td><td></td><td class="c-desc">Owning certificate</td></tr>
+      <tr><td class="c-col">tier</td><td><span class="c-type">NVARCHAR(10)</span></td><td></td><td class="c-null nn">NOT NULL</td><td></td><td class="c-desc">D-90/D-30/D-7/expired</td></tr>
+      <tr><td class="c-col">scheduled_for</td><td><span class="c-type">DATE</span></td><td></td><td class="c-null nn">NOT NULL</td><td></td><td class="c-desc">Scheduled send date</td></tr>
+      <tr><td class="c-col">channel</td><td><span class="c-type">NVARCHAR(20)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Delivery channel</td></tr>
+      <tr><td class="c-col">recipient</td><td><span class="c-type">NVARCHAR(100)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Recipient</td></tr>
+      <tr><td class="c-col">sent_at</td><td><span class="c-type">DATETIME2</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Sent timestamp</td></tr>
+      <tr><td class="c-col">ack_at</td><td><span class="c-type">DATETIME2</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Acknowledged timestamp</td></tr>
+      <tr><td class="c-col">status</td><td><span class="c-type">NVARCHAR(12)</span></td><td></td><td class="c-null nn">NOT NULL</td><td class="c-def">'scheduled'</td><td class="c-desc">scheduled/sent/acked/failed</td></tr>
+    </tbody></table>
+  </div>
+</section>
+
+<!-- ===================== 3. LABEL (LBL) ===================== -->
+<section class="sec" id="mod-lbl">
+  <div class="sec-hdr" style="background:linear-gradient(135deg,#7c3aed,#6d28d9);">
+    <div class="sec-code">LBL</div>
+    <div class="sec-title-wrap"><div class="sec-title-en">Label Management</div><div class="sec-title-ko">라벨 관리 · lbl_*</div></div>
+    <div class="sec-cnt">3 Tables</div>
+  </div>
+
+  <div class="tcard" id="lbl_issue">
+    <div class="tcard-hdr" style="border-left-color:var(--lbl);"><span class="tcard-name">lbl_issue</span><span class="tcard-purpose">LBL-02/03 Issued label — unique serial; valid certificate is the evidence gate.</span><span class="tcard-tag">LBL-02/03</span></div>
+    <table class="cs-tbl"><thead><tr><th style="width:170px;">Column</th><th style="width:130px;">Type</th><th style="width:120px;">Key</th><th style="width:50px;">Null</th><th style="width:150px;">Default</th><th>Description</th></tr></thead><tbody>
+      <tr><td class="c-col">issue_id</td><td><span class="c-type">BIGINT</span></td><td><span class="kb kb-pk">PK</span></td><td class="c-null nn">NOT NULL</td><td class="c-def">IDENTITY</td><td class="c-desc">Surrogate key</td></tr>
+      <tr><td class="c-col">serial_no</td><td><span class="c-type">NVARCHAR(30)</span></td><td><span class="kb kb-uq">UQ</span></td><td class="c-null nn">NOT NULL</td><td></td><td class="c-desc">unique serial</td></tr>
+      <tr><td class="c-col">part_id</td><td><span class="c-type">BIGINT</span></td><td><a class="kb kb-fk" href="#md_part">FK → md_part</a></td><td class="c-null nn">NOT NULL</td><td></td><td class="c-desc">Labeled part</td></tr>
+      <tr><td class="c-col">oem_id</td><td><span class="c-type">BIGINT</span></td><td><a class="kb kb-fk" href="#md_oem_customer">FK → md_oem_customer</a></td><td class="c-null y">NULL</td><td></td><td class="c-desc">null = COO standard</td></tr>
+      <tr><td class="c-col">template_id</td><td><span class="c-type">BIGINT</span></td><td><a class="kb kb-fk" href="#md_label_template">FK → md_label_template</a></td><td class="c-null nn">NOT NULL</td><td></td><td class="c-desc">Label template</td></tr>
+      <tr><td class="c-col">certificate_id</td><td><span class="c-type">BIGINT</span></td><td><a class="kb kb-fk" href="#doc_certificate">FK → doc_certificate</a></td><td class="c-null nn">NOT NULL</td><td></td><td class="c-desc">valid evidence gate</td></tr>
+      <tr><td class="c-col">label_type</td><td><span class="c-type">NVARCHAR(20)</span></td><td></td><td class="c-null nn">NOT NULL</td><td class="c-def">'COO'</td><td class="c-desc">Label type</td></tr>
+      <tr><td class="c-col">lot_no</td><td><span class="c-type">NVARCHAR(40)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Lot number</td></tr>
+      <tr><td class="c-col">qty</td><td><span class="c-type">DECIMAL(18,4)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Quantity</td></tr>
+      <tr><td class="c-col">origin_country</td><td><span class="c-type">CHAR(2)</span></td><td><a class="kb kb-fk" href="#md_country">FK → md_country</a></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Origin country</td></tr>
+      <tr><td class="c-col">status</td><td><span class="c-type">NVARCHAR(12)</span></td><td></td><td class="c-null nn">NOT NULL</td><td class="c-def">'issued'</td><td class="c-desc">issued/reprinted/cancelled</td></tr>
+      <tr><td class="c-col">print_count</td><td><span class="c-type">INT</span></td><td></td><td class="c-null nn">NOT NULL</td><td class="c-def">0</td><td class="c-desc">Print count</td></tr>
+      <tr class="audit"><td class="c-col">issued_by</td><td><span class="c-type">NVARCHAR(50)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Audit · issuer</td></tr>
+      <tr class="audit"><td class="c-col">issued_at</td><td><span class="c-type">DATETIME2</span></td><td></td><td class="c-null nn">NOT NULL</td><td class="c-def">SYSUTCDATETIME()</td><td class="c-desc">Audit · issued (UTC)</td></tr>
+    </tbody></table>
+  </div>
+
+  <div class="tcard" id="lbl_reprint">
+    <div class="tcard-hdr" style="border-left-color:var(--lbl);"><span class="tcard-name">lbl_reprint</span><span class="tcard-purpose">LBL-04 Reprint log — reason-tracked reprint events for an issued label.</span><span class="tcard-tag">LBL-04</span></div>
+    <table class="cs-tbl"><thead><tr><th style="width:170px;">Column</th><th style="width:130px;">Type</th><th style="width:120px;">Key</th><th style="width:50px;">Null</th><th style="width:150px;">Default</th><th>Description</th></tr></thead><tbody>
+      <tr><td class="c-col">reprint_id</td><td><span class="c-type">BIGINT</span></td><td><span class="kb kb-pk">PK</span></td><td class="c-null nn">NOT NULL</td><td class="c-def">IDENTITY</td><td class="c-desc">Surrogate key</td></tr>
+      <tr><td class="c-col">issue_id</td><td><span class="c-type">BIGINT</span></td><td><a class="kb kb-fk" href="#lbl_issue">FK → lbl_issue</a></td><td class="c-null nn">NOT NULL</td><td></td><td class="c-desc">Issued label</td></tr>
+      <tr><td class="c-col">reason</td><td><span class="c-type">NVARCHAR(200)</span></td><td></td><td class="c-null nn">NOT NULL</td><td></td><td class="c-desc">Reprint reason</td></tr>
+      <tr class="audit"><td class="c-col">reprinted_by</td><td><span class="c-type">NVARCHAR(50)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Audit · reprinter</td></tr>
+      <tr class="audit"><td class="c-col">reprinted_at</td><td><span class="c-type">DATETIME2</span></td><td></td><td class="c-null nn">NOT NULL</td><td class="c-def">SYSUTCDATETIME()</td><td class="c-desc">Audit · reprinted (UTC)</td></tr>
+    </tbody></table>
+  </div>
+
+  <div class="tcard" id="lbl_print_job">
+    <div class="tcard-hdr" style="border-left-color:var(--lbl);"><span class="tcard-name">lbl_print_job</span><span class="tcard-purpose">LBL-05 Print job — queued/printed/failed printer job for an issued label.</span><span class="tcard-tag">LBL-05</span></div>
+    <table class="cs-tbl"><thead><tr><th style="width:170px;">Column</th><th style="width:130px;">Type</th><th style="width:120px;">Key</th><th style="width:50px;">Null</th><th style="width:150px;">Default</th><th>Description</th></tr></thead><tbody>
+      <tr><td class="c-col">print_job_id</td><td><span class="c-type">BIGINT</span></td><td><span class="kb kb-pk">PK</span></td><td class="c-null nn">NOT NULL</td><td class="c-def">IDENTITY</td><td class="c-desc">Surrogate key</td></tr>
+      <tr><td class="c-col">issue_id</td><td><span class="c-type">BIGINT</span></td><td><a class="kb kb-fk" href="#lbl_issue">FK → lbl_issue</a></td><td class="c-null nn">NOT NULL</td><td></td><td class="c-desc">Issued label</td></tr>
+      <tr><td class="c-col">printer</td><td><span class="c-type">NVARCHAR(40)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Printer name</td></tr>
+      <tr><td class="c-col">status</td><td><span class="c-type">NVARCHAR(12)</span></td><td></td><td class="c-null nn">NOT NULL</td><td class="c-def">'queued'</td><td class="c-desc">queued/printed/failed</td></tr>
+      <tr class="audit"><td class="c-col">requested_by</td><td><span class="c-type">NVARCHAR(50)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Audit · requester</td></tr>
+      <tr class="audit"><td class="c-col">requested_at</td><td><span class="c-type">DATETIME2</span></td><td></td><td class="c-null nn">NOT NULL</td><td class="c-def">SYSUTCDATETIME()</td><td class="c-desc">Audit · requested (UTC)</td></tr>
+      <tr><td class="c-col">printed_at</td><td><span class="c-type">DATETIME2</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Printed timestamp</td></tr>
+    </tbody></table>
+  </div>
+</section>
+
+<!-- ===================== 4. ORIGIN (ORG) ===================== -->
+<section class="sec" id="mod-org">
+  <div class="sec-hdr" style="background:linear-gradient(135deg,#0891b2,#0e7490);">
+    <div class="sec-code">ORG</div>
+    <div class="sec-title-wrap"><div class="sec-title-en">Origin Management</div><div class="sec-title-ko">원산지 관리 · org_*</div></div>
+    <div class="sec-cnt">4 Tables</div>
+  </div>
+
+  <div class="tcard" id="org_part_origin">
+    <div class="tcard-hdr" style="border-left-color:var(--org);"><span class="tcard-name">org_part_origin</span><span class="tcard-purpose">ORG-01 Part origin — determination basis (WO/tariff_shift/RVC) + supporting certificate.</span><span class="tcard-tag">ORG-01</span></div>
+    <table class="cs-tbl"><thead><tr><th style="width:170px;">Column</th><th style="width:130px;">Type</th><th style="width:120px;">Key</th><th style="width:50px;">Null</th><th style="width:150px;">Default</th><th>Description</th></tr></thead><tbody>
+      <tr><td class="c-col">origin_id</td><td><span class="c-type">BIGINT</span></td><td><span class="kb kb-pk">PK</span></td><td class="c-null nn">NOT NULL</td><td class="c-def">IDENTITY</td><td class="c-desc">Surrogate key</td></tr>
+      <tr><td class="c-col">part_id</td><td><span class="c-type">BIGINT</span></td><td><a class="kb kb-fk" href="#md_part">FK → md_part</a></td><td class="c-null nn">NOT NULL</td><td></td><td class="c-desc">Part</td></tr>
+      <tr><td class="c-col">origin_country</td><td><span class="c-type">CHAR(2)</span></td><td><a class="kb kb-fk" href="#md_country">FK → md_country</a></td><td class="c-null nn">NOT NULL</td><td></td><td class="c-desc">Origin country</td></tr>
+      <tr><td class="c-col">determination_basis</td><td><span class="c-type">NVARCHAR(20)</span></td><td></td><td class="c-null nn">NOT NULL</td><td></td><td class="c-desc">WO/tariff_shift/RVC</td></tr>
+      <tr><td class="c-col">certificate_id</td><td><span class="c-type">BIGINT</span></td><td><a class="kb kb-fk" href="#doc_certificate">FK → doc_certificate</a></td><td class="c-null y">NULL</td><td></td><td class="c-desc">supporting evidence (DOC)</td></tr>
+      <tr><td class="c-col">effective_date</td><td><span class="c-type">DATE</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Effective date</td></tr>
+      <tr><td class="c-col">status</td><td><span class="c-type">NVARCHAR(12)</span></td><td></td><td class="c-null nn">NOT NULL</td><td class="c-def">'pending'</td><td class="c-desc">pending/confirmed</td></tr>
+      <tr class="audit"><td class="c-col">created_by</td><td><span class="c-type">NVARCHAR(50)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Audit · creator</td></tr>
+      <tr class="audit"><td class="c-col">created_at</td><td><span class="c-type">DATETIME2</span></td><td></td><td class="c-null nn">NOT NULL</td><td class="c-def">SYSUTCDATETIME()</td><td class="c-desc">Audit · created (UTC)</td></tr>
+      <tr class="audit"><td class="c-col">updated_by</td><td><span class="c-type">NVARCHAR(50)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Audit · updater</td></tr>
+      <tr class="audit"><td class="c-col">updated_at</td><td><span class="c-type">DATETIME2</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Audit · updated (UTC)</td></tr>
+    </tbody></table>
+  </div>
+
+  <div class="tcard" id="org_origin_change">
+    <div class="tcard-hdr" style="border-left-color:var(--org);"><span class="tcard-name">org_origin_change</span><span class="tcard-purpose">ORG-03 Origin change history — immutable field-level audit of origin changes.</span><span class="tcard-tag">ORG-03</span></div>
+    <table class="cs-tbl"><thead><tr><th style="width:170px;">Column</th><th style="width:130px;">Type</th><th style="width:120px;">Key</th><th style="width:50px;">Null</th><th style="width:150px;">Default</th><th>Description</th></tr></thead><tbody>
+      <tr><td class="c-col">change_id</td><td><span class="c-type">BIGINT</span></td><td><span class="kb kb-pk">PK</span></td><td class="c-null nn">NOT NULL</td><td class="c-def">IDENTITY</td><td class="c-desc">Surrogate key</td></tr>
+      <tr><td class="c-col">part_id</td><td><span class="c-type">BIGINT</span></td><td><a class="kb kb-fk" href="#md_part">FK → md_part</a></td><td class="c-null nn">NOT NULL</td><td></td><td class="c-desc">Part</td></tr>
+      <tr><td class="c-col">field_changed</td><td><span class="c-type">NVARCHAR(40)</span></td><td></td><td class="c-null nn">NOT NULL</td><td></td><td class="c-desc">Changed field name</td></tr>
+      <tr><td class="c-col">old_value</td><td><span class="c-type">NVARCHAR(100)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Previous value</td></tr>
+      <tr><td class="c-col">new_value</td><td><span class="c-type">NVARCHAR(100)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">New value</td></tr>
+      <tr><td class="c-col">reason</td><td><span class="c-type">NVARCHAR(300)</span></td><td></td><td class="c-null nn">NOT NULL</td><td></td><td class="c-desc">Change reason</td></tr>
+      <tr><td class="c-col">certificate_id</td><td><span class="c-type">BIGINT</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Related certificate (no FK)</td></tr>
+      <tr class="audit"><td class="c-col">changed_by</td><td><span class="c-type">NVARCHAR(50)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Audit · changer</td></tr>
+      <tr class="audit"><td class="c-col">changed_at</td><td><span class="c-type">DATETIME2</span></td><td></td><td class="c-null nn">NOT NULL</td><td class="c-def">SYSUTCDATETIME()</td><td class="c-desc">Audit · changed (UTC)</td></tr>
+    </tbody></table>
+  </div>
+
+  <div class="tcard" id="org_rollup_result">
+    <div class="tcard-hdr" style="border-left-color:var(--org);"><span class="tcard-name">org_rollup_result</span><span class="tcard-purpose">ORG-04 BOM rollup result — computed finished-good origin &amp; RVC estimate.</span><span class="tcard-tag">ORG-04</span></div>
+    <table class="cs-tbl"><thead><tr><th style="width:170px;">Column</th><th style="width:130px;">Type</th><th style="width:120px;">Key</th><th style="width:50px;">Null</th><th style="width:150px;">Default</th><th>Description</th></tr></thead><tbody>
+      <tr><td class="c-col">rollup_id</td><td><span class="c-type">BIGINT</span></td><td><span class="kb kb-pk">PK</span></td><td class="c-null nn">NOT NULL</td><td class="c-def">IDENTITY</td><td class="c-desc">Surrogate key</td></tr>
+      <tr><td class="c-col">fg_part_id</td><td><span class="c-type">BIGINT</span></td><td><a class="kb kb-fk" href="#md_part">FK → md_part</a></td><td class="c-null nn">NOT NULL</td><td></td><td class="c-desc">Finished-good part</td></tr>
+      <tr><td class="c-col">result_origin</td><td><span class="c-type">CHAR(2)</span></td><td><a class="kb kb-fk" href="#md_country">FK → md_country</a></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Resulting origin country</td></tr>
+      <tr><td class="c-col">basis</td><td><span class="c-type">NVARCHAR(40)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Determination basis</td></tr>
+      <tr><td class="c-col">rvc_estimate</td><td><span class="c-type">DECIMAL(5,2)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">RVC estimate (%)</td></tr>
+      <tr><td class="c-col">status</td><td><span class="c-type">NVARCHAR(12)</span></td><td></td><td class="c-null nn">NOT NULL</td><td class="c-def">'pending'</td><td class="c-desc">pending/confirmed</td></tr>
+      <tr class="audit"><td class="c-col">computed_by</td><td><span class="c-type">NVARCHAR(50)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Audit · computed by</td></tr>
+      <tr class="audit"><td class="c-col">computed_at</td><td><span class="c-type">DATETIME2</span></td><td></td><td class="c-null nn">NOT NULL</td><td class="c-def">SYSUTCDATETIME()</td><td class="c-desc">Audit · computed (UTC)</td></tr>
+    </tbody></table>
+  </div>
+
+  <div class="tcard" id="org_rvc_calc">
+    <div class="tcard-hdr" style="border-left-color:var(--org);"><span class="tcard-name">org_rvc_calc</span><span class="tcard-purpose">ORG-05 RVC calculation — net cost / transaction value method; pass/fail result.</span><span class="tcard-tag">ORG-05</span></div>
+    <table class="cs-tbl"><thead><tr><th style="width:170px;">Column</th><th style="width:130px;">Type</th><th style="width:120px;">Key</th><th style="width:50px;">Null</th><th style="width:150px;">Default</th><th>Description</th></tr></thead><tbody>
+      <tr><td class="c-col">rvc_id</td><td><span class="c-type">BIGINT</span></td><td><span class="kb kb-pk">PK</span></td><td class="c-null nn">NOT NULL</td><td class="c-def">IDENTITY</td><td class="c-desc">Surrogate key</td></tr>
+      <tr><td class="c-col">fg_part_id</td><td><span class="c-type">BIGINT</span></td><td><a class="kb kb-fk" href="#md_part">FK → md_part</a></td><td class="c-null nn">NOT NULL</td><td></td><td class="c-desc">Finished-good part</td></tr>
+      <tr><td class="c-col">method</td><td><span class="c-type">NVARCHAR(20)</span></td><td></td><td class="c-null nn">NOT NULL</td><td></td><td class="c-desc">net_cost/transaction_value</td></tr>
+      <tr><td class="c-col">threshold</td><td><span class="c-type">DECIMAL(5,2)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">RVC threshold (%)</td></tr>
+      <tr><td class="c-col">av</td><td><span class="c-type">DECIMAL(18,4)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">adjusted value</td></tr>
+      <tr><td class="c-col">vnm</td><td><span class="c-type">DECIMAL(18,4)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">value of non-originating materials</td></tr>
+      <tr><td class="c-col">rvc_value</td><td><span class="c-type">DECIMAL(5,2)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Computed RVC (%)</td></tr>
+      <tr><td class="c-col">result</td><td><span class="c-type">NVARCHAR(6)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">pass/fail (CK)</td></tr>
+      <tr class="audit"><td class="c-col">calculated_by</td><td><span class="c-type">NVARCHAR(50)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Audit · calculated by</td></tr>
+      <tr class="audit"><td class="c-col">calculated_at</td><td><span class="c-type">DATETIME2</span></td><td></td><td class="c-null nn">NOT NULL</td><td class="c-def">SYSUTCDATETIME()</td><td class="c-desc">Audit · calculated (UTC)</td></tr>
+    </tbody></table>
+  </div>
+</section>
+
+<!-- ===================== 5. AUDIT (AUD) ===================== -->
+<section class="sec" id="mod-aud">
+  <div class="sec-hdr" style="background:linear-gradient(135deg,#dc2626,#991b1b);">
+    <div class="sec-code">AUD</div>
+    <div class="sec-title-wrap"><div class="sec-title-en">Audit Support</div><div class="sec-title-ko">감사 대응 · aud_*</div></div>
+    <div class="sec-cnt">3 Tables</div>
+  </div>
+
+  <div class="tcard" id="aud_report">
+    <div class="tcard-hdr" style="border-left-color:var(--aud);"><span class="tcard-name">aud_report</span><span class="tcard-purpose">AUD-03 Generated report — CBP/OEM/internal; SHA-256 hash for tamper-evidence.</span><span class="tcard-tag">AUD-03</span></div>
+    <table class="cs-tbl"><thead><tr><th style="width:170px;">Column</th><th style="width:130px;">Type</th><th style="width:120px;">Key</th><th style="width:50px;">Null</th><th style="width:150px;">Default</th><th>Description</th></tr></thead><tbody>
+      <tr><td class="c-col">report_id</td><td><span class="c-type">BIGINT</span></td><td><span class="kb kb-pk">PK</span></td><td class="c-null nn">NOT NULL</td><td class="c-def">IDENTITY</td><td class="c-desc">Surrogate key</td></tr>
+      <tr><td class="c-col">report_type</td><td><span class="c-type">NVARCHAR(30)</span></td><td></td><td class="c-null nn">NOT NULL</td><td></td><td class="c-desc">CBP/OEM/internal</td></tr>
+      <tr><td class="c-col">template</td><td><span class="c-type">NVARCHAR(60)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Report template</td></tr>
+      <tr><td class="c-col">scope_json</td><td><span class="c-type">NVARCHAR(MAX)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Report scope (JSON)</td></tr>
+      <tr><td class="c-col">file_path</td><td><span class="c-type">NVARCHAR(400)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Output file path</td></tr>
+      <tr><td class="c-col">hash</td><td><span class="c-type">NVARCHAR(64)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">SHA-256, tamper-evident</td></tr>
+      <tr><td class="c-col">status</td><td><span class="c-type">NVARCHAR(12)</span></td><td></td><td class="c-null nn">NOT NULL</td><td class="c-def">'generated'</td><td class="c-desc">Generation status</td></tr>
+      <tr class="audit"><td class="c-col">generated_by</td><td><span class="c-type">NVARCHAR(50)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Audit · generated by</td></tr>
+      <tr class="audit"><td class="c-col">generated_at</td><td><span class="c-type">DATETIME2</span></td><td></td><td class="c-null nn">NOT NULL</td><td class="c-def">SYSUTCDATETIME()</td><td class="c-desc">Audit · generated (UTC)</td></tr>
+    </tbody></table>
+  </div>
+
+  <div class="tcard" id="aud_package">
+    <div class="tcard-hdr" style="border-left-color:var(--aud);"><span class="tcard-name">aud_package</span><span class="tcard-purpose">AUD-04 Audit package — building/validated/exported bundle with hash.</span><span class="tcard-tag">AUD-04</span></div>
+    <table class="cs-tbl"><thead><tr><th style="width:170px;">Column</th><th style="width:130px;">Type</th><th style="width:120px;">Key</th><th style="width:50px;">Null</th><th style="width:150px;">Default</th><th>Description</th></tr></thead><tbody>
+      <tr><td class="c-col">package_id</td><td><span class="c-type">BIGINT</span></td><td><span class="kb kb-pk">PK</span></td><td class="c-null nn">NOT NULL</td><td class="c-def">IDENTITY</td><td class="c-desc">Surrogate key</td></tr>
+      <tr><td class="c-col">package_name</td><td><span class="c-type">NVARCHAR(100)</span></td><td></td><td class="c-null nn">NOT NULL</td><td></td><td class="c-desc">Package name</td></tr>
+      <tr><td class="c-col">status</td><td><span class="c-type">NVARCHAR(12)</span></td><td></td><td class="c-null nn">NOT NULL</td><td class="c-def">'building'</td><td class="c-desc">building/validated/exported</td></tr>
+      <tr><td class="c-col">file_path</td><td><span class="c-type">NVARCHAR(400)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Export file path</td></tr>
+      <tr><td class="c-col">hash</td><td><span class="c-type">NVARCHAR(64)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">SHA-256 hash</td></tr>
+      <tr class="audit"><td class="c-col">created_by</td><td><span class="c-type">NVARCHAR(50)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Audit · creator</td></tr>
+      <tr class="audit"><td class="c-col">created_at</td><td><span class="c-type">DATETIME2</span></td><td></td><td class="c-null nn">NOT NULL</td><td class="c-def">SYSUTCDATETIME()</td><td class="c-desc">Audit · created (UTC)</td></tr>
+      <tr><td class="c-col">exported_at</td><td><span class="c-type">DATETIME2</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Export timestamp</td></tr>
+    </tbody></table>
+  </div>
+
+  <div class="tcard" id="aud_package_item">
+    <div class="tcard-hdr" style="border-left-color:var(--aud);"><span class="tcard-name">aud_package_item</span><span class="tcard-purpose">AUD-04 Package item — polymorphic ref (certificate/origin/rvc/label/report).</span><span class="tcard-tag">AUD-04</span></div>
+    <table class="cs-tbl"><thead><tr><th style="width:170px;">Column</th><th style="width:130px;">Type</th><th style="width:120px;">Key</th><th style="width:50px;">Null</th><th style="width:150px;">Default</th><th>Description</th></tr></thead><tbody>
+      <tr><td class="c-col">item_id</td><td><span class="c-type">BIGINT</span></td><td><span class="kb kb-pk">PK</span></td><td class="c-null nn">NOT NULL</td><td class="c-def">IDENTITY</td><td class="c-desc">Surrogate key</td></tr>
+      <tr><td class="c-col">package_id</td><td><span class="c-type">BIGINT</span></td><td><a class="kb kb-fk" href="#aud_package">FK → aud_package</a></td><td class="c-null nn">NOT NULL</td><td></td><td class="c-desc">Parent package (ON DELETE CASCADE)</td></tr>
+      <tr><td class="c-col">item_type</td><td><span class="c-type">NVARCHAR(20)</span></td><td></td><td class="c-null nn">NOT NULL</td><td></td><td class="c-desc">certificate/origin/rvc/label/report</td></tr>
+      <tr><td class="c-col">ref_id</td><td><span class="c-type">BIGINT</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Polymorphic reference id</td></tr>
+      <tr><td class="c-col">valid_flag</td><td><span class="c-type">BIT</span></td><td></td><td class="c-null nn">NOT NULL</td><td class="c-def">1</td><td class="c-desc">Validity flag</td></tr>
+    </tbody></table>
+  </div>
+</section>
+
+<!-- ===================== 6. INTEGRATION (INT) ===================== -->
+<section class="sec" id="mod-int">
+  <div class="sec-hdr" style="background:linear-gradient(135deg,#6366f1,#4f46e5);">
+    <div class="sec-code">INT</div>
+    <div class="sec-title-wrap"><div class="sec-title-en">Integration</div><div class="sec-title-ko">연계 · int_*</div></div>
+    <div class="sec-cnt">4 Tables</div>
+  </div>
+
+  <div class="tcard" id="int_connection">
+    <div class="tcard-hdr" style="border-left-color:var(--int);"><span class="tcard-name">int_connection</span><span class="tcard-purpose">External system connection — SAP/SCM host, auth, vault-masked secret ref.</span><span class="tcard-tag">INT</span></div>
+    <table class="cs-tbl"><thead><tr><th style="width:170px;">Column</th><th style="width:130px;">Type</th><th style="width:120px;">Key</th><th style="width:50px;">Null</th><th style="width:150px;">Default</th><th>Description</th></tr></thead><tbody>
+      <tr><td class="c-col">connection_id</td><td><span class="c-type">BIGINT</span></td><td><span class="kb kb-pk">PK</span></td><td class="c-null nn">NOT NULL</td><td class="c-def">IDENTITY</td><td class="c-desc">Surrogate key</td></tr>
+      <tr><td class="c-col">system_name</td><td><span class="c-type">NVARCHAR(40)</span></td><td></td><td class="c-null nn">NOT NULL</td><td></td><td class="c-desc">SAP ECC/S4, SCM</td></tr>
+      <tr><td class="c-col">host</td><td><span class="c-type">NVARCHAR(120)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Host</td></tr>
+      <tr><td class="c-col">client_no</td><td><span class="c-type">NVARCHAR(10)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Client no.</td></tr>
+      <tr><td class="c-col">auth_type</td><td><span class="c-type">NVARCHAR(20)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Auth type</td></tr>
+      <tr><td class="c-col">username</td><td><span class="c-type">NVARCHAR(60)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Username</td></tr>
+      <tr><td class="c-col">secret_ref</td><td><span class="c-type">NVARCHAR(100)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">vault reference (masked)</td></tr>
+      <tr><td class="c-col">status</td><td><span class="c-type">NVARCHAR(12)</span></td><td></td><td class="c-null nn">NOT NULL</td><td class="c-def">'inactive'</td><td class="c-desc">Connection status</td></tr>
+      <tr><td class="c-col">last_test_at</td><td><span class="c-type">DATETIME2</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Last test timestamp</td></tr>
+      <tr class="audit"><td class="c-col">created_by</td><td><span class="c-type">NVARCHAR(50)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Audit · creator</td></tr>
+      <tr class="audit"><td class="c-col">created_at</td><td><span class="c-type">DATETIME2</span></td><td></td><td class="c-null nn">NOT NULL</td><td class="c-def">SYSUTCDATETIME()</td><td class="c-desc">Audit · created (UTC)</td></tr>
+    </tbody></table>
+  </div>
+
+  <div class="tcard" id="int_endpoint">
+    <div class="tcard-hdr" style="border-left-color:var(--int);"><span class="tcard-name">int_endpoint</span><span class="tcard-purpose">Sync endpoint — per-object (BOM/Supplier/PO) batch or realtime, cron schedule.</span><span class="tcard-tag">INT</span></div>
+    <table class="cs-tbl"><thead><tr><th style="width:170px;">Column</th><th style="width:130px;">Type</th><th style="width:120px;">Key</th><th style="width:50px;">Null</th><th style="width:150px;">Default</th><th>Description</th></tr></thead><tbody>
+      <tr><td class="c-col">endpoint_id</td><td><span class="c-type">BIGINT</span></td><td><span class="kb kb-pk">PK</span></td><td class="c-null nn">NOT NULL</td><td class="c-def">IDENTITY</td><td class="c-desc">Surrogate key</td></tr>
+      <tr><td class="c-col">connection_id</td><td><span class="c-type">BIGINT</span></td><td><a class="kb kb-fk" href="#int_connection">FK → int_connection</a></td><td class="c-null nn">NOT NULL</td><td></td><td class="c-desc">Parent connection</td></tr>
+      <tr><td class="c-col">object_type</td><td><span class="c-type">NVARCHAR(20)</span></td><td></td><td class="c-null nn">NOT NULL</td><td></td><td class="c-desc">BOM/Supplier/PO</td></tr>
+      <tr><td class="c-col">mode</td><td><span class="c-type">NVARCHAR(10)</span></td><td></td><td class="c-null nn">NOT NULL</td><td class="c-def">'batch'</td><td class="c-desc">batch/realtime</td></tr>
+      <tr><td class="c-col">enabled</td><td><span class="c-type">BIT</span></td><td></td><td class="c-null nn">NOT NULL</td><td class="c-def">1</td><td class="c-desc">Enabled flag</td></tr>
+      <tr><td class="c-col">schedule_cron</td><td><span class="c-type">NVARCHAR(40)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Cron schedule</td></tr>
+      <tr><td class="c-col">last_sync_at</td><td><span class="c-type">DATETIME2</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Last sync timestamp</td></tr>
+    </tbody></table>
+  </div>
+
+  <div class="tcard" id="int_job">
+    <div class="tcard-hdr" style="border-left-color:var(--int);"><span class="tcard-name">int_job</span><span class="tcard-purpose">Sync job run — added/changed/deleted/conflict counts, status &amp; message.</span><span class="tcard-tag">INT</span></div>
+    <table class="cs-tbl"><thead><tr><th style="width:170px;">Column</th><th style="width:130px;">Type</th><th style="width:120px;">Key</th><th style="width:50px;">Null</th><th style="width:150px;">Default</th><th>Description</th></tr></thead><tbody>
+      <tr><td class="c-col">job_id</td><td><span class="c-type">BIGINT</span></td><td><span class="kb kb-pk">PK</span></td><td class="c-null nn">NOT NULL</td><td class="c-def">IDENTITY</td><td class="c-desc">Surrogate key</td></tr>
+      <tr><td class="c-col">endpoint_id</td><td><span class="c-type">BIGINT</span></td><td><a class="kb kb-fk" href="#int_endpoint">FK → int_endpoint</a></td><td class="c-null nn">NOT NULL</td><td></td><td class="c-desc">Parent endpoint</td></tr>
+      <tr><td class="c-col">job_type</td><td><span class="c-type">NVARCHAR(12)</span></td><td></td><td class="c-null nn">NOT NULL</td><td></td><td class="c-desc">batch/manual</td></tr>
+      <tr><td class="c-col">started_at</td><td><span class="c-type">DATETIME2</span></td><td></td><td class="c-null nn">NOT NULL</td><td class="c-def">SYSUTCDATETIME()</td><td class="c-desc">Start timestamp</td></tr>
+      <tr><td class="c-col">finished_at</td><td><span class="c-type">DATETIME2</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Finish timestamp</td></tr>
+      <tr><td class="c-col">added_cnt</td><td><span class="c-type">INT</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Added count</td></tr>
+      <tr><td class="c-col">changed_cnt</td><td><span class="c-type">INT</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Changed count</td></tr>
+      <tr><td class="c-col">deleted_cnt</td><td><span class="c-type">INT</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Deleted count</td></tr>
+      <tr><td class="c-col">conflict_cnt</td><td><span class="c-type">INT</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Conflict count</td></tr>
+      <tr><td class="c-col">status</td><td><span class="c-type">NVARCHAR(12)</span></td><td></td><td class="c-null nn">NOT NULL</td><td class="c-def">'running'</td><td class="c-desc">running/success/partial/failed</td></tr>
+      <tr><td class="c-col">message</td><td><span class="c-type">NVARCHAR(400)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Result message</td></tr>
+    </tbody></table>
+  </div>
+
+  <div class="tcard" id="int_integrity_issue">
+    <div class="tcard-hdr" style="border-left-color:var(--int);"><span class="tcard-name">int_integrity_issue</span><span class="tcard-purpose">Data-integrity issue — rule-based critical/warning/info finding &amp; resolution.</span><span class="tcard-tag">INT</span></div>
+    <table class="cs-tbl"><thead><tr><th style="width:170px;">Column</th><th style="width:130px;">Type</th><th style="width:120px;">Key</th><th style="width:50px;">Null</th><th style="width:150px;">Default</th><th>Description</th></tr></thead><tbody>
+      <tr><td class="c-col">issue_id</td><td><span class="c-type">BIGINT</span></td><td><span class="kb kb-pk">PK</span></td><td class="c-null nn">NOT NULL</td><td class="c-def">IDENTITY</td><td class="c-desc">Surrogate key</td></tr>
+      <tr><td class="c-col">rule_code</td><td><span class="c-type">NVARCHAR(40)</span></td><td></td><td class="c-null nn">NOT NULL</td><td></td><td class="c-desc">Integrity rule code</td></tr>
+      <tr><td class="c-col">severity</td><td><span class="c-type">NVARCHAR(10)</span></td><td></td><td class="c-null nn">NOT NULL</td><td></td><td class="c-desc">critical/warning/info</td></tr>
+      <tr><td class="c-col">target_type</td><td><span class="c-type">NVARCHAR(30)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Target entity type</td></tr>
+      <tr><td class="c-col">target_ref</td><td><span class="c-type">NVARCHAR(60)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Target reference</td></tr>
+      <tr><td class="c-col">detail</td><td><span class="c-type">NVARCHAR(400)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Issue detail</td></tr>
+      <tr><td class="c-col">status</td><td><span class="c-type">NVARCHAR(12)</span></td><td></td><td class="c-null nn">NOT NULL</td><td class="c-def">'open'</td><td class="c-desc">open/resolved/ignored</td></tr>
+      <tr><td class="c-col">detected_at</td><td><span class="c-type">DATETIME2</span></td><td></td><td class="c-null nn">NOT NULL</td><td class="c-def">SYSUTCDATETIME()</td><td class="c-desc">Detected timestamp</td></tr>
+      <tr class="audit"><td class="c-col">resolved_by</td><td><span class="c-type">NVARCHAR(50)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Audit · resolver</td></tr>
+      <tr class="audit"><td class="c-col">resolved_at</td><td><span class="c-type">DATETIME2</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Resolved timestamp</td></tr>
+    </tbody></table>
+  </div>
+</section>
+
+<!-- ===================== 7. SYSTEM / ADMIN (SYS) ===================== -->
+<section class="sec" id="mod-sys">
+  <div class="sec-hdr" style="background:linear-gradient(135deg,#64748b,#475569);">
+    <div class="sec-code">SYS</div>
+    <div class="sec-title-wrap"><div class="sec-title-en">System / Admin</div><div class="sec-title-ko">시스템 · 관리 · sys_*</div></div>
+    <div class="sec-cnt">10 Tables</div>
+  </div>
+
+  <div class="tcard" id="sys_user">
+    <div class="tcard-hdr" style="border-left-color:var(--sys);"><span class="tcard-name">sys_user</span><span class="tcard-purpose">System user — login, department, status, last login.</span><span class="tcard-tag">SYS</span></div>
+    <table class="cs-tbl"><thead><tr><th style="width:170px;">Column</th><th style="width:130px;">Type</th><th style="width:120px;">Key</th><th style="width:50px;">Null</th><th style="width:150px;">Default</th><th>Description</th></tr></thead><tbody>
+      <tr><td class="c-col">user_id</td><td><span class="c-type">BIGINT</span></td><td><span class="kb kb-pk">PK</span></td><td class="c-null nn">NOT NULL</td><td class="c-def">IDENTITY</td><td class="c-desc">Surrogate key</td></tr>
+      <tr><td class="c-col">login_id</td><td><span class="c-type">NVARCHAR(50)</span></td><td><span class="kb kb-uq">UQ</span></td><td class="c-null nn">NOT NULL</td><td></td><td class="c-desc">Login id</td></tr>
+      <tr><td class="c-col">user_name</td><td><span class="c-type">NVARCHAR(50)</span></td><td></td><td class="c-null nn">NOT NULL</td><td></td><td class="c-desc">User name</td></tr>
+      <tr><td class="c-col">dept</td><td><span class="c-type">NVARCHAR(50)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Department</td></tr>
+      <tr><td class="c-col">email</td><td><span class="c-type">NVARCHAR(100)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Email</td></tr>
+      <tr><td class="c-col">status</td><td><span class="c-type">NVARCHAR(10)</span></td><td></td><td class="c-null nn">NOT NULL</td><td class="c-def">'active'</td><td class="c-desc">active/locked/inactive</td></tr>
+      <tr><td class="c-col">last_login_at</td><td><span class="c-type">DATETIME2</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Last login timestamp</td></tr>
+      <tr class="audit"><td class="c-col">created_by</td><td><span class="c-type">NVARCHAR(50)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Audit · creator</td></tr>
+      <tr class="audit"><td class="c-col">created_at</td><td><span class="c-type">DATETIME2</span></td><td></td><td class="c-null nn">NOT NULL</td><td class="c-def">SYSUTCDATETIME()</td><td class="c-desc">Audit · created (UTC)</td></tr>
+      <tr class="audit"><td class="c-col">updated_by</td><td><span class="c-type">NVARCHAR(50)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Audit · updater</td></tr>
+      <tr class="audit"><td class="c-col">updated_at</td><td><span class="c-type">DATETIME2</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Audit · updated (UTC)</td></tr>
+    </tbody></table>
+  </div>
+
+  <div class="tcard" id="sys_role">
+    <div class="tcard-hdr" style="border-left-color:var(--sys);"><span class="tcard-name">sys_role</span><span class="tcard-purpose">Role definition — role code &amp; name for RBAC.</span><span class="tcard-tag">SYS</span></div>
+    <table class="cs-tbl"><thead><tr><th style="width:170px;">Column</th><th style="width:130px;">Type</th><th style="width:120px;">Key</th><th style="width:50px;">Null</th><th style="width:150px;">Default</th><th>Description</th></tr></thead><tbody>
+      <tr><td class="c-col">role_id</td><td><span class="c-type">INT</span></td><td><span class="kb kb-pk">PK</span></td><td class="c-null nn">NOT NULL</td><td class="c-def">IDENTITY</td><td class="c-desc">Surrogate key</td></tr>
+      <tr><td class="c-col">role_code</td><td><span class="c-type">NVARCHAR(20)</span></td><td><span class="kb kb-uq">UQ</span></td><td class="c-null nn">NOT NULL</td><td></td><td class="c-desc">Role code</td></tr>
+      <tr><td class="c-col">role_name</td><td><span class="c-type">NVARCHAR(50)</span></td><td></td><td class="c-null nn">NOT NULL</td><td></td><td class="c-desc">Role name</td></tr>
+      <tr><td class="c-col">description</td><td><span class="c-type">NVARCHAR(200)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Description</td></tr>
+    </tbody></table>
+  </div>
+
+  <div class="tcard" id="sys_permission">
+    <div class="tcard-hdr" style="border-left-color:var(--sys);"><span class="tcard-name">sys_permission</span><span class="tcard-purpose">Permission master — natural PK is permission code (e.g. DOC.View, LBL.Issue).</span><span class="tcard-tag">SYS</span></div>
+    <table class="cs-tbl"><thead><tr><th style="width:170px;">Column</th><th style="width:130px;">Type</th><th style="width:120px;">Key</th><th style="width:50px;">Null</th><th style="width:150px;">Default</th><th>Description</th></tr></thead><tbody>
+      <tr><td class="c-col">permission_code</td><td><span class="c-type">NVARCHAR(30)</span></td><td><span class="kb kb-pk">PK</span></td><td class="c-null nn">NOT NULL</td><td></td><td class="c-desc">e.g. DOC.View, LBL.Issue</td></tr>
+      <tr><td class="c-col">module</td><td><span class="c-type">NVARCHAR(10)</span></td><td></td><td class="c-null nn">NOT NULL</td><td></td><td class="c-desc">Owning module</td></tr>
+      <tr><td class="c-col">description</td><td><span class="c-type">NVARCHAR(200)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Description</td></tr>
+    </tbody></table>
+  </div>
+
+  <div class="tcard" id="sys_user_role">
+    <div class="tcard-hdr" style="border-left-color:var(--sys);"><span class="tcard-name">sys_user_role</span><span class="tcard-purpose">M:N junction — user ↔ role; composite PK.</span><span class="tcard-tag">SYS</span></div>
+    <table class="cs-tbl"><thead><tr><th style="width:170px;">Column</th><th style="width:130px;">Type</th><th style="width:120px;">Key</th><th style="width:50px;">Null</th><th style="width:150px;">Default</th><th>Description</th></tr></thead><tbody>
+      <tr><td class="c-col">user_id</td><td><span class="c-type">BIGINT</span></td><td><span class="kb kb-pk">PK</span> <a class="kb kb-fk" href="#sys_user">FK → sys_user</a></td><td class="c-null nn">NOT NULL</td><td></td><td class="c-desc">User (composite PK; ON DELETE CASCADE)</td></tr>
+      <tr><td class="c-col">role_id</td><td><span class="c-type">INT</span></td><td><span class="kb kb-pk">PK</span> <a class="kb kb-fk" href="#sys_role">FK → sys_role</a></td><td class="c-null nn">NOT NULL</td><td></td><td class="c-desc">Role (composite PK; ON DELETE CASCADE)</td></tr>
+    </tbody></table>
+  </div>
+
+  <div class="tcard" id="sys_role_permission">
+    <div class="tcard-hdr" style="border-left-color:var(--sys);"><span class="tcard-name">sys_role_permission</span><span class="tcard-purpose">M:N junction — role ↔ permission; composite PK.</span><span class="tcard-tag">SYS</span></div>
+    <table class="cs-tbl"><thead><tr><th style="width:170px;">Column</th><th style="width:130px;">Type</th><th style="width:120px;">Key</th><th style="width:50px;">Null</th><th style="width:150px;">Default</th><th>Description</th></tr></thead><tbody>
+      <tr><td class="c-col">role_id</td><td><span class="c-type">INT</span></td><td><span class="kb kb-pk">PK</span> <a class="kb kb-fk" href="#sys_role">FK → sys_role</a></td><td class="c-null nn">NOT NULL</td><td></td><td class="c-desc">Role (composite PK; ON DELETE CASCADE)</td></tr>
+      <tr><td class="c-col">permission_code</td><td><span class="c-type">NVARCHAR(30)</span></td><td><span class="kb kb-pk">PK</span> <a class="kb kb-fk" href="#sys_permission">FK → sys_permission</a></td><td class="c-null nn">NOT NULL</td><td></td><td class="c-desc">Permission (composite PK)</td></tr>
+    </tbody></table>
+  </div>
+
+  <div class="tcard" id="sys_audit_log">
+    <div class="tcard-hdr" style="border-left-color:var(--sys);"><span class="tcard-name">sys_audit_log</span><span class="tcard-purpose">SYS-02 Security audit trail — immutable, append-only event log.</span><span class="tcard-tag">SYS-02</span></div>
+    <table class="cs-tbl"><thead><tr><th style="width:170px;">Column</th><th style="width:130px;">Type</th><th style="width:120px;">Key</th><th style="width:50px;">Null</th><th style="width:150px;">Default</th><th>Description</th></tr></thead><tbody>
+      <tr><td class="c-col">log_id</td><td><span class="c-type">BIGINT</span></td><td><span class="kb kb-pk">PK</span></td><td class="c-null nn">NOT NULL</td><td class="c-def">IDENTITY</td><td class="c-desc">Surrogate key</td></tr>
+      <tr><td class="c-col">event_type</td><td><span class="c-type">NVARCHAR(20)</span></td><td></td><td class="c-null nn">NOT NULL</td><td></td><td class="c-desc">login/access/change/view/export</td></tr>
+      <tr><td class="c-col">actor_user_id</td><td><span class="c-type">BIGINT</span></td><td><a class="kb kb-fk" href="#sys_user">FK → sys_user</a></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Acting user</td></tr>
+      <tr><td class="c-col">module</td><td><span class="c-type">NVARCHAR(10)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Module</td></tr>
+      <tr><td class="c-col">target</td><td><span class="c-type">NVARCHAR(100)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Target entity</td></tr>
+      <tr><td class="c-col">ip</td><td><span class="c-type">NVARCHAR(45)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Source IP</td></tr>
+      <tr><td class="c-col">result</td><td><span class="c-type">NVARCHAR(10)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">success/fail</td></tr>
+      <tr><td class="c-col">detail</td><td><span class="c-type">NVARCHAR(MAX)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Event detail</td></tr>
+      <tr><td class="c-col">at</td><td><span class="c-type">DATETIME2</span></td><td></td><td class="c-null nn">NOT NULL</td><td class="c-def">SYSUTCDATETIME()</td><td class="c-desc">Event timestamp (UTC)</td></tr>
+    </tbody></table>
+  </div>
+
+  <div class="tcard" id="sys_notif_channel">
+    <div class="tcard-hdr" style="border-left-color:var(--sys);"><span class="tcard-name">sys_notif_channel</span><span class="tcard-purpose">SYS-03 Notification channel — email/sms/push/messenger with masked config ref.</span><span class="tcard-tag">SYS-03</span></div>
+    <table class="cs-tbl"><thead><tr><th style="width:170px;">Column</th><th style="width:130px;">Type</th><th style="width:120px;">Key</th><th style="width:50px;">Null</th><th style="width:150px;">Default</th><th>Description</th></tr></thead><tbody>
+      <tr><td class="c-col">channel_id</td><td><span class="c-type">INT</span></td><td><span class="kb kb-pk">PK</span></td><td class="c-null nn">NOT NULL</td><td class="c-def">IDENTITY</td><td class="c-desc">Surrogate key</td></tr>
+      <tr><td class="c-col">channel_type</td><td><span class="c-type">NVARCHAR(20)</span></td><td></td><td class="c-null nn">NOT NULL</td><td></td><td class="c-desc">email/sms/push/messenger</td></tr>
+      <tr><td class="c-col">config_ref</td><td><span class="c-type">NVARCHAR(100)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">masked secret/config ref</td></tr>
+      <tr><td class="c-col">enabled</td><td><span class="c-type">BIT</span></td><td></td><td class="c-null nn">NOT NULL</td><td class="c-def">1</td><td class="c-desc">Enabled flag</td></tr>
+    </tbody></table>
+  </div>
+
+  <div class="tcard" id="sys_notif_rule">
+    <div class="tcard-hdr" style="border-left-color:var(--sys);"><span class="tcard-name">sys_notif_rule</span><span class="tcard-purpose">SYS-03 Notification rule — event → channel/role, retry &amp; escalation.</span><span class="tcard-tag">SYS-03</span></div>
+    <table class="cs-tbl"><thead><tr><th style="width:170px;">Column</th><th style="width:130px;">Type</th><th style="width:120px;">Key</th><th style="width:50px;">Null</th><th style="width:150px;">Default</th><th>Description</th></tr></thead><tbody>
+      <tr><td class="c-col">rule_id</td><td><span class="c-type">INT</span></td><td><span class="kb kb-pk">PK</span></td><td class="c-null nn">NOT NULL</td><td class="c-def">IDENTITY</td><td class="c-desc">Surrogate key</td></tr>
+      <tr><td class="c-col">event_type</td><td><span class="c-type">NVARCHAR(30)</span></td><td></td><td class="c-null nn">NOT NULL</td><td></td><td class="c-desc">cert_expiry_d30, approval_pending, sync_fail…</td></tr>
+      <tr><td class="c-col">channel_id</td><td><span class="c-type">INT</span></td><td><a class="kb kb-fk" href="#sys_notif_channel">FK → sys_notif_channel</a></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Delivery channel</td></tr>
+      <tr><td class="c-col">recipient_role</td><td><span class="c-type">NVARCHAR(20)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Recipient role</td></tr>
+      <tr><td class="c-col">retry_count</td><td><span class="c-type">INT</span></td><td></td><td class="c-null nn">NOT NULL</td><td class="c-def">3</td><td class="c-desc">Retry count</td></tr>
+      <tr><td class="c-col">escalation</td><td><span class="c-type">NVARCHAR(40)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Escalation policy</td></tr>
+      <tr><td class="c-col">enabled</td><td><span class="c-type">BIT</span></td><td></td><td class="c-null nn">NOT NULL</td><td class="c-def">1</td><td class="c-desc">Enabled flag</td></tr>
+    </tbody></table>
+  </div>
+
+  <div class="tcard" id="sys_code_group">
+    <div class="tcard-hdr" style="border-left-color:var(--sys);"><span class="tcard-name">sys_code_group</span><span class="tcard-purpose">SYS-04 Common-code group — natural PK is group code.</span><span class="tcard-tag">SYS-04</span></div>
+    <table class="cs-tbl"><thead><tr><th style="width:170px;">Column</th><th style="width:130px;">Type</th><th style="width:120px;">Key</th><th style="width:50px;">Null</th><th style="width:150px;">Default</th><th>Description</th></tr></thead><tbody>
+      <tr><td class="c-col">group_code</td><td><span class="c-type">NVARCHAR(30)</span></td><td><span class="kb kb-pk">PK</span></td><td class="c-null nn">NOT NULL</td><td></td><td class="c-desc">Code group key</td></tr>
+      <tr><td class="c-col">group_name</td><td><span class="c-type">NVARCHAR(80)</span></td><td></td><td class="c-null nn">NOT NULL</td><td></td><td class="c-desc">Group name</td></tr>
+      <tr><td class="c-col">description</td><td><span class="c-type">NVARCHAR(200)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Description</td></tr>
+    </tbody></table>
+  </div>
+
+  <div class="tcard" id="sys_code">
+    <div class="tcard-hdr" style="border-left-color:var(--sys);"><span class="tcard-name">sys_code</span><span class="tcard-purpose">SYS-04 Common-code item — KO/EN names under a group; UQ on (group, code).</span><span class="tcard-tag">SYS-04</span></div>
+    <table class="cs-tbl"><thead><tr><th style="width:170px;">Column</th><th style="width:130px;">Type</th><th style="width:120px;">Key</th><th style="width:50px;">Null</th><th style="width:150px;">Default</th><th>Description</th></tr></thead><tbody>
+      <tr><td class="c-col">code_id</td><td><span class="c-type">BIGINT</span></td><td><span class="kb kb-pk">PK</span></td><td class="c-null nn">NOT NULL</td><td class="c-def">IDENTITY</td><td class="c-desc">Surrogate key</td></tr>
+      <tr><td class="c-col">group_code</td><td><span class="c-type">NVARCHAR(30)</span></td><td><a class="kb kb-fk" href="#sys_code_group">FK → sys_code_group</a> <span class="kb kb-uq">UQ</span></td><td class="c-null nn">NOT NULL</td><td></td><td class="c-desc">Code group (UQ w/ code)</td></tr>
+      <tr><td class="c-col">code</td><td><span class="c-type">NVARCHAR(30)</span></td><td><span class="kb kb-uq">UQ</span></td><td class="c-null nn">NOT NULL</td><td></td><td class="c-desc">Code (UQ w/ group_code)</td></tr>
+      <tr><td class="c-col">name_ko</td><td><span class="c-type">NVARCHAR(80)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Name (KO)</td></tr>
+      <tr><td class="c-col">name_en</td><td><span class="c-type">NVARCHAR(80)</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Name (EN)</td></tr>
+      <tr><td class="c-col">sort_order</td><td><span class="c-type">INT</span></td><td></td><td class="c-null y">NULL</td><td></td><td class="c-desc">Display order</td></tr>
+      <tr><td class="c-col">is_active</td><td><span class="c-type">BIT</span></td><td></td><td class="c-null nn">NOT NULL</td><td class="c-def">1</td><td class="c-desc">Active flag</td></tr>
+    </tbody></table>
+  </div>
+</section>
+
+  </div>
+  <div class="page-footer">
+    <span class="pf-l">UOCM · Database Schema · 40 Tables · MS SQL Server</span>
+    <span class="pf-r">UOCM_Schema.sql · Physical Data Model</span>
+  </div>
+</div>
+</div>
+</body>
+</html>
