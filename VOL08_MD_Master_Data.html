@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>UOCM · VOL.8 · MD · Master Data</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;600;700&family=Bebas+Neue&display=swap');
+:root{
+  --brand:#059669;--brand-dk:#047857;
+  --ink:#0a1422;--ink2:#101d2e;--ink3:#1c2c40;
+  --surface:#fff;--bg:#f4f7fa;--border:#d3dce6;--text:#1e2a38;--sub:#5b6b7d;
+  --doc:#d97706;--lbl:#7c3aed;--org:#0891b2;--aud:#dc2626;--int:#6366f1;--sys:#64748b;--md:#d97706;
+  --mod:#d97706;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);font-size:13px;line-height:1.6;}
+
+.uo-nav{position:sticky;top:0;z-index:9999;background:#fff;border-bottom:1px solid #e5eaf0;box-shadow:0 1px 4px rgba(15,39,71,.06);}
+.uo-nav-inner{display:flex;align-items:stretch;overflow-x:auto;scrollbar-width:none;}
+.uo-nav-inner::-webkit-scrollbar{display:none;}
+.nav-home{display:flex;align-items:center;gap:8px;padding:0 16px;background:rgba(5,150,105,.08);border-right:1px solid #e5eaf0;text-decoration:none;flex-shrink:0;min-height:42px;}
+.nav-home-logo{font-family:'Bebas Neue',sans-serif;font-size:17px;color:#059669;letter-spacing:2px;}
+.nav-home-sub{font-size:9px;color:#94a3b8;}
+.nav-vol{display:flex;align-items:center;gap:5px;padding:0 12px;text-decoration:none;font-size:10px;font-weight:700;color:#5b6b7d;border-bottom:2px solid transparent;white-space:nowrap;min-height:42px;transition:color .12s;}
+.nav-vol:hover{color:#0f2747;background:#f6f8fa;}
+.nav-vol.active{color:#0f2747;border-bottom-color:#059669;}
+.nav-vol .nv-code{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;}
+
+.page-wrap{display:flex;}
+.sidebar{width:236px;min-width:236px;background:#f6f8fa;position:sticky;top:42px;height:calc(100vh - 42px);overflow-y:auto;scrollbar-width:thin;border-right:1px solid #e5eaf0;}
+.sb-head{padding:16px 14px 12px;border-bottom:1px solid #e5eaf0;}
+.sb-vol{font-family:'JetBrains Mono',monospace;font-size:9px;color:#047857;letter-spacing:2px;margin-bottom:4px;}
+.sb-mod-en{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1px;color:#d97706;}
+.sb-mod-ko{font-size:10px;color:#94a3b8;}
+.sb-section{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#94a3b8;padding:12px 14px 4px;}
+.sb-link{display:flex;align-items:center;gap:7px;padding:6px 14px;text-decoration:none;color:#5b6b7d;font-size:11px;border-left:2px solid transparent;transition:all .12s;}
+.sb-link:hover{color:#0f2747;background:#eef2f7;}
+.sb-link.on{color:#0f2747;border-left-color:#d97706;background:rgba(217,119,6,.08);}
+.sb-link .sl-id{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;width:44px;flex-shrink:0;color:#d97706;}
+.sb-link .sl-en{font-size:10px;font-weight:600;}
+.sb-link .sl-ko{font-size:9px;color:#94a3b8;margin-top:1px;}
+.sb-l3{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:3px;background:rgba(5,150,105,.1);color:#047857;font-size:11px;text-decoration:none;margin-left:auto;transition:all .15s;flex-shrink:0;border:1px solid rgba(5,150,105,.3);}
+.sb-l3:hover{background:#059669;color:#fff;border-color:#059669;transform:scale(1.15);}
+.sb-l3.todo{background:#f1f5f9;color:#94a3b8;border:1px solid #e2e8f0;opacity:.4;cursor:default;}
+.sb-l3.todo:hover{background:#f1f5f9;color:#94a3b8;border-color:#e2e8f0;transform:none;}
+.sb-sep{height:1px;background:#e5eaf0;margin:5px 0;}
+
+.main{flex:1;min-width:0;}
+
+.mod-hdr{padding:36px 48px 24px;position:relative;overflow:hidden;background:linear-gradient(135deg,#fffaf0,#ffffff);border-bottom:1px solid #e5eaf0;}
+.mod-hdr-inner{position:relative;z-index:1;}
+.mod-eyebrow{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;margin-bottom:10px;opacity:.9;color:#d97706;}
+.mod-title-en{font-family:'Bebas Neue',sans-serif;font-size:48px;line-height:.95;letter-spacing:2px;color:#d97706;margin-bottom:4px;}
+.mod-title-ko{font-size:14px;font-weight:300;color:#5b6b7d;letter-spacing:3px;margin-bottom:16px;}
+.mod-desc-bi{display:grid;grid-template-columns:1fr 1fr;gap:14px;max-width:900px;margin-bottom:14px;}
+.mdb-en{font-size:11px;color:#5b6b7d;line-height:1.85;border-left:2px solid #cbd5e1;padding-left:12px;}
+.mdb-ko{font-size:11px;color:#94a3b8;line-height:1.85;border-left:2px solid #e5eaf0;padding-left:12px;}
+.mod-meta-strip{display:grid;grid-template-columns:repeat(6,1fr);gap:0;border:1px solid #f5e0b0;border-radius:6px;overflow:hidden;margin:14px 0 16px;max-width:900px;background:#fff;}
+.mms-item{padding:10px 14px;border-right:1px solid #e5eaf0;}
+.mms-item:last-child{border-right:none;}
+.mms-l{font-size:8px;color:#d97706;text-transform:uppercase;letter-spacing:1.2px;font-family:'JetBrains Mono',monospace;}
+.mms-v{font-size:13px;font-weight:800;color:#0f2747;margin-top:3px;letter-spacing:.3px;}
+.mms-v.warn{color:#a16207;}
+.l3-hint{display:inline-block;font-size:10px;color:#047857;font-weight:600;letter-spacing:1px;padding:5px 12px;background:rgba(5,150,105,.08);border:1px dashed rgba(5,150,105,.4);border-radius:3px;margin-bottom:8px;}
+.note-banner{display:flex;align-items:center;gap:10px;font-size:11px;color:#92400e;font-weight:600;letter-spacing:.3px;padding:10px 16px;background:#fef3c7;border:1px solid #fde68a;border-left:4px solid #d97706;border-radius:0 6px 6px 0;margin:4px 0 14px;max-width:900px;line-height:1.6;}
+.screen-pills{display:flex;gap:5px;flex-wrap:wrap;margin-top:10px;}
+.sp{display:flex;align-items:center;gap:5px;padding:5px 11px;border-radius:3px;background:#f6f8fa;border:1px solid #d3dce6;font-size:9px;color:#5b6b7d;text-decoration:none;transition:all .15s;}
+.sp:hover{background:rgba(217,119,6,.1);border-color:rgba(217,119,6,.4);color:#0f2747;}
+.sp-id{font-family:'JetBrains Mono',monospace;font-weight:700;color:#047857;}
+
+.content{padding:0 48px 48px;}
+.sec-div{display:flex;align-items:center;gap:12px;margin:28px 0 16px;}
+.sd-line{flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--border) 20%,var(--border) 80%,transparent);}
+.sd-lbl{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:var(--doc);letter-spacing:2px;white-space:nowrap;padding:4px 10px;background:#fffbeb;border:1px solid #fde68a;border-radius:3px;}
+
+.flow-card{background:#fff;border:1px solid #e5eaf0;color:#1e2a38;border-radius:10px;padding:20px 22px;margin-bottom:18px;box-shadow:0 1px 4px rgba(15,39,71,.05);}
+.flow-card-h{font-family:'JetBrains Mono',monospace;font-size:10px;color:#d97706;letter-spacing:2px;text-transform:uppercase;margin-bottom:14px;}
+.flow-track{margin-bottom:14px;}
+.flow-track-lbl{font-size:10px;color:#5b6b7d;letter-spacing:1px;font-family:'JetBrains Mono',monospace;margin-bottom:8px;text-transform:uppercase;}
+.flow-row{display:flex;align-items:center;gap:0;flex-wrap:wrap;}
+.flow-node{display:flex;flex-direction:column;align-items:center;gap:3px;background:rgba(217,119,6,.07);border:1px solid #fde68a;border-radius:8px;padding:10px 12px;min-width:96px;text-align:center;transition:all .15s;text-decoration:none;color:#1e2a38;}
+.flow-node:hover{background:rgba(217,119,6,.14);border-color:#d97706;transform:translateY(-2px);box-shadow:0 6px 16px rgba(217,119,6,.2);}
+.flow-node.ext{background:#f6f8fa;border-color:#cbd5e1;border-style:dashed;}
+.flow-node.alert{background:#fef2f2;border-color:#fca5a5;}
+.fn-id{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;color:#d97706;letter-spacing:.5px;}
+.flow-node.ext .fn-id{color:#94a3b8;}
+.flow-node.alert .fn-id{color:#dc2626;}
+.fn-name{font-size:11px;font-weight:700;color:#0f2747;}
+.fn-ko{font-size:9px;color:#5b6b7d;}
+.fn-tag{font-size:8px;font-family:'JetBrains Mono',monospace;color:#94a3b8;margin-top:1px;}
+.flow-arr{font-size:18px;color:#fcd34d;padding:0 4px;font-weight:700;}
+
+.mod-kpi{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:18px;}
+.kpi-card{background:#fff;border:1px solid var(--border);border-top:3px solid var(--doc);border-radius:0 0 6px 6px;padding:14px 16px;}
+.kpi-l{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--sub);letter-spacing:1px;text-transform:uppercase;}
+.kpi-v{font-family:'Bebas Neue',sans-serif;font-size:34px;color:var(--text);line-height:1;margin-top:5px;letter-spacing:.5px;}
+.kpi-v.ok{color:#16a34a;}.kpi-v.warn{color:#a16207;}.kpi-v.alert{color:#dc2626;}.kpi-v.doc{color:var(--doc);}
+.kpi-s{font-size:10px;color:var(--sub);margin-top:3px;}
+
+.screen-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:18px;box-shadow:0 1px 3px rgba(0,0,0,.04);}
+.sc-hdr{padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:14px;border-bottom:1px solid #fde68a;background:linear-gradient(135deg,#fffbeb,#fef3c7);}
+.sc-hdr-l{display:flex;align-items:center;gap:14px;flex:1;min-width:0;}
+.sc-icon{font-size:42px;line-height:1;flex-shrink:0;filter:drop-shadow(0 2px 4px rgba(0,0,0,.3));}
+.sc-title-wrap{flex:1;min-width:0;}
+.sc-id{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;color:#d97706;letter-spacing:.5px;}
+.sc-title-en{font-size:16px;font-weight:800;color:#0f2747;letter-spacing:-.3px;margin-top:2px;}
+.sc-title-ko{font-size:10px;color:#5b6b7d;margin-top:2px;}
+.sc-tags{display:flex;flex-direction:column;align-items:flex-end;gap:4px;}
+.tag{font-size:9px;font-weight:700;padding:2px 9px;border-radius:3px;white-space:nowrap;}
+.t-web{background:rgba(217,119,6,.2);color:#fcd34d;border:1px solid rgba(217,119,6,.35);}
+.t-portal{background:rgba(13,184,122,.2);color:#5dffc4;border:1px solid rgba(13,184,122,.3);}
+.t-p1{background:rgba(16,185,129,.18);color:#6ee7b7;border:1px solid rgba(16,185,129,.32);}
+.t-core{background:rgba(212,160,23,.2);color:#fbbf24;border:1px solid rgba(212,160,23,.35);}
+.sc-l3-btn{display:inline-flex;align-items:center;gap:5px;padding:8px 14px;background:linear-gradient(135deg,#10b981,#059669);color:#03241a;font-size:11px;font-weight:800;border-radius:5px;text-decoration:none;letter-spacing:.5px;text-transform:uppercase;border:1px solid #059669;box-shadow:0 2px 6px rgba(16,185,129,.3);transition:all .15s;white-space:nowrap;}
+.sc-l3-btn:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(16,185,129,.5);background:linear-gradient(135deg,#34d399,#10b981);}
+.sc-l3-btn.todo{background:#eef0f3;color:#94a3b8;border:1px dashed #cbd5e1;box-shadow:none;cursor:default;pointer-events:none;}
+.sc-l3-btn.todo:hover{transform:none;box-shadow:none;background:#eef0f3;}
+.sc-body{padding:16px 18px;}
+.headline{display:flex;align-items:center;gap:10px;padding:11px 14px;background:linear-gradient(135deg,#fffbeb,#fef3c7);border:1px solid #fde68a;border-left:3px solid var(--doc);border-radius:0 5px 5px 0;margin-bottom:14px;}
+.headline-ico{font-size:18px;color:var(--doc);}
+.headline-t{font-size:12px;color:#92400e;font-weight:700;line-height:1.55;}
+.headline-t .ko{display:block;color:#d97706;font-weight:400;font-size:11px;margin-top:1px;}
+.qf-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px;}
+.qf{background:#fafbfd;border:1px solid var(--border);border-radius:5px;padding:9px 11px;}
+.qf-l{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--sub);letter-spacing:.7px;text-transform:uppercase;}
+.qf-v{font-size:11px;color:var(--text);font-weight:700;margin-top:3px;line-height:1.4;}
+.desc-bi{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;background:#fffbeb;border:1px solid var(--border);border-left:3px solid var(--doc);border-radius:0 6px 6px 0;padding:11px 14px;}
+.db-lbl{font-size:8px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;opacity:.55;}
+.db-en{font-size:11px;color:#92400e;line-height:1.75;}
+.db-ko{font-size:11px;color:var(--sub);line-height:1.75;}
+.feat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:8px;margin-bottom:12px;}
+.feat-item{background:#fff;border:1px solid var(--border);border-top:2px solid var(--doc);border-radius:0 0 5px 5px;padding:10px 12px;}
+.feat-ico{font-size:16px;line-height:1;margin-bottom:5px;}
+.feat-t{font-size:11px;font-weight:800;color:var(--text);margin-bottom:2px;}
+.feat-d{font-size:10px;color:var(--sub);line-height:1.55;}
+.feat-d .ko{color:#94a3b8;font-size:9px;display:block;margin-top:1px;}
+.br-chips{display:flex;gap:5px;flex-wrap:wrap;padding-top:10px;border-top:1px dashed var(--border);}
+.br-chip{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;padding:3px 8px;border-radius:3px;background:#fef3c7;color:#92400e;border:1px solid #fcd34d;text-decoration:none;letter-spacing:.3px;}
+.br-chip.crit{background:#fee2e2;color:#991b1b;border-color:#fca5a5;}
+.br-chip-lbl{font-size:9px;color:var(--sub);font-family:'JetBrains Mono',monospace;letter-spacing:.5px;margin-right:4px;align-self:center;}
+
+.ref-tbl{width:100%;border-collapse:collapse;font-size:11px;background:#fff;border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-bottom:18px;}
+.ref-tbl th{background:#f0f3f7;color:var(--text);padding:8px 12px;text-align:left;font-size:10px;font-weight:700;border-bottom:1px solid var(--border);}
+.ref-tbl td{padding:8px 12px;border-bottom:1px solid var(--border);}
+.ref-tbl tr:last-child td{border-bottom:none;}
+.ref-tbl tr:nth-child(even) td{background:#fafbfd;}
+.ref-tbl .code{font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--doc);font-size:11px;}
+.pill{display:inline-block;font-size:9px;font-weight:700;padding:2px 8px;border-radius:8px;}
+.p-ok{background:#dcfce7;color:#166534;}.p-w{background:#fef9c3;color:#92400e;}.p-e{background:#fee2e2;color:#991b1b;}.p-i{background:#fef3c7;color:#92400e;}.p-n{background:#f1f5f9;color:#475569;}
+
+.br-wrap{margin-bottom:16px;}
+.br-tbl{width:100%;border-collapse:collapse;font-size:10px;}
+.br-tbl th{background:var(--text);color:#fff;padding:7px 10px;text-align:left;border:1px solid rgba(255,255,255,.08);font-size:9px;}
+.br-tbl td{padding:7px 10px;border:1px solid var(--border);vertical-align:top;line-height:1.6;}
+.br-tbl tr:nth-child(even) td{background:#fafbfd;}
+.br-id-c{font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--brand-dk);white-space:nowrap;}
+.b{display:inline-block;font-size:9px;font-weight:700;padding:2px 7px;border-radius:8px;}
+.b-blk{background:#fee2e2;color:#991b1b;}.b-alt{background:#fef9c3;color:#92400e;}.b-aut{background:#fef3c7;color:#92400e;}
+
+.page-footer{padding:14px 48px;border-top:1px solid #e5eaf0;display:flex;align-items:center;justify-content:space-between;background:#f6f8fa;margin-top:20px;}
+.pf-l{font-size:10px;color:#94a3b8;font-family:'JetBrains Mono',monospace;}
+.pf-r{font-family:'JetBrains Mono',monospace;font-size:10px;color:#047857;}
+@media(max-width:1024px){.mod-desc-bi{grid-template-columns:1fr;}.mod-meta-strip{grid-template-columns:repeat(3,1fr);}.mod-kpi{grid-template-columns:repeat(2,1fr);}.qf-grid{grid-template-columns:repeat(2,1fr);}.desc-bi{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<nav class="uo-nav"><div class="uo-nav-inner">
+  <a href="index.html" class="nav-home"><span class="nav-home-logo">UOCM</span><span class="nav-home-sub">◀ Index</span></a>
+  <a href="VOL01_Overview.html" class="nav-vol"><span class="nv-code" style="color:#10b981;">OV</span><span>Overview</span></a>
+  <a href="VOL02_DOC_Document_Management.html" class="nav-vol"><span class="nv-code" style="color:#2563eb;">DOC</span><span>Document</span></a>
+  <a href="VOL03_LBL_Label_Management.html" class="nav-vol"><span class="nv-code" style="color:#7c3aed;">LBL</span><span>Label</span></a>
+  <a href="VOL04_ORG_Origin_Management.html" class="nav-vol"><span class="nv-code" style="color:#0891b2;">ORG</span><span>Origin</span></a>
+  <a href="VOL05_AUD_Audit_Support.html" class="nav-vol"><span class="nv-code" style="color:#dc2626;">AUD</span><span>Audit</span></a>
+  <a href="VOL06_INT_Integration.html" class="nav-vol"><span class="nv-code" style="color:#6366f1;">INT</span><span>Integration</span></a>
+  <a href="VOL07_SYS_System.html" class="nav-vol"><span class="nv-code" style="color:#64748b;">SYS</span><span>System</span></a>
+  <a href="VOL08_MD_Master_Data.html" class="nav-vol active"><span class="nv-code" style="color:#d97706;">MD</span><span>Master Data</span></a>
+</div></nav>
+<div class="page-wrap">
+<nav class="sidebar">
+  <div class="sb-head">
+    <div class="sb-vol">VOL.8 · MD MODULE</div>
+    <div class="sb-mod-en">MASTER DATA</div>
+    <div class="sb-mod-ko">기준정보 (엔티티 카탈로그)</div>
+  </div>
+  <div class="sb-section">Overview · 개요</div>
+  <a class="sb-link" href="#flow"><span class="sl-id">REL</span><div><div class="sl-en">Entity Relationships</div><div class="sl-ko">엔티티 관계도</div></div></a>
+  <a class="sb-link" href="#kpi"><span class="sl-id">KPI</span><div><div class="sl-en">Module KPI</div><div class="sl-ko">핵심 지표</div></div></a>
+  <div class="sb-section">Core Entities · 핵심 엔티티</div>
+  <a class="sb-link on" href="#md01"><span class="sl-id">MD-01</span><div><div class="sl-en">Supplier</div><div class="sl-ko">공급사</div></div><span class="sb-l3 todo" title="L3 예정">·</span></a>
+  <a class="sb-link" href="#md02"><span class="sl-id">MD-02</span><div><div class="sl-en">Part / Item</div><div class="sl-ko">품목</div></div><span class="sb-l3 todo" title="L3 예정">·</span></a>
+  <a class="sb-link" href="#md03"><span class="sl-id">MD-03</span><div><div class="sl-en">BOM</div><div class="sl-ko">자재명세서</div></div><span class="sb-l3 todo" title="L3 예정">·</span></a>
+  <div class="sb-section">Classification · 분류</div>
+  <a class="sb-link" href="#md04"><span class="sl-id">MD-04</span><div><div class="sl-en">Country</div><div class="sl-ko">국가</div></div><span class="sb-l3 todo" title="L3 예정">·</span></a>
+  <a class="sb-link" href="#md05"><span class="sl-id">MD-05</span><div><div class="sl-en">HTS Code</div><div class="sl-ko">품목분류</div></div><span class="sb-l3 todo" title="L3 예정">·</span></a>
+  <div class="sb-section">Customer · 고객</div>
+  <a class="sb-link" href="#md06"><span class="sl-id">MD-06</span><div><div class="sl-en">OEM Customer</div><div class="sl-ko">고객(OEM)</div></div><span class="sb-l3 todo" title="L3 예정">·</span></a>
+  <a class="sb-link" href="#md08"><span class="sl-id">MD-08</span><div><div class="sl-en">Label Template</div><div class="sl-ko">라벨 템플릿</div></div><span class="sb-l3 todo" title="L3 예정">·</span></a>
+  <div class="sb-section">Reference · 증빙</div>
+  <a class="sb-link" href="#md07"><span class="sl-id">MD-07</span><div><div class="sl-en">Certificate Type</div><div class="sl-ko">증빙 유형</div></div><span class="sb-l3 todo" title="L3 예정">·</span></a>
+  <div class="sb-sep"></div>
+  <div class="sb-section">Reference · 참조</div>
+  <a class="sb-link" href="#ref-entity"><span class="sl-id">ENT</span><div><div class="sl-en">Entity List</div><div class="sl-ko">엔티티 목록</div></div></a>
+  <a class="sb-link" href="#ref-usage"><span class="sl-id">USE</span><div><div class="sl-en">Cross-Module Usage</div><div class="sl-ko">모듈별 사용</div></div></a>
+  <a class="sb-link" href="#br-md"><span class="sl-id">BR</span><div><div class="sl-en">Business Rules</div><div class="sl-ko">업무 규칙</div></div></a>
+</nav>
+<div class="main">
+  <div class="mod-hdr">
+    <div class="mod-hdr-inner">
+      <div class="mod-eyebrow">VOL.8 · MD · Master Data · 기준정보</div>
+      <div class="mod-title-en">MASTER<br>DATA</div>
+      <div class="mod-title-ko">기준정보 — 모든 모듈이 참조하는 공유 마스터 데이터 · 엔티티 카탈로그</div>
+      <div class="mod-desc-bi">
+        <div class="mdb-en">The <strong>shared master data</strong> that every module references. Supplier, part, BOM, country, HTS, OEM customer, certificate type and label template form the common backbone consumed by DOC, LBL, ORG, AUD, INT and SYS. This volume is the <strong>entity catalog</strong> (L2 hub): it defines the 8 master entities, how they relate, and which modules consume them. Per-entity <strong>table-design L3 pages</strong> will follow as a later step — by work order, master-data L3 is done last, group by group.</div>
+        <div class="mdb-ko">모든 모듈이 참조하는 <strong>공유 마스터 데이터</strong>. 공급사·품목·BOM·국가·HTS·고객(OEM)·증빙 유형·라벨 템플릿은 DOC·LBL·ORG·AUD·INT·SYS가 함께 소비하는 공통 기반입니다. 본 권은 <strong>엔티티 카탈로그</strong>(L2 허브)로, 8개 마스터 엔티티와 상호 관계, 모듈별 소비 관계를 정의합니다. 엔티티별 <strong>테이블 설계 L3 페이지</strong>는 후속 단계에서 작성됩니다 — 작업 순서상 MD L3는 마지막에, 그룹별로 진행합니다.</div>
+      </div>
+      <div class="note-banner">📋 엔티티별 L3 테이블 설계서는 후속 단계에서 그룹별로 작성됩니다 (작업 순서상 마지막).</div>
+      <div class="mod-meta-strip">
+        <div class="mms-item"><div class="mms-l">Entities</div><div class="mms-v">8</div></div>
+        <div class="mms-item"><div class="mms-l">L3 Done</div><div class="mms-v warn">0 / 8</div></div>
+        <div class="mms-item"><div class="mms-l">Type</div><div class="mms-v">Catalog</div></div>
+        <div class="mms-item"><div class="mms-l">Scope</div><div class="mms-v">Shared</div></div>
+        <div class="mms-item"><div class="mms-l">Phase</div><div class="mms-v">P1</div></div>
+        <div class="mms-item"><div class="mms-l">Status</div><div class="mms-v warn">L3 예정 (후속)</div></div>
+      </div>
+      <div><span class="l3-hint">📋 L3 테이블 설계서는 후속 단계 — 현재는 엔티티 카탈로그만 제공</span></div>
+      <div class="screen-pills">
+        <span class="sp" title="L3 예정 · MD-01"><span class="sp-id">MD-01</span> Supplier <span style="opacity:.4;font-size:8px;">L3 예정</span></span>
+        <span class="sp" title="L3 예정 · MD-02"><span class="sp-id">MD-02</span> Part / Item <span style="opacity:.4;font-size:8px;">L3 예정</span></span>
+        <span class="sp" title="L3 예정 · MD-03"><span class="sp-id">MD-03</span> BOM <span style="opacity:.4;font-size:8px;">L3 예정</span></span>
+        <span class="sp" title="L3 예정 · MD-04"><span class="sp-id">MD-04</span> Country <span style="opacity:.4;font-size:8px;">L3 예정</span></span>
+        <span class="sp" title="L3 예정 · MD-05"><span class="sp-id">MD-05</span> HTS Code <span style="opacity:.4;font-size:8px;">L3 예정</span></span>
+        <span class="sp" title="L3 예정 · MD-06"><span class="sp-id">MD-06</span> OEM Customer <span style="opacity:.4;font-size:8px;">L3 예정</span></span>
+        <span class="sp" title="L3 예정 · MD-07"><span class="sp-id">MD-07</span> Certificate Type <span style="opacity:.4;font-size:8px;">L3 예정</span></span>
+        <span class="sp" title="L3 예정 · MD-08"><span class="sp-id">MD-08</span> Label Template <span style="opacity:.4;font-size:8px;">L3 예정</span></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- ENTITY RELATIONSHIPS -->
+    <div class="sec-div" id="flow"><div class="sd-line"></div><div class="sd-lbl">▼ ENTITY RELATIONSHIPS · 엔티티 관계</div><div class="sd-line"></div></div>
+    <div class="flow-card">
+      <div class="flow-card-h">▼ Master Entity Relationships · 마스터 엔티티 관계도</div>
+      <div class="flow-track">
+        <div class="flow-track-lbl">🏭 SOURCING CHAIN · 소싱 체인 (Supplier → Part → BOM)</div>
+        <div class="flow-row">
+          <a class="flow-node" href="#md01"><span class="fn-id">MD-01</span><span class="fn-name">Supplier</span><span class="fn-ko">공급사</span><span class="fn-tag">공급원</span></a>
+          <span class="flow-arr">→</span>
+          <a class="flow-node" href="#md02"><span class="fn-id">MD-02</span><span class="fn-name">Part / Item</span><span class="fn-ko">품목</span><span class="fn-tag">공급사별</span></a>
+          <span class="flow-arr">→</span>
+          <a class="flow-node" href="#md03"><span class="fn-id">MD-03</span><span class="fn-name">BOM</span><span class="fn-ko">자재명세서</span><span class="fn-tag">다단계 구성</span></a>
+        </div>
+      </div>
+      <div class="flow-track">
+        <div class="flow-track-lbl">🧭 ORIGIN CLASSIFICATION · 원산지 분류 (Part → HTS / Country / Origin)</div>
+        <div class="flow-row">
+          <a class="flow-node" href="#md02"><span class="fn-id">MD-02</span><span class="fn-name">Part / Item</span><span class="fn-ko">품목</span><span class="fn-tag">분류 대상</span></a>
+          <span class="flow-arr">→</span>
+          <a class="flow-node" href="#md05"><span class="fn-id">MD-05</span><span class="fn-name">HTS Code</span><span class="fn-ko">품목분류</span><span class="fn-tag">관세율·기준</span></a>
+          <span class="flow-arr">→</span>
+          <a class="flow-node" href="#md04"><span class="fn-id">MD-04</span><span class="fn-name">Country</span><span class="fn-ko">국가</span><span class="fn-tag">USMCA 여부</span></a>
+          <span class="flow-arr">→</span>
+          <a class="flow-node ext"><span class="fn-id">ORG</span><span class="fn-name">원산지 판정</span><span class="fn-ko">RVC·기준</span><span class="fn-tag">VOL.4</span></a>
+        </div>
+      </div>
+      <div class="flow-track">
+        <div class="flow-track-lbl">🏷 CUSTOMER / LABELING · 고객·라벨 (OEM Customer → Label Template)</div>
+        <div class="flow-row">
+          <a class="flow-node" href="#md06"><span class="fn-id">MD-06</span><span class="fn-name">OEM Customer</span><span class="fn-ko">고객(OEM)</span><span class="fn-tag">현대/기아/MOBIS</span></a>
+          <span class="flow-arr">→</span>
+          <a class="flow-node" href="#md08"><span class="fn-id">MD-08</span><span class="fn-name">Label Template</span><span class="fn-ko">라벨 템플릿</span><span class="fn-tag">OEM 양식</span></a>
+          <span class="flow-arr">→</span>
+          <a class="flow-node ext"><span class="fn-id">LBL</span><span class="fn-name">라벨 발행</span><span class="fn-ko">양식 참조</span><span class="fn-tag">VOL.3</span></a>
+        </div>
+      </div>
+      <div class="flow-track">
+        <div class="flow-track-lbl">📑 EVIDENCE TYPING · 증빙 유형 (Certificate Type → DOC)</div>
+        <div class="flow-row">
+          <a class="flow-node" href="#md07"><span class="fn-id">MD-07</span><span class="fn-name">Certificate Type</span><span class="fn-ko">증빙 유형</span><span class="fn-tag">COO/USMCA…</span></a>
+          <span class="flow-arr">→</span>
+          <a class="flow-node ext"><span class="fn-id">DOC</span><span class="fn-name">증빙 관리</span><span class="fn-ko">유형·만료정책</span><span class="fn-tag">VOL.2</span></a>
+        </div>
+      </div>
+      <div style="display:flex;gap:14px;margin-top:14px;font-size:9px;color:#5b6b7d;font-family:'JetBrains Mono',monospace;letter-spacing:.5px;">
+        <span><span style="display:inline-block;width:10px;height:10px;background:rgba(217,119,6,.2);border:1px solid #fcd34d;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>MD 엔티티</span>
+        <span><span style="display:inline-block;width:10px;height:10px;background:#f6f8fa;border:1px dashed #cbd5e1;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>소비 모듈 (외부)</span>
+      </div>
+    </div>
+
+    <!-- KPI -->
+    <div class="sec-div" id="kpi"><div class="sd-line"></div><div class="sd-lbl">▼ MODULE KPI · 핵심 지표</div><div class="sd-line"></div></div>
+    <div class="mod-kpi">
+      <div class="kpi-card"><div class="kpi-l">Suppliers</div><div class="kpi-v doc">—</div><div class="kpi-s">등록 공급사 수</div></div>
+      <div class="kpi-card"><div class="kpi-l">Parts / Items</div><div class="kpi-v doc">—</div><div class="kpi-s">품목 수 (부품·완제품)</div></div>
+      <div class="kpi-card"><div class="kpi-l">BOM Levels</div><div class="kpi-v">Multi</div><div class="kpi-s">다단계 구성</div></div>
+      <div class="kpi-card"><div class="kpi-l">Countries</div><div class="kpi-v ok">4<span style="font-size:14px;color:var(--sub);"> active</span></div><div class="kpi-s">활성 국가 (USMCA 중심)</div></div>
+      <div class="kpi-card"><div class="kpi-l">OEM Customers</div><div class="kpi-v doc">3</div><div class="kpi-s">현대·기아·MOBIS</div></div>
+    </div>
+
+    <!-- ENTITIES -->
+    <div class="sec-div"><div class="sd-line"></div><div class="sd-lbl">▼ 8 ENTITIES · 엔티티 카탈로그</div><div class="sd-line"></div></div>
+
+    <!-- MD-01 -->
+    <div class="screen-card" id="md01">
+      <div class="sc-hdr">
+        <div class="sc-hdr-l">
+          <div class="sc-icon">🏭</div>
+          <div class="sc-title-wrap">
+            <div class="sc-id">MD-01 · ⚙ CORE</div>
+            <div class="sc-title-en">Supplier</div>
+            <div class="sc-title-ko">공급사 — 공급사 기본정보·연락처·평가</div>
+          </div>
+        </div>
+        <div class="sc-tags"><span class="tag t-web">🖥 Web PC</span><span class="tag t-core">⚙ Core</span></div>
+        <span class="sc-l3-btn todo" title="L3 테이블 설계서 후속 작성 예정">⏳ L3 예정</span>
+      </div>
+      <div class="sc-body">
+        <div class="headline">
+          <span class="headline-ico">🗂</span>
+          <div class="headline-t">Entity: 공급사 마스터 — 코드·명칭·국가·연락처·평가 등급<span class="ko">Part/BOM 소싱의 출발점이며 증빙(DOC) 발급 주체</span></div>
+        </div>
+        <div class="desc-bi">
+          <div><div class="db-lbl">EN · Description</div><div class="db-en">Supplier master: company code, name, country, contacts, evaluation grade. Origin of the sourcing chain and the issuer of origin-supporting certificates (DOC). Referenced by Part, BOM, certificates, and audit traceability.</div></div>
+          <div><div class="db-lbl">KO · 설명</div><div class="db-ko">공급사 마스터: 공급사코드·명칭·국가·연락처·평가 등급. 소싱 체인의 시작점이자 원산지 증빙(DOC) 발급 주체. 품목·BOM·증빙·감사 역추적에서 참조.</div></div>
+        </div>
+        <div class="br-chips"><span class="br-chip-lbl">관련 BR ▸</span><a class="br-chip crit" href="#br-md">BR-MD-01</a><a class="br-chip" href="#br-md">BR-MD-04</a><a class="br-chip" href="#br-md">BR-MD-05</a></div>
+      </div>
+    </div>
+
+    <!-- MD-02 -->
+    <div class="screen-card" id="md02">
+      <div class="sc-hdr">
+        <div class="sc-hdr-l">
+          <div class="sc-icon">🔩</div>
+          <div class="sc-title-wrap">
+            <div class="sc-id">MD-02 · ⚙ CORE</div>
+            <div class="sc-title-en">Part / Item</div>
+            <div class="sc-title-ko">품목 — 부품/완제품 기준정보·HTS·단위</div>
+          </div>
+        </div>
+        <div class="sc-tags"><span class="tag t-web">🖥 Web PC</span><span class="tag t-core">⚙ Core</span></div>
+        <span class="sc-l3-btn todo" title="L3 테이블 설계서 후속 작성 예정">⏳ L3 예정</span>
+      </div>
+      <div class="sc-body">
+        <div class="headline">
+          <span class="headline-ico">🗂</span>
+          <div class="headline-t">Entity: 품목 마스터 — 품번·명칭·구분(부품/완제품)·HTS·단위·공급사<span class="ko">BOM 구성 요소이자 원산지 판정·라벨 발행의 기준 대상</span></div>
+        </div>
+        <div class="desc-bi">
+          <div><div class="db-lbl">EN · Description</div><div class="db-en">Part/item master: part no., name, type (component / finished good), HTS code, unit of measure, default supplier. The unit of BOM composition and the subject of origin determination and label issuance.</div></div>
+          <div><div class="db-lbl">KO · 설명</div><div class="db-ko">품목 마스터: 품번·명칭·구분(부품/완제품)·HTS 코드·단위·기본 공급사. BOM 구성의 단위이자 원산지 판정·라벨 발행의 기준 대상.</div></div>
+        </div>
+        <div class="br-chips"><span class="br-chip-lbl">관련 BR ▸</span><a class="br-chip crit" href="#br-md">BR-MD-01</a><a class="br-chip" href="#br-md">BR-MD-02</a><a class="br-chip" href="#br-md">BR-MD-05</a></div>
+      </div>
+    </div>
+
+    <!-- MD-03 -->
+    <div class="screen-card" id="md03">
+      <div class="sc-hdr">
+        <div class="sc-hdr-l">
+          <div class="sc-icon">🧬</div>
+          <div class="sc-title-wrap">
+            <div class="sc-id">MD-03 · ⚙ CORE</div>
+            <div class="sc-title-en">BOM</div>
+            <div class="sc-title-ko">자재명세서 — 다단계 구성·수량·단가비중</div>
+          </div>
+        </div>
+        <div class="sc-tags"><span class="tag t-web">🖥 Web PC</span><span class="tag t-core">⚙ Core</span></div>
+        <span class="sc-l3-btn todo" title="L3 테이블 설계서 후속 작성 예정">⏳ L3 예정</span>
+      </div>
+      <div class="sc-body">
+        <div class="headline">
+          <span class="headline-ico">🗂</span>
+          <div class="headline-t">Entity: 자재명세서 — 상위/하위 품목·수량·단가비중·레벨<span class="ko">RVC 원산지 계산의 핵심 데이터 구조 (다단계 전개)</span></div>
+        </div>
+        <div class="desc-bi">
+          <div><div class="db-lbl">EN · Description</div><div class="db-en">Bill of materials: parent/child part links, quantity, cost-share weight, level. The multi-level structure that drives RVC origin calculation. Fully expandable for traceability and value rollups.</div></div>
+          <div><div class="db-lbl">KO · 설명</div><div class="db-ko">자재명세서: 상위/하위 품목 연결·수량·단가비중·레벨. RVC 원산지 계산을 구동하는 다단계 구조. 역추적·가치 집계를 위해 다단계 전개 가능.</div></div>
+        </div>
+        <div class="br-chips"><span class="br-chip-lbl">관련 BR ▸</span><a class="br-chip" href="#br-md">BR-MD-01</a><a class="br-chip crit" href="#br-md">BR-MD-04</a></div>
+      </div>
+    </div>
+
+    <!-- MD-04 -->
+    <div class="screen-card" id="md04">
+      <div class="sc-hdr">
+        <div class="sc-hdr-l">
+          <div class="sc-icon">🌍</div>
+          <div class="sc-title-wrap">
+            <div class="sc-id">MD-04</div>
+            <div class="sc-title-en">Country</div>
+            <div class="sc-title-ko">국가 — ISO 3166·USMCA 회원국 여부</div>
+          </div>
+        </div>
+        <div class="sc-tags"><span class="tag t-web">🖥 Web PC</span><span class="tag t-p1">Phase 1</span></div>
+        <span class="sc-l3-btn todo" title="L3 테이블 설계서 후속 작성 예정">⏳ L3 예정</span>
+      </div>
+      <div class="sc-body">
+        <div class="headline">
+          <span class="headline-ico">🗂</span>
+          <div class="headline-t">Entity: 국가 마스터 — ISO 3166 코드·국가명·USMCA 회원국 플래그<span class="ko">원산지국·USMCA 특혜 판정의 기준 코드 (US/MX/CA + 기타)</span></div>
+        </div>
+        <div class="desc-bi">
+          <div><div class="db-lbl">EN · Description</div><div class="db-en">Country master: ISO 3166 alpha-2/3 codes, name, USMCA member flag. The reference for origin country and USMCA preference eligibility (US / MX / CA active, others non-member).</div></div>
+          <div><div class="db-lbl">KO · 설명</div><div class="db-ko">국가 마스터: ISO 3166 alpha-2/3 코드·국가명·USMCA 회원국 플래그. 원산지국 및 USMCA 특혜 자격 판정의 기준 (US/MX/CA 활성, 기타 비회원).</div></div>
+        </div>
+        <div class="br-chips"><span class="br-chip-lbl">관련 BR ▸</span><a class="br-chip" href="#br-md">BR-MD-02</a><a class="br-chip" href="#br-md">BR-MD-05</a></div>
+      </div>
+    </div>
+
+    <!-- MD-05 -->
+    <div class="screen-card" id="md05">
+      <div class="sc-hdr">
+        <div class="sc-hdr-l">
+          <div class="sc-icon">🏷️</div>
+          <div class="sc-title-wrap">
+            <div class="sc-id">MD-05</div>
+            <div class="sc-title-en">HTS Code</div>
+            <div class="sc-title-ko">품목분류 — HTS 코드·관세율·원산지 기준</div>
+          </div>
+        </div>
+        <div class="sc-tags"><span class="tag t-web">🖥 Web PC</span><span class="tag t-p1">Phase 1</span></div>
+        <span class="sc-l3-btn todo" title="L3 테이블 설계서 후속 작성 예정">⏳ L3 예정</span>
+      </div>
+      <div class="sc-body">
+        <div class="headline">
+          <span class="headline-ico">🗂</span>
+          <div class="headline-t">Entity: HTS 코드 마스터 — 코드·설명·관세율·원산지 판정 기준(tariff shift/RVC)<span class="ko">품목 분류 및 USMCA 원산지 규정 적용의 기준 테이블</span></div>
+        </div>
+        <div class="desc-bi">
+          <div><div class="db-lbl">EN · Description</div><div class="db-en">HTS code master: code, description, duty rate, origin rule basis (tariff-shift / RVC threshold). The classification reference applied for tariff and USMCA rule-of-origin determination.</div></div>
+          <div><div class="db-lbl">KO · 설명</div><div class="db-ko">HTS 코드 마스터: 코드·설명·관세율·원산지 판정 기준(세번변경/RVC 기준). 관세 및 USMCA 원산지 규정 적용을 위한 분류 기준 테이블.</div></div>
+        </div>
+        <div class="br-chips"><span class="br-chip-lbl">관련 BR ▸</span><a class="br-chip" href="#br-md">BR-MD-02</a><a class="br-chip" href="#br-md">BR-MD-03</a><a class="br-chip" href="#br-md">BR-MD-05</a></div>
+      </div>
+    </div>
+
+    <!-- MD-06 -->
+    <div class="screen-card" id="md06">
+      <div class="sc-hdr">
+        <div class="sc-hdr-l">
+          <div class="sc-icon">🚗</div>
+          <div class="sc-title-wrap">
+            <div class="sc-id">MD-06</div>
+            <div class="sc-title-en">OEM Customer</div>
+            <div class="sc-title-ko">고객(OEM) — 현대/기아/MOBIS·라벨 양식·요구사항</div>
+          </div>
+        </div>
+        <div class="sc-tags"><span class="tag t-web">🖥 Web PC</span><span class="tag t-p1">Phase 1</span></div>
+        <span class="sc-l3-btn todo" title="L3 테이블 설계서 후속 작성 예정">⏳ L3 예정</span>
+      </div>
+      <div class="sc-body">
+        <div class="headline">
+          <span class="headline-ico">🗂</span>
+          <div class="headline-t">Entity: 고객(OEM) 마스터 — 고객코드·명칭(현대/기아/MOBIS)·라벨 양식·요구사항<span class="ko">라벨 템플릿·증빙 요구사항이 고객별로 연결되는 기준</span></div>
+        </div>
+        <div class="desc-bi">
+          <div><div class="db-lbl">EN · Description</div><div class="db-en">OEM customer master: customer code, name (Hyundai / Kia / MOBIS), label form requirements, document requirements. The anchor linking label templates and per-customer evidence requirements.</div></div>
+          <div><div class="db-lbl">KO · 설명</div><div class="db-ko">고객(OEM) 마스터: 고객코드·명칭(현대/기아/MOBIS)·라벨 양식 요구·증빙 요구사항. 라벨 템플릿과 고객별 증빙 요구사항을 연결하는 기준.</div></div>
+        </div>
+        <div class="br-chips"><span class="br-chip-lbl">관련 BR ▸</span><a class="br-chip" href="#br-md">BR-MD-01</a><a class="br-chip" href="#br-md">BR-MD-05</a></div>
+      </div>
+    </div>
+
+    <!-- MD-07 -->
+    <div class="screen-card" id="md07">
+      <div class="sc-hdr">
+        <div class="sc-hdr-l">
+          <div class="sc-icon">📑</div>
+          <div class="sc-title-wrap">
+            <div class="sc-id">MD-07</div>
+            <div class="sc-title-en">Certificate Type</div>
+            <div class="sc-title-ko">증빙 유형 — COO/USMCA/AFFID/HTS/MILL/OEMDOC·만료정책</div>
+          </div>
+        </div>
+        <div class="sc-tags"><span class="tag t-web">🖥 Web PC</span><span class="tag t-p1">Phase 1</span></div>
+        <span class="sc-l3-btn todo" title="L3 테이블 설계서 후속 작성 예정">⏳ L3 예정</span>
+      </div>
+      <div class="sc-body">
+        <div class="headline">
+          <span class="headline-ico">🗂</span>
+          <div class="headline-t">Entity: 증빙 유형 마스터 — 코드(COO/USMCA/AFFID/HTS/MILL/OEMDOC)·만료정책<span class="ko">DOC 증빙 관리의 유형·만료 알림 정책 기준 코드</span></div>
+        </div>
+        <div class="desc-bi">
+          <div><div class="db-lbl">EN · Description</div><div class="db-en">Certificate type master: type code (COO / USMCA / AFFID / HTS / MILL / OEMDOC), expiry policy, validity window. Drives DOC certificate typing and tiered expiry-alert behavior.</div></div>
+          <div><div class="db-lbl">KO · 설명</div><div class="db-ko">증빙 유형 마스터: 유형 코드(COO/USMCA/AFFID/HTS/MILL/OEMDOC)·만료정책·유효기간. DOC 증빙 유형 분류 및 단계별 만료 알림 동작을 구동.</div></div>
+        </div>
+        <div class="br-chips"><span class="br-chip-lbl">관련 BR ▸</span><a class="br-chip" href="#br-md">BR-MD-02</a><a class="br-chip" href="#br-md">BR-MD-05</a></div>
+      </div>
+    </div>
+
+    <!-- MD-08 -->
+    <div class="screen-card" id="md08">
+      <div class="sc-hdr">
+        <div class="sc-hdr-l">
+          <div class="sc-icon">🧾</div>
+          <div class="sc-title-wrap">
+            <div class="sc-id">MD-08</div>
+            <div class="sc-title-en">Label Template</div>
+            <div class="sc-title-ko">라벨 템플릿 — OEM 양식·필드 정의</div>
+          </div>
+        </div>
+        <div class="sc-tags"><span class="tag t-web">🖥 Web PC</span><span class="tag t-p1">Phase 1</span></div>
+        <span class="sc-l3-btn todo" title="L3 테이블 설계서 후속 작성 예정">⏳ L3 예정</span>
+      </div>
+      <div class="sc-body">
+        <div class="headline">
+          <span class="headline-ico">🗂</span>
+          <div class="headline-t">Entity: 라벨 템플릿 마스터 — 템플릿코드·OEM 양식·필드 정의·레이아웃<span class="ko">고객(OEM)별 라벨 발행(LBL)의 양식·필드 매핑 기준</span></div>
+        </div>
+        <div class="desc-bi">
+          <div><div class="db-lbl">EN · Description</div><div class="db-en">Label template master: template code, OEM form, field definitions, layout. The form/field-mapping reference consumed by LBL label issuance, keyed per OEM customer.</div></div>
+          <div><div class="db-lbl">KO · 설명</div><div class="db-ko">라벨 템플릿 마스터: 템플릿코드·OEM 양식·필드 정의·레이아웃. LBL 라벨 발행이 소비하는 양식·필드 매핑 기준으로, 고객(OEM)별로 연결.</div></div>
+        </div>
+        <div class="br-chips"><span class="br-chip-lbl">관련 BR ▸</span><a class="br-chip" href="#br-md">BR-MD-01</a><a class="br-chip" href="#br-md">BR-MD-05</a></div>
+      </div>
+    </div>
+
+    <!-- REFERENCE: Entity List -->
+    <div class="sec-div" id="ref-entity"><div class="sd-line"></div><div class="sd-lbl">▼ ENTITY LIST · 엔티티 목록</div><div class="sd-line"></div></div>
+    <table class="ref-tbl">
+      <thead><tr><th style="width:70px;">ID</th><th style="width:160px;">Entity · 엔티티</th><th>Key Fields · 주요 필드</th><th style="width:130px;">Owning Module · 소유</th></tr></thead>
+      <tbody>
+        <tr><td class="code">MD-01</td><td><b>Supplier</b> · 공급사</td><td>공급사코드 · 명칭 · 국가 · 연락처 · 평가등급</td><td><span class="pill p-i">MD</span></td></tr>
+        <tr><td class="code">MD-02</td><td><b>Part / Item</b> · 품목</td><td>품번 · 명칭 · 구분 · HTS · 단위 · 기본공급사</td><td><span class="pill p-i">MD</span></td></tr>
+        <tr><td class="code">MD-03</td><td><b>BOM</b> · 자재명세서</td><td>상위/하위 품번 · 수량 · 단가비중 · 레벨</td><td><span class="pill p-i">MD</span></td></tr>
+        <tr><td class="code">MD-04</td><td><b>Country</b> · 국가</td><td>ISO 3166 코드 · 국가명 · USMCA 회원국 플래그</td><td><span class="pill p-i">MD</span></td></tr>
+        <tr><td class="code">MD-05</td><td><b>HTS Code</b> · 품목분류</td><td>HTS 코드 · 설명 · 관세율 · 원산지 기준</td><td><span class="pill p-i">MD</span></td></tr>
+        <tr><td class="code">MD-06</td><td><b>OEM Customer</b> · 고객(OEM)</td><td>고객코드 · 명칭 · 라벨양식 · 요구사항</td><td><span class="pill p-i">MD</span></td></tr>
+        <tr><td class="code">MD-07</td><td><b>Certificate Type</b> · 증빙 유형</td><td>유형코드 · 명칭 · 만료정책 · 유효기간</td><td><span class="pill p-i">MD</span></td></tr>
+        <tr><td class="code">MD-08</td><td><b>Label Template</b> · 라벨 템플릿</td><td>템플릿코드 · OEM양식 · 필드정의 · 레이아웃</td><td><span class="pill p-i">MD</span></td></tr>
+      </tbody>
+    </table>
+
+    <!-- REFERENCE: Cross-Module Usage -->
+    <div class="sec-div" id="ref-usage"><div class="sd-line"></div><div class="sd-lbl">▼ CROSS-MODULE USAGE · 모듈별 사용</div><div class="sd-line"></div></div>
+    <table class="ref-tbl">
+      <thead><tr><th style="width:160px;">Entity · 엔티티</th><th>Consumed By · 소비 모듈</th><th style="width:230px;">Primary Use · 주요 용도</th></tr></thead>
+      <tbody>
+        <tr><td><b>MD-01 Supplier</b> · 공급사</td><td><span class="pill p-i">DOC</span> <span class="pill p-i">ORG</span> <span class="pill p-i">AUD</span> <span class="pill p-i">INT</span></td><td>증빙 발급주체 · 소싱 · 역추적 · 동기화</td></tr>
+        <tr><td><b>MD-02 Part / Item</b> · 품목</td><td><span class="pill p-i">DOC</span> <span class="pill p-i">LBL</span> <span class="pill p-i">ORG</span> <span class="pill p-i">AUD</span> <span class="pill p-i">INT</span></td><td>증빙 대상 · 라벨 · 원산지 판정 · 역추적</td></tr>
+        <tr><td><b>MD-03 BOM</b> · 자재명세서</td><td><span class="pill p-i">ORG</span> <span class="pill p-i">AUD</span></td><td>RVC 원산지 계산 · 역추적</td></tr>
+        <tr><td><b>MD-04 Country</b> · 국가</td><td><span class="pill p-i">ORG</span> <span class="pill p-i">DOC</span> <span class="pill p-i">AUD</span></td><td>원산지국 · USMCA 특혜 판정</td></tr>
+        <tr><td><b>MD-05 HTS Code</b> · 품목분류</td><td><span class="pill p-i">ORG</span> <span class="pill p-i">DOC</span> <span class="pill p-i">AUD</span></td><td>분류 · 관세 · 원산지 규정 적용</td></tr>
+        <tr><td><b>MD-06 OEM Customer</b> · 고객(OEM)</td><td><span class="pill p-i">LBL</span> <span class="pill p-i">DOC</span></td><td>라벨 양식 · 고객 증빙 요구</td></tr>
+        <tr><td><b>MD-07 Certificate Type</b> · 증빙 유형</td><td><span class="pill p-i">DOC</span> <span class="pill p-i">AUD</span></td><td>증빙 유형 분류 · 만료 정책</td></tr>
+        <tr><td><b>MD-08 Label Template</b> · 라벨 템플릿</td><td><span class="pill p-i">LBL</span></td><td>라벨 발행 양식 · 필드 매핑</td></tr>
+      </tbody>
+    </table>
+
+    <!-- BUSINESS RULES -->
+    <div class="sec-div" id="br-md"><div class="sd-line"></div><div class="sd-lbl">▼ BUSINESS RULES · 업무 규칙</div><div class="sd-line"></div></div>
+    <div class="br-wrap">
+      <table class="br-tbl">
+        <thead><tr><th style="width:90px;">ID</th><th style="width:30%;">Rule · 규칙</th><th>Detail · 상세</th><th style="width:80px;">Action</th></tr></thead>
+        <tbody>
+          <tr><td class="br-id-c">BR-MD-01</td><td><b>Change History &amp; Approval</b><br><span style="color:var(--sub);font-size:10px;">마스터 변경 이력·승인</span></td><td>모든 마스터 생성·수정·삭제는 이력 기록 + 승인 절차를 거침(누가·언제·무엇·이전값). 미승인 변경은 반영되지 않음.</td><td><span class="b b-blk">차단</span></td></tr>
+          <tr><td class="br-id-c">BR-MD-02</td><td><b>Code Values from SYS</b><br><span style="color:var(--sub);font-size:10px;">SYS 공통코드 참조</span></td><td>구분·상태·유형 등 코드값은 SYS 공통코드를 참조. 자체 하드코딩 금지, 코드 변경은 SYS에서 일원화.</td><td><span class="b b-alt">검증</span></td></tr>
+          <tr><td class="br-id-c">BR-MD-03</td><td><b>Sync Source Priority</b><br><span style="color:var(--sub);font-size:10px;">INT 동기화 소스 우선순위</span></td><td>INT 외부 동기화 시 소스 우선순위 적용(예: ERP &gt; 수기). 충돌 시 우선 소스 값 채택, 하위 소스는 보류·로그.</td><td><span class="b b-aut">자동</span></td></tr>
+          <tr><td class="br-id-c">BR-MD-04</td><td><b>Referential Integrity</b><br><span style="color:var(--sub);font-size:10px;">참조 무결성 (사용 중 삭제 차단)</span></td><td>다른 엔티티/모듈에서 참조 중인 마스터는 삭제 차단. 비활성(soft-delete)으로만 처리, 참조 해제 후 삭제 가능.</td><td><span class="b b-blk">차단</span></td></tr>
+          <tr><td class="br-id-c">BR-MD-05</td><td><b>Unique Required Keys</b><br><span style="color:var(--sub);font-size:10px;">필수 키 유니크</span></td><td>각 엔티티의 필수 키(공급사코드·품번·국가코드·HTS·고객코드 등)는 유니크 제약. 중복 입력 시 저장 차단.</td><td><span class="b b-blk">차단</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+  <div class="page-footer">
+    <span class="pf-l">UOCM · USMCA Origin Compliance Management System</span>
+    <span class="pf-r">VOL.8 · MD · Master Data · L2 Hub (Entity Catalog)</span>
+  </div>
+</div>
+</div>
+</body>
+</html>

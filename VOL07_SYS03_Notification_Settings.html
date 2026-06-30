@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>UOCM · VOL.7 · SYS-03 · Notification Settings · 상세 설계서</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;600;700&family=Bebas+Neue&display=swap');
+:root{
+  --brand:#059669;--brand-dk:#047857;
+  --ink:#0a1422;--ink2:#101d2e;--ink3:#1c2c40;
+  --surface:#fff;--bg:#f4f7fa;--border:#d3dce6;--text:#1e2a38;--sub:#5b6b7d;
+  --doc:#64748b;--doc-dk:#475569;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);font-size:13px;line-height:1.6;}
+
+/* NAV */
+.uo-nav{position:sticky;top:0;z-index:9999;background:#fff;border-bottom:1px solid #e5eaf0;box-shadow:0 1px 4px rgba(15,39,71,.06);}
+.uo-nav-inner{display:flex;align-items:stretch;overflow-x:auto;scrollbar-width:none;}
+.uo-nav-inner::-webkit-scrollbar{display:none;}
+.nav-home{display:flex;align-items:center;gap:8px;padding:0 16px;background:rgba(5,150,105,.08);border-right:1px solid #e5eaf0;text-decoration:none;flex-shrink:0;min-height:42px;}
+.nav-home-logo{font-family:'Bebas Neue',sans-serif;font-size:17px;color:var(--brand);letter-spacing:2px;}
+.nav-home-sub{font-size:9px;color:#94a3b8;}
+.nav-vol{display:flex;align-items:center;gap:5px;padding:0 12px;text-decoration:none;font-size:10px;font-weight:700;color:#5b6b7d;border-bottom:2px solid transparent;white-space:nowrap;min-height:42px;transition:color .12s;}
+.nav-vol:hover{color:#0f2747;background:#f6f8fa;}
+.nav-vol.active{color:#0f2747;border-bottom-color:#059669;}
+.nav-vol .nv-code{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;}
+
+/* BREADCRUMB */
+.l3-crumb{background:#f6f8fa;border-bottom:1px solid #e5eaf0;padding:7px 24px;display:flex;align-items:center;gap:8px;font-size:10px;color:#5b6b7d;font-family:'JetBrains Mono',monospace;letter-spacing:.5px;}
+.l3-crumb a{color:#5b6b7d;text-decoration:none;transition:color .12s;}
+.l3-crumb a:hover{color:#0f2747;}
+.l3-crumb .arr{color:#cbd5e1;}
+.l3-crumb .current{color:#047857;font-weight:700;}
+.l3-crumb .lvl{font-size:8px;padding:1px 6px;border:1px solid #d3dce6;border-radius:2px;color:#94a3b8;margin-right:4px;}
+
+/* LAYOUT */
+.page-wrap{display:flex;}
+.sidebar{width:240px;min-width:240px;background:#f6f8fa;position:sticky;top:69px;height:calc(100vh - 69px);overflow-y:auto;scrollbar-width:thin;border-right:1px solid #e5eaf0;}
+.sb-head{padding:16px 14px 12px;border-bottom:1px solid #e5eaf0;}
+.sb-vol{font-family:'JetBrains Mono',monospace;font-size:9px;color:#047857;letter-spacing:2px;margin-bottom:4px;}
+.sb-mod-en{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1px;color:#0f2747;}
+.sb-mod-ko{font-size:10px;color:#94a3b8;}
+.sb-section{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#94a3b8;padding:14px 14px 6px;}
+.sb-link{display:flex;align-items:center;gap:7px;padding:6px 14px;text-decoration:none;color:#5b6b7d;font-size:11px;border-left:2px solid transparent;transition:all .12s;}
+.sb-link:hover{color:#0f2747;background:#eef2f7;}
+.sb-link.on{color:#0f2747;border-left-color:#059669;background:rgba(5,150,105,.08);}
+.sb-link .sl-id{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;width:44px;flex-shrink:0;color:#64748b;}
+.sb-link.on .sl-id{color:#047857;}
+.sb-link .sl-en{font-size:10px;font-weight:600;}
+.sb-link .sl-ko{font-size:9px;color:#94a3b8;margin-top:1px;}
+.sb-toc{padding:6px 14px 14px;border-top:1px solid #e5eaf0;margin-top:6px;}
+.sb-toc-title{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#047857;margin-bottom:6px;}
+.sb-toc a{display:block;padding:4px 8px;border-radius:3px;font-size:10px;color:#5b6b7d;text-decoration:none;transition:all .12s;}
+.sb-toc a:hover{color:#0f2747;background:#eef2f7;}
+.sb-toc a .num{font-family:'JetBrains Mono',monospace;color:#059669;font-size:9px;margin-right:6px;}
+
+.main{flex:1;min-width:0;}
+
+/* SCREEN HEADER */
+.scr-hdr{padding:32px 48px 26px;background:linear-gradient(135deg,#f6f8fb,#ffffff);position:relative;overflow:hidden;border-bottom:1px solid #e5eaf0;}
+.scr-hdr::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(100,116,139,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(100,116,139,.05) 1px,transparent 1px);background-size:32px 32px;pointer-events:none;}
+.scr-hdr::after{content:'';position:absolute;top:-40%;right:-10%;width:380px;height:380px;background:radial-gradient(circle,rgba(100,116,139,.12),transparent 70%);pointer-events:none;}
+.scr-hdr-inner{position:relative;z-index:1;}
+.scr-eyebrow{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#64748b;margin-bottom:12px;display:flex;align-items:center;gap:10px;}
+.scr-eyebrow .dot{width:5px;height:5px;background:#94a3b8;border-radius:50%;box-shadow:0 0 8px #94a3b8;}
+.scr-id-block{display:flex;align-items:flex-end;gap:18px;margin-bottom:14px;}
+.scr-id{font-family:'Bebas Neue',sans-serif;font-size:54px;letter-spacing:2px;color:#64748b;line-height:.9;text-shadow:0 0 22px rgba(100,116,139,.25);}
+.scr-title-en{font-family:'Bebas Neue',sans-serif;font-size:46px;letter-spacing:1.5px;color:#0f2747;line-height:.95;}
+.scr-title-ko{font-size:13px;color:#5b6b7d;letter-spacing:3px;}
+.scr-meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px;}
+.meta-chip{display:flex;align-items:center;gap:6px;padding:5px 11px;background:#f6f8fa;border:1px solid #d3dce6;border-radius:3px;font-size:10px;color:#1e2a38;}
+.meta-chip .mc-lbl{font-family:'JetBrains Mono',monospace;font-size:8px;color:#94a3b8;letter-spacing:1px;text-transform:uppercase;}
+.meta-chip .mc-val{font-weight:700;}
+.meta-chip.web{border-color:rgba(100,116,139,.3);color:#64748b;}
+.meta-chip.phase{border-color:rgba(16,185,129,.3);color:#047857;}
+.meta-chip.role{border-color:rgba(148,163,184,.3);color:#64748b;}
+
+.content{padding:0 48px 60px;}
+.sec{margin-top:36px;}
+.sec-hdr{display:flex;align-items:center;gap:14px;margin-bottom:16px;}
+.sec-num{font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--doc);letter-spacing:1px;line-height:1;min-width:42px;}
+.sec-title-wrap{flex:1;}
+.sec-title-en{font-size:18px;font-weight:800;color:var(--text);letter-spacing:-.3px;}
+.sec-title-ko{font-size:11px;color:var(--sub);margin-top:1px;}
+.sec-line{flex:1;height:1px;background:linear-gradient(90deg,var(--doc),transparent);max-width:200px;}
+
+/* OVERVIEW */
+.ov-grid{display:grid;grid-template-columns:1.6fr 1fr;gap:14px;}
+.ov-desc{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--doc);border-radius:0 6px 6px 0;padding:16px 18px;}
+.ov-desc-en{font-size:12px;color:var(--text);line-height:1.85;margin-bottom:10px;}
+.ov-desc-ko{font-size:11px;color:var(--sub);line-height:1.85;padding-top:10px;border-top:1px dashed var(--border);}
+.ov-meta{background:var(--surface);border:1px solid var(--border);border-radius:6px;overflow:hidden;}
+.ov-meta-row{display:flex;border-bottom:1px solid var(--border);font-size:11px;}
+.ov-meta-row:last-child{border-bottom:none;}
+.ov-meta-k{flex:0 0 110px;background:#f6f8fa;padding:8px 12px;font-weight:700;color:var(--sub);font-size:10px;letter-spacing:.5px;text-transform:uppercase;border-right:1px solid var(--border);}
+.ov-meta-v{flex:1;padding:8px 12px;color:var(--text);}
+.ov-meta-v .ko{font-size:10px;color:var(--sub);margin-left:6px;}
+.ov-meta-v code{font-family:'JetBrains Mono',monospace;font-size:10px;background:#f0f3f7;padding:1px 6px;border-radius:3px;color:var(--doc);}
+
+/* MOCKUP */
+.mock-wrap{background:#eef1f5;border:1px solid var(--border);border-radius:8px;padding:14px;}
+.mock-lbl{font-size:9px;font-weight:700;color:var(--sub);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.mock-lbl::before{content:'';width:6px;height:6px;background:var(--doc);border-radius:50%;}
+.mock-win{background:#fff;border:1px solid #c8d0db;border-radius:6px;overflow:hidden;box-shadow:0 4px 14px rgba(0,0,0,.08);}
+.mock-tbar{background:var(--text);color:#fff;padding:8px 14px;display:flex;align-items:center;gap:8px;font-size:11px;font-weight:700;}
+.mock-tbar .dots{display:flex;gap:5px;}
+.mock-tbar .dots span{width:9px;height:9px;border-radius:50%;display:block;background:rgba(255,255,255,.25);}
+.mock-tbar .bc{margin-left:auto;font-size:9px;color:rgba(255,255,255,.4);font-family:'JetBrains Mono',monospace;}
+.mock-toolbar{background:#f6f8fa;border-bottom:1px solid var(--border);padding:8px 14px;display:flex;gap:7px;align-items:center;flex-wrap:wrap;}
+.mock-toolbar select,.mock-toolbar input{padding:4px 9px;border:1px solid var(--border);border-radius:3px;font-size:11px;background:#fff;color:var(--text);}
+.mbtn{padding:5px 12px;border-radius:4px;font-size:11px;font-weight:700;border:1px solid transparent;cursor:pointer;display:inline-flex;align-items:center;gap:5px;}
+.mbtn-pri{background:var(--doc);color:#fff;border-color:var(--doc);}
+.mbtn-sec{background:#fff;color:var(--text);border-color:var(--border);}
+.mbtn-ghost{background:transparent;color:var(--sub);border-color:var(--border);}
+.mock-body{padding:14px;}
+
+.kpi-strip{display:flex;gap:0;border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-bottom:14px;}
+.kc{flex:1;padding:10px 13px;border-right:1px solid var(--border);background:#fafbfc;}
+.kc:last-child{border-right:none;}
+.kv{font-size:22px;font-weight:900;font-family:'JetBrains Mono',monospace;line-height:1;}
+.kl{font-size:9px;color:var(--sub);margin-top:3px;}
+
+.tbl{width:100%;border-collapse:collapse;font-size:11px;}
+.tbl th{background:#f0f3f7;padding:7px 9px;font-weight:700;border:1px solid var(--border);text-align:left;font-size:10px;color:var(--text);}
+.tbl th .th-ko{font-weight:400;color:var(--sub);font-size:9px;display:block;}
+.tbl td{padding:6px 9px;border:1px solid var(--border);vertical-align:middle;}
+.tbl .rok td{background:#f0fdf4;}
+.tbl .rw td{background:#fffbeb;}
+.tbl .rd td{background:#fef2f2;}
+.tbl tr:hover td{filter:brightness(.98);}
+.tbl .mono{font-family:'JetBrains Mono',monospace;font-size:10px;}
+.b{display:inline-block;font-size:9px;font-weight:700;padding:2px 7px;border-radius:8px;}
+.b-ok{background:#dcfce7;color:#166534;}.b-w{background:#fef9c3;color:#92400e;}.b-e{background:#fee2e2;color:#991b1b;}.b-i{background:#f1f5f9;color:#334155;}.b-n{background:#f1f5f9;color:#475569;}
+
+/* DRAWER / PANEL FORM MOCK */
+.drawer{background:#fff;border:1px solid var(--border);border-radius:6px;overflow:hidden;box-shadow:0 6px 24px rgba(0,0,0,.1);}
+.drawer-h{background:linear-gradient(135deg,#0e2148,#475569);color:#fff;padding:11px 16px;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:space-between;}
+.drawer-h .x{opacity:.6;}
+.drawer-b{padding:16px;display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.fld{display:flex;flex-direction:column;gap:4px;}
+.fld.full{grid-column:1/3;}
+.fld-l{font-size:10px;font-weight:700;color:var(--sub);}
+.fld-l .req{color:#dc2626;}
+.fld-in{border:1px solid var(--border);border-radius:4px;padding:7px 10px;font-size:11px;color:var(--text);background:#fff;}
+.fld-in.ph{color:#9aa7b5;}
+.drop{grid-column:1/3;border:2px dashed #cbd5e1;border-radius:8px;background:#f8fafc;padding:22px;text-align:center;color:#334155;}
+.drop .di{font-size:30px;}
+.drawer-f{border-top:1px solid var(--border);padding:12px 16px;display:flex;justify-content:flex-end;gap:8px;background:#f6f8fa;}
+
+/* COMPONENT SPEC */
+.cs-tbl{width:100%;border-collapse:collapse;font-size:11px;background:var(--surface);border:1px solid var(--border);border-radius:6px;overflow:hidden;}
+.cs-tbl th{background:#f8fafc;color:#475569;padding:9px 10px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;border-bottom:1px solid #e2e8f0;}
+.cs-tbl th .th-ko{display:block;color:#94a3b8;font-weight:400;font-size:9px;letter-spacing:0;text-transform:none;margin-top:1px;}
+.cs-tbl td{padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:top;}
+.cs-tbl tr:last-child td{border-bottom:none;}
+.cs-tbl tr:hover td{background:#f9fafb;}
+.cs-tbl .c-id{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;color:var(--doc);}
+.cs-tbl .c-name{font-weight:700;color:var(--text);}
+.cs-tbl .c-name .ko{font-size:10px;font-weight:400;color:var(--sub);display:block;margin-top:1px;}
+.cs-tbl .c-type{font-family:'JetBrains Mono',monospace;font-size:10px;color:#7c3aed;background:#f5f3ff;padding:2px 6px;border-radius:3px;display:inline-block;}
+.cs-tbl .c-req.y{color:#dc2626;font-weight:700;font-family:'JetBrains Mono',monospace;font-size:9px;}
+.cs-tbl .c-req.n{color:var(--sub);font-family:'JetBrains Mono',monospace;font-size:9px;}
+.cs-tbl .c-validation{font-size:10px;color:var(--text);line-height:1.6;}
+.cs-tbl .c-validation code{font-family:'JetBrains Mono',monospace;font-size:9px;background:#fff7ed;color:#9a3412;padding:1px 5px;border-radius:2px;}
+
+/* EVENT FLOW */
+.ef-wrap{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:18px 20px;}
+.ef-step{display:grid;grid-template-columns:46px 1fr;gap:14px;padding:10px 0;position:relative;}
+.ef-step:not(:last-child)::before{content:'';position:absolute;left:23px;top:42px;bottom:-10px;width:2px;background:linear-gradient(180deg,var(--doc),rgba(100,116,139,.15));}
+.ef-num{width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,var(--doc),#475569);color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;box-shadow:0 4px 12px rgba(100,116,139,.25);position:relative;z-index:1;}
+.ef-step.terminal .ef-num{background:linear-gradient(135deg,#059669,#047857);box-shadow:0 4px 12px rgba(5,150,105,.25);}
+.ef-step.error .ef-num{background:linear-gradient(135deg,#dc2626,#991b1b);box-shadow:0 4px 12px rgba(220,38,38,.25);}
+.ef-trig{display:flex;align-items:center;gap:6px;margin-bottom:4px;}
+.ef-trig-tag{font-family:'JetBrains Mono',monospace;font-size:8px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:2px 7px;border-radius:2px;}
+.ef-trig-tag.user{background:#f1f5f9;color:#334155;}
+.ef-trig-tag.system{background:#f3e8ff;color:#7c3aed;}
+.ef-trig-tag.scheduled{background:#fef3c7;color:#92400e;}
+.ef-trig-name{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:var(--text);}
+.ef-action{font-size:12px;color:var(--text);line-height:1.7;margin-bottom:3px;}
+.ef-action-ko{font-size:11px;color:var(--sub);line-height:1.7;}
+.ef-result{margin-top:6px;padding:7px 10px;background:#f6f8fa;border-left:2px solid var(--doc);border-radius:0 3px 3px 0;font-size:10px;color:var(--text);}
+.ef-result .er-lbl{font-family:'JetBrains Mono',monospace;font-size:8px;font-weight:700;color:var(--doc);letter-spacing:1px;margin-right:6px;}
+.ef-result code{font-family:'JetBrains Mono',monospace;font-size:10px;background:#fff;padding:1px 5px;border-radius:2px;border:1px solid var(--border);color:#7c3aed;}
+.ef-step.error .ef-result{border-left-color:#dc2626;background:#fef2f2;}
+.ef-step.error .ef-result .er-lbl{color:#dc2626;}
+.ef-step.terminal .ef-result{border-left-color:#059669;background:#f0fdf4;}
+.ef-step.terminal .ef-result .er-lbl{color:#059669;}
+
+/* EXCEPTION */
+.exc-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;}
+.exc-card{background:var(--surface);border:1px solid var(--border);border-top:3px solid #dc2626;border-radius:0 0 6px 6px;padding:13px 15px;}
+.exc-card.warn{border-top-color:#f59e0b;}
+.exc-card.info{border-top-color:#64748b;}
+.exc-hdr{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.exc-code{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;color:#dc2626;background:#fef2f2;padding:2px 8px;border-radius:3px;}
+.exc-card.warn .exc-code{color:#92400e;background:#fef3c7;}
+.exc-card.info .exc-code{color:#334155;background:#f1f5f9;}
+.exc-name{font-size:12px;font-weight:700;color:var(--text);flex:1;}
+.exc-name .ko{font-size:10px;font-weight:400;color:var(--sub);display:block;}
+.exc-row{display:grid;grid-template-columns:64px 1fr;gap:8px;padding:5px 0;border-top:1px dashed var(--border);font-size:10px;}
+.exc-row:first-of-type{border-top:none;}
+.exc-row .lbl{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;color:var(--sub);letter-spacing:.5px;text-transform:uppercase;padding-top:2px;}
+.exc-row .val{color:var(--text);line-height:1.6;}
+.exc-row .val code{font-family:'JetBrains Mono',monospace;font-size:9px;background:#f0f3f7;padding:1px 5px;border-radius:2px;color:#7c3aed;}
+.exc-msg{margin-top:8px;padding:7px 10px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:10px;text-align:center;background:#fef2f2;border:1px solid #fecaca;color:#991b1b;}
+.exc-card.warn .exc-msg{background:#fffbeb;border-color:#fde68a;color:#92400e;}
+.exc-card.info .exc-msg{background:#f8fafc;border-color:#e2e8f0;color:#334155;}
+
+/* LINKAGE */
+.lnk-wrap{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:20px 24px;}
+.lnk-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:center;}
+.lnk-node{padding:12px 16px;border-radius:6px;text-align:center;min-width:128px;border:2px solid;text-decoration:none;}
+.lnk-node.up{background:#f0fdf4;border-color:#22c55e;}
+.lnk-node.cur{background:linear-gradient(135deg,#0e2148,#475569);border-color:#94a3b8;color:#fff;box-shadow:0 4px 16px rgba(100,116,139,.25);}
+.lnk-node.down{background:#fef3c7;border-color:#f59e0b;}
+.lnk-id{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;letter-spacing:.5px;margin-bottom:3px;}
+.lnk-node.up .lnk-id{color:#15803d;}
+.lnk-node.cur .lnk-id{color:#cbd5e1;}
+.lnk-node.down .lnk-id{color:#92400e;}
+.lnk-name{font-size:11px;font-weight:700;color:var(--text);}
+.lnk-node.cur .lnk-name{color:#fff;}
+.lnk-ko{font-size:9px;opacity:.7;margin-top:2px;}
+.lnk-arr{font-size:20px;color:var(--sub);font-weight:700;}
+
+/* BR MINI */
+.br-mini{width:100%;border-collapse:collapse;font-size:11px;background:var(--surface);border:1px solid var(--border);border-radius:6px;overflow:hidden;}
+.br-mini th{background:#f8fafc;color:#334155;padding:8px 10px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;border-bottom:1px solid #e2e8f0;}
+.br-mini td{padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:top;}
+.br-mini tr:last-child td{border-bottom:none;}
+.br-mini .br-id{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;color:var(--brand-dk);white-space:nowrap;}
+.br-mini .br-en{font-size:11px;color:var(--text);line-height:1.6;}
+.br-mini .br-ko{font-size:10px;color:var(--sub);line-height:1.6;margin-top:3px;}
+.br-mini .br-act{text-align:center;}
+.br-mini .br-act span{display:inline-block;font-size:9px;font-weight:700;padding:2px 7px;border-radius:3px;}
+.br-mini .br-act .blk{background:#fee2e2;color:#991b1b;}
+.br-mini .br-act .alt{background:#fef9c3;color:#92400e;}
+.br-mini .br-act .aut{background:#f1f5f9;color:#334155;}
+
+.page-footer{padding:24px 48px;border-top:1px solid #e5eaf0;background:#f6f8fa;color:#94a3b8;display:flex;justify-content:space-between;align-items:center;font-size:10px;}
+.page-footer .pf-l{font-family:'JetBrains Mono',monospace;letter-spacing:.5px;}
+.page-footer .pf-r{color:#047857;font-family:'JetBrains Mono',monospace;}
+
+@media(max-width:1100px){.ov-grid{grid-template-columns:1fr;}.exc-grid{grid-template-columns:1fr;}.drawer-b{grid-template-columns:1fr;}.fld.full,.drop{grid-column:auto;}.scr-id-block{flex-direction:column;align-items:flex-start;gap:6px;}.scr-id{font-size:42px;}.scr-title-en{font-size:32px;}}
+</style>
+</head>
+<body>
+<nav class="uo-nav"><div class="uo-nav-inner">
+  <a href="index.html" class="nav-home"><span class="nav-home-logo">UOCM</span><span class="nav-home-sub">Index</span></a>
+  <a href="VOL01_Overview.html" class="nav-vol"><span class="nv-code" style="color:#10b981;">OV</span><span>Overview</span></a>
+  <a href="VOL02_DOC_Document_Management.html" class="nav-vol"><span class="nv-code" style="color:#2563eb;">DOC</span><span>Document</span></a>
+  <a href="VOL03_LBL_Label_Management.html" class="nav-vol"><span class="nv-code" style="color:#7c3aed;">LBL</span><span>Label</span></a>
+  <a href="VOL04_ORG_Origin_Management.html" class="nav-vol"><span class="nv-code" style="color:#0891b2;">ORG</span><span>Origin</span></a>
+  <a href="VOL05_AUD_Audit_Support.html" class="nav-vol"><span class="nv-code" style="color:#dc2626;">AUD</span><span>Audit</span></a>
+  <a href="VOL06_INT_Integration.html" class="nav-vol"><span class="nv-code" style="color:#6366f1;">INT</span><span>Integration</span></a>
+  <a href="VOL07_SYS_System.html" class="nav-vol active"><span class="nv-code" style="color:#64748b;">SYS</span><span>System</span></a>
+  <a href="VOL08_MD_Master_Data.html" class="nav-vol"><span class="nv-code" style="color:#d97706;">MD</span><span>Master Data</span></a>
+</div></nav>
+
+<div class="l3-crumb">
+  <span class="lvl">L1</span><a href="index.html">UOCM Index</a>
+  <span class="arr">▸</span>
+  <span class="lvl">L2</span><a href="VOL07_SYS_System.html">VOL.7 · SYS System</a>
+  <span class="arr">▸</span>
+  <span class="lvl">L3</span><span class="current">SYS-03 · Notification Settings</span>
+</div>
+
+<div class="page-wrap">
+<nav class="sidebar">
+  <div class="sb-head">
+    <div class="sb-vol">VOL.7 · SYS MODULE</div>
+    <div class="sb-mod-en">SYSTEM</div>
+    <div class="sb-mod-ko">시스템 관리</div>
+  </div>
+  <div class="sb-section">L3 Screens · 화면 상세</div>
+  <a class="sb-link" href="VOL07_SYS01_User_Role_Management.html"><span class="sl-id">SYS-01</span><div><div class="sl-en">User &amp; Role Mgmt</div><div class="sl-ko">사용자·권한 관리</div></div></a>
+  <a class="sb-link" href="VOL07_SYS02_Audit_Log_Viewer.html"><span class="sl-id">SYS-02</span><div><div class="sl-en">Audit Log Viewer</div><div class="sl-ko">감사 로그 조회</div></div></a>
+  <a class="sb-link on" href="VOL07_SYS03_Notification_Settings.html"><span class="sl-id">SYS-03</span><div><div class="sl-en">Notification Settings</div><div class="sl-ko">알림 설정</div></div></a>
+  <a class="sb-link" href="VOL07_SYS04_System_Configuration.html"><span class="sl-id">SYS-04</span><div><div class="sl-en">System Config</div><div class="sl-ko">시스템 환경설정</div></div></a>
+  <div class="sb-toc">
+    <div class="sb-toc-title">On this page</div>
+    <a href="#s1"><span class="num">01</span>Overview</a>
+    <a href="#s2"><span class="num">02</span>Screen Mockup</a>
+    <a href="#s3"><span class="num">03</span>UI Components</a>
+    <a href="#s4"><span class="num">04</span>Event &amp; Action Flow</a>
+    <a href="#s5"><span class="num">05</span>Exception Handling</a>
+    <a href="#s6"><span class="num">06</span>Linked Screens</a>
+    <a href="#s7"><span class="num">07</span>Business Rules</a>
+  </div>
+</nav>
+
+<div class="main">
+  <div class="scr-hdr">
+    <div class="scr-hdr-inner">
+      <div class="scr-eyebrow"><span class="dot"></span>VOL.7 · SYS · System Management · 알림 규칙·채널 설정</div>
+      <div class="scr-id-block">
+        <div class="scr-id">SYS-03</div>
+        <div><div class="scr-title-en">Notification Settings</div></div>
+      </div>
+      <div class="scr-title-ko">알 림 설 정</div>
+      <div class="scr-meta">
+        <div class="meta-chip web"><span class="mc-lbl">Device</span><span class="mc-val">🖥 Web PC</span></div>
+        <div class="meta-chip phase"><span class="mc-lbl">Phase</span><span class="mc-val">1 · 법인 직접</span></div>
+        <div class="meta-chip role"><span class="mc-lbl">Role</span><span class="mc-val">Admin (SYS.Admin)</span></div>
+        <div class="meta-chip"><span class="mc-lbl">Freq</span><span class="mc-val">설정 시</span></div>
+        <div class="meta-chip"><span class="mc-lbl">URL</span><span class="mc-val" style="font-family:'JetBrains Mono',monospace;">/sys/notifications</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="content">
+
+  <!-- 1. OVERVIEW -->
+  <section class="sec" id="s1">
+    <div class="sec-hdr"><div class="sec-num">01</div><div class="sec-title-wrap"><div class="sec-title-en">Overview</div><div class="sec-title-ko">화면 개요</div></div><div class="sec-line"></div></div>
+    <div class="ov-grid">
+      <div class="ov-desc">
+        <div class="ov-desc-en"><strong>Notification Settings</strong> is the central console where the administrator configures a notification rule per event type — <em>certificate expiry (D-90 / D-30 / D-7), approval pending, sync failure, integrity error</em> — and maps each to delivery <strong>channels (Email / SMS / Push / 사내 메신저)</strong> and recipient roles. A rule grid lists every event with its channel badges, recipient roles, retry policy and an enable toggle; a right-hand channel-config panel holds the connection credentials for each channel (SMTP, SMS gateway, push key, messenger webhook — all secrets masked) plus a test-send button. Failed deliveries follow the retry-then-escalate policy (BR-SYS-04), and every send is logged (BR-SYS-02). This screen is the engine that drives DOC-03 expiry alerts, DOC-04 approval prompts and INT-04 integrity warnings across all modules.</div>
+        <div class="ov-desc-ko"><strong>알림 설정</strong>은 관리자가 이벤트 유형별 알림 규칙을 정의하는 중앙 콘솔입니다 — <em>증빙 만료(D-90/D-30/D-7), 승인 대기, 동기화 실패, 무결성 오류</em>. 각 이벤트를 전송 <strong>채널(Email/SMS/Push/사내 메신저)</strong> 및 수신 역할에 매핑합니다. 규칙 그리드는 채널 배지·수신 역할·재시도 정책·활성 토글을 표시하고, 우측 채널 설정 패널은 채널별 연결 정보(SMTP·SMS 게이트웨이·푸시 키·메신저 웹훅 — 시크릿 마스킹)와 테스트 발송 버튼을 제공합니다. 전송 실패는 재시도 후 에스컬레이션 정책(BR-SYS-04)을 따르며, 모든 발송은 로깅됩니다(BR-SYS-02). 본 화면은 DOC-03 만료 알림, DOC-04 승인 알림, INT-04 무결성 경고를 전 모듈에서 구동하는 엔진입니다.</div>
+      </div>
+      <div class="ov-meta">
+        <div class="ov-meta-row"><div class="ov-meta-k">Screen ID</div><div class="ov-meta-v"><code>SYS-03</code></div></div>
+        <div class="ov-meta-row"><div class="ov-meta-k">Entry</div><div class="ov-meta-v">시스템 메뉴 · 관리자 설정 <span class="ko">SYS 허브</span></div></div>
+        <div class="ov-meta-row"><div class="ov-meta-k">Layout</div><div class="ov-meta-v">Rule Grid + Channel Panel <span class="ko">규칙 그리드 + 채널 패널</span></div></div>
+        <div class="ov-meta-row"><div class="ov-meta-k">Trigger</div><div class="ov-meta-v">Event-driven dispatch <span class="ko">이벤트 발생 시 발송</span></div></div>
+        <div class="ov-meta-row"><div class="ov-meta-k">Tables</div><div class="ov-meta-v"><code>sys_notif_rule</code>, <code>sys_notif_channel</code></div></div>
+        <div class="ov-meta-row"><div class="ov-meta-k">RBAC</div><div class="ov-meta-v"><code>SYS.Admin</code> only</div></div>
+        <div class="ov-meta-row"><div class="ov-meta-k">Secrets</div><div class="ov-meta-v">Vault · 마스킹 표시</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. SCREEN MOCKUP -->
+  <section class="sec" id="s2">
+    <div class="sec-hdr"><div class="sec-num">02</div><div class="sec-title-wrap"><div class="sec-title-en">Screen Mockup</div><div class="sec-title-ko">화면 목업 — Web 규칙 그리드 + 채널 설정 패널</div></div><div class="sec-line"></div></div>
+
+    <div class="mock-wrap">
+      <div class="mock-lbl">SYS-03 · Notification Settings · Rule Grid</div>
+      <div class="mock-win">
+        <div class="mock-tbar"><span class="dots"><span></span><span></span><span></span></span> UOCM — Notification Settings <span class="bc">/sys/notifications</span></div>
+        <div class="mock-toolbar">
+          <select><option>이벤트 분류 · All Events</option></select>
+          <select><option>채널 · All Channels</option></select>
+          <select><option>상태 · All Status</option></select>
+          <input placeholder="🔍 이벤트 · 역할 검색" style="min-width:170px;">
+          <span style="flex:1;"></span>
+          <button class="mbtn mbtn-ghost">↺ 기본값</button>
+          <button class="mbtn mbtn-pri">＋ 알림 규칙</button>
+        </div>
+        <div class="mock-body">
+          <div class="kpi-strip">
+            <div class="kc"><div class="kv" style="color:#64748b;">14</div><div class="kl">Rules · 규칙</div></div>
+            <div class="kc"><div class="kv" style="color:#16a34a;">12</div><div class="kl">Enabled · 활성</div></div>
+            <div class="kc"><div class="kv" style="color:#a16207;">2</div><div class="kl">Paused · 중지</div></div>
+            <div class="kc"><div class="kv" style="color:#dc2626;">3</div><div class="kl">Failed 24h · 실패</div></div>
+            <div class="kc"><div class="kv" style="color:#7c3aed;">4</div><div class="kl">Channels · 채널</div></div>
+          </div>
+          <table class="tbl">
+            <thead><tr>
+              <th style="width:170px;">Event<span class="th-ko">이벤트</span></th>
+              <th style="width:120px;">Channels<span class="th-ko">채널</span></th>
+              <th>Recipient Roles<span class="th-ko">수신 역할</span></th>
+              <th style="width:90px;">Retry<span class="th-ko">재시도</span></th>
+              <th style="width:78px;">Status<span class="th-ko">상태</span></th>
+            </tr></thead>
+            <tbody>
+              <tr class="rok"><td>증빙 만료 D-90<span style="display:block;font-size:9px;color:var(--sub);">Cert Expiry D-90</span></td><td>✉ 🔔</td><td>Compliance · Purchasing</td><td class="mono">3× / 10m</td><td><span class="b b-ok">ON ●</span></td></tr>
+              <tr class="rok"><td>증빙 만료 D-30<span style="display:block;font-size:9px;color:var(--sub);">Cert Expiry D-30</span></td><td>✉ 📱 🔔</td><td>Compliance · Purchasing</td><td class="mono">3× / 10m</td><td><span class="b b-ok">ON ●</span></td></tr>
+              <tr class="rw"><td>증빙 만료 D-7<span style="display:block;font-size:9px;color:var(--sub);">Cert Expiry D-7</span></td><td>✉ 📱 🔔 💬</td><td>Compliance · Mgr · 구매팀장</td><td class="mono">5× / 5m</td><td><span class="b b-ok">ON ●</span></td></tr>
+              <tr><td>승인 대기<span style="display:block;font-size:9px;color:var(--sub);">Approval Pending</span></td><td>✉ 🔔</td><td>Approver (DOC.Approve)</td><td class="mono">3× / 15m</td><td><span class="b b-ok">ON ●</span></td></tr>
+              <tr class="rd"><td>동기화 실패<span style="display:block;font-size:9px;color:var(--sub);">Sync Failure</span></td><td>✉ 💬</td><td>SYS.Admin · IT 운영</td><td class="mono">5× / 5m ⤴</td><td><span class="b b-ok">ON ●</span></td></tr>
+              <tr class="rd"><td>무결성 오류<span style="display:block;font-size:9px;color:var(--sub);">Integrity Error</span></td><td>✉ 📱 💬</td><td>SYS.Admin · Compliance Mgr</td><td class="mono">5× / 5m ⤴</td><td><span class="b b-ok">ON ●</span></td></tr>
+              <tr><td>주간 요약<span style="display:block;font-size:9px;color:var(--sub);">Weekly Digest</span></td><td>✉</td><td>All Compliance</td><td class="mono">1×</td><td><span class="b b-n">OFF ○</span></td></tr>
+            </tbody>
+          </table>
+          <div style="margin-top:8px;font-size:9px;color:var(--sub);">✉ Email · 📱 SMS · 🔔 Push · 💬 사내 메신저 · ⤴ = 재시도 소진 시 에스컬레이션 (BR-SYS-04) · 토글 클릭 → 활성/중지</div>
+        </div>
+      </div>
+
+      <div class="mock-lbl" style="margin-top:16px;">SYS-03 · Channel Configuration Panel · 채널 설정 (시크릿 마스킹)</div>
+      <div class="drawer">
+        <div class="drawer-h"><span>⚙ 채널 설정 · Channel Configuration</span><span class="x">✕</span></div>
+        <div class="drawer-b">
+          <div class="fld"><span class="fld-l">✉ Email — SMTP Host <span class="req">*</span></span><span class="fld-in mono">smtp.objts.com : 587</span></div>
+          <div class="fld"><span class="fld-l">SMTP User / Password</span><span class="fld-in mono">notify@objts.com / ••••••••</span></div>
+          <div class="fld"><span class="fld-l">📱 SMS — Gateway</span><span class="fld-in">Twilio (KR) ▾</span></div>
+          <div class="fld"><span class="fld-l">SMS API Key</span><span class="fld-in mono">SK••••••••••••3f2a</span></div>
+          <div class="fld"><span class="fld-l">🔔 Push — Provider</span><span class="fld-in">FCM / Web Push ▾</span></div>
+          <div class="fld"><span class="fld-l">Push Server Key</span><span class="fld-in mono">AAAA••••••••••••</span></div>
+          <div class="fld full"><span class="fld-l">💬 사내 메신저 — Webhook URL <span class="req">*</span></span><span class="fld-in mono">https://msg.objts.com/hook/••••••••</span></div>
+          <div class="fld full"><span class="fld-l">Retry / Escalation Policy · 재시도·에스컬레이션</span><span class="fld-in">실패 시 5분 간격 5회 재시도 → 소진 시 SYS.Admin 에스컬레이션 (BR-SYS-04)</span></div>
+        </div>
+        <div class="drawer-f">
+          <button class="mbtn mbtn-sec">테스트 발송 ✈</button>
+          <button class="mbtn mbtn-sec">취소</button>
+          <button class="mbtn mbtn-pri">설정 저장</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. UI COMPONENTS -->
+  <section class="sec" id="s3">
+    <div class="sec-hdr"><div class="sec-num">03</div><div class="sec-title-wrap"><div class="sec-title-en">UI Component Specification</div><div class="sec-title-ko">UI 컴포넌트 명세</div></div><div class="sec-line"></div></div>
+    <table class="cs-tbl">
+      <thead><tr><th style="width:84px;">ID</th><th style="width:180px;">Component <span class="th-ko">컴포넌트</span></th><th style="width:120px;">Type</th><th style="width:50px;">Req</th><th>Validation / Behavior <span class="th-ko">검증·동작</span></th></tr></thead>
+      <tbody>
+        <tr><td class="c-id">CMP-01</td><td class="c-name">Rule Grid<span class="ko">규칙 그리드</span></td><td><span class="c-type">TABLE</span></td><td class="c-req y">Y</td><td class="c-validation">이벤트별 규칙 1행. 채널 배지·수신 역할·재시도·상태 표시. 행 클릭 → 규칙 편집 드로어. 필터·검색 연동.</td></tr>
+        <tr><td class="c-id">CMP-02</td><td class="c-name">Event → Channel Map<span class="ko">이벤트·채널 매핑</span></td><td><span class="c-type">MULTI-CHECK</span></td><td class="c-req y">Y</td><td class="c-validation">이벤트당 채널 다중 선택(✉/📱/🔔/💬). 최소 1개 채널 필수. 미설정 채널은 비활성.</td></tr>
+        <tr><td class="c-id">CMP-03</td><td class="c-name">Recipient Roles<span class="ko">수신 역할</span></td><td><span class="c-type">MULTI-LOOKUP</span></td><td class="c-req y">Y</td><td class="c-validation">RBAC 역할 다중 선택(개인 아닌 역할 기반). 최소 1역할 필수. 미지정 시 기본 수신자 적용(EXC-03).</td></tr>
+        <tr><td class="c-id">CMP-04</td><td class="c-name">Retry / Escalation<span class="ko">재시도·에스컬레이션</span></td><td><span class="c-type">CONFIG</span></td><td class="c-req y">Y</td><td class="c-validation">재시도 횟수·간격 설정. <code>max 10×</code>. 소진 시 에스컬레이션 대상(상위 역할) 지정(BR-SYS-04).</td></tr>
+        <tr><td class="c-id">CMP-05</td><td class="c-name">Channel Config Panel<span class="ko">채널 설정 패널</span></td><td><span class="c-type">FORM</span></td><td class="c-req y">Y</td><td class="c-validation">SMTP·SMS·Push·메신저 연결 정보. 시크릿은 마스킹(<code>••••</code>) 표시·쓰기 전용. Vault 저장.</td></tr>
+        <tr><td class="c-id">CMP-06</td><td class="c-name">[테스트 발송]<span class="ko">테스트 발송</span></td><td><span class="c-type">BUTTON</span></td><td class="c-req n">N</td><td class="c-validation">선택 채널로 샘플 발송 + 결과(성공/실패) 즉시 표시. 저장 전 연결 검증용.</td></tr>
+        <tr><td class="c-id">CMP-07</td><td class="c-name">Enable Toggle<span class="ko">활성 토글</span></td><td><span class="c-type">TOGGLE</span></td><td class="c-req y">Y</td><td class="c-validation">규칙 ON/OFF. OFF 시 이벤트 발생해도 미발송. 변경 즉시 저장·로그 기록(BR-SYS-02).</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- 4. EVENT FLOW -->
+  <section class="sec" id="s4">
+    <div class="sec-hdr"><div class="sec-num">04</div><div class="sec-title-wrap"><div class="sec-title-en">Event &amp; Action Flow</div><div class="sec-title-ko">이벤트 · 액션 흐름</div></div><div class="sec-line"></div></div>
+    <div class="ef-wrap">
+      <div class="ef-step">
+        <div class="ef-num">1</div>
+        <div>
+          <div class="ef-trig"><span class="ef-trig-tag user">USER</span><span class="ef-trig-name">Define / edit rule</span></div>
+          <div class="ef-action">관리자가 이벤트 유형별 알림 규칙 정의(증빙 만료·승인 대기·동기화 실패·무결성 오류 등).</div>
+          <div class="ef-action-ko"><code>SYS.Admin</code> 권한 확인 후 규칙 드로어 오픈.</div>
+          <div class="ef-result"><span class="er-lbl">RESULT</span>Rule draft · 규칙 초안 작성</div>
+        </div>
+      </div>
+      <div class="ef-step">
+        <div class="ef-num">2</div>
+        <div>
+          <div class="ef-trig"><span class="ef-trig-tag user">USER</span><span class="ef-trig-name">Map channels + recipients</span></div>
+          <div class="ef-action">채널(✉/📱/🔔/💬) 다중 선택 + 수신 역할 매핑. 채널 ≥1, 역할 ≥1 검증.</div>
+          <div class="ef-action-ko">미설정 채널 선택 시 채널 설정 패널 안내(EXC-02).</div>
+          <div class="ef-result"><span class="er-lbl">RESULT</span>Channels &amp; roles bound · 채널·역할 결합</div>
+        </div>
+      </div>
+      <div class="ef-step">
+        <div class="ef-num">3</div>
+        <div>
+          <div class="ef-trig"><span class="ef-trig-tag user">USER</span><span class="ef-trig-name">Set retry / escalation + Save</span></div>
+          <div class="ef-action">재시도 횟수·간격, 에스컬레이션 대상 설정(BR-SYS-04). 저장 시 <code>sys_notif_rule</code> upsert + 로그(BR-SYS-02).</div>
+          <div class="ef-action-ko">필수 누락 시 저장 차단(EXC-06 권한 / 검증).</div>
+          <div class="ef-result"><span class="er-lbl">RESULT</span>Rule active · 규칙 활성화</div>
+        </div>
+      </div>
+      <div class="ef-step">
+        <div class="ef-num">4</div>
+        <div>
+          <div class="ef-trig"><span class="ef-trig-tag system">SYSTEM</span><span class="ef-trig-name">Event triggers send</span></div>
+          <div class="ef-action">DOC-03/DOC-04/INT-04 등에서 이벤트 발생 → 매칭 규칙 조회 → 채널별 발송 디스패치.</div>
+          <div class="ef-action-ko">전송 실패 시 재시도 큐 등록 → 소진 시 에스컬레이션(아래 분기).</div>
+          <div class="ef-result"><span class="er-lbl">RESULT</span>Dispatch to Email / SMS / Push / 메신저</div>
+        </div>
+      </div>
+      <div class="ef-step terminal">
+        <div class="ef-num">✓</div>
+        <div>
+          <div class="ef-trig"><span class="ef-trig-tag system">SYSTEM</span><span class="ef-trig-name">Delivered + logged</span></div>
+          <div class="ef-action">발송 성공. 수신자·채널·시각·결과를 전수 로그 기록(BR-SYS-02). 실패 분기 → 재시도 → 에스컬레이션(EXC-01).</div>
+          <div class="ef-action-ko">감사 추적 가능 · SYS-02 로그 뷰어에서 조회.</div>
+          <div class="ef-result"><span class="er-lbl">DONE</span>Notification delivered &amp; logged · 발송·기록 완료</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. EXCEPTION -->
+  <section class="sec" id="s5">
+    <div class="sec-hdr"><div class="sec-num">05</div><div class="sec-title-wrap"><div class="sec-title-en">Exception Handling</div><div class="sec-title-ko">예외 처리</div></div><div class="sec-line"></div></div>
+    <div class="exc-grid">
+      <div class="exc-card">
+        <div class="exc-hdr"><span class="exc-code">EXC-01</span><span class="exc-name">Send Failure<span class="ko">전송 실패</span></span></div>
+        <div class="exc-row"><span class="lbl">Trigger</span><span class="val">채널 발송 실패(SMTP 거부·게이트웨이 오류 등).</span></div>
+        <div class="exc-row"><span class="lbl">Action</span><span class="val">설정 횟수·간격 재시도 → 소진 시 SYS.Admin 에스컬레이션 (BR-SYS-04). 실패 로그.</span></div>
+        <div class="exc-msg">발송 실패 — 재시도 후 에스컬레이션됨</div>
+      </div>
+      <div class="exc-card warn">
+        <div class="exc-hdr"><span class="exc-code">EXC-02</span><span class="exc-name">Channel Misconfigured<span class="ko">채널 미설정</span></span></div>
+        <div class="exc-row"><span class="lbl">Trigger</span><span class="val">연결 정보 누락·오류 채널을 규칙에 매핑.</span></div>
+        <div class="exc-row"><span class="lbl">Action</span><span class="val">규칙 저장 차단. 채널 설정 패널로 이동 안내.</span></div>
+        <div class="exc-msg">채널 설정을 먼저 완료하세요</div>
+      </div>
+      <div class="exc-card info">
+        <div class="exc-hdr"><span class="exc-code">EXC-03</span><span class="exc-name">No Recipient<span class="ko">수신자 없음</span></span></div>
+        <div class="exc-row"><span class="lbl">Trigger</span><span class="val">매핑 역할에 활성 사용자 0명.</span></div>
+        <div class="exc-row"><span class="lbl">Action</span><span class="val">기본 수신자(SYS.Admin)로 폴백 발송 + 경고.</span></div>
+        <div class="exc-msg">수신자 없음 — 기본 관리자에게 발송</div>
+      </div>
+      <div class="exc-card warn">
+        <div class="exc-hdr"><span class="exc-code">EXC-04</span><span class="exc-name">Rate Limit<span class="ko">발송 한도 초과</span></span></div>
+        <div class="exc-row"><span class="lbl">Trigger</span><span class="val">채널/게이트웨이 발송 한도 초과.</span></div>
+        <div class="exc-row"><span class="lbl">Action</span><span class="val">큐 보류 후 지연 발송. 묶음(digest) 처리 제안.</span></div>
+        <div class="exc-msg">한도 초과 — 지연 발송으로 전환</div>
+      </div>
+      <div class="exc-card info">
+        <div class="exc-hdr"><span class="exc-code">EXC-05</span><span class="exc-name">Masked Secret Edit<span class="ko">마스킹 시크릿 수정</span></span></div>
+        <div class="exc-row"><span class="lbl">Trigger</span><span class="val">마스킹된 시크릿 필드 편집 시도.</span></div>
+        <div class="exc-row"><span class="lbl">Action</span><span class="val">기존 값 미노출. 신규 값 입력 시에만 교체(쓰기 전용).</span></div>
+        <div class="exc-msg">시크릿은 표시되지 않음 — 새 값 입력 시 교체</div>
+      </div>
+      <div class="exc-card">
+        <div class="exc-hdr"><span class="exc-code">EXC-06</span><span class="exc-name">No Permission<span class="ko">권한 없음</span></span></div>
+        <div class="exc-row"><span class="lbl">Trigger</span><span class="val"><code>SYS.Admin</code> 미보유 사용자 접근.</span></div>
+        <div class="exc-row"><span class="lbl">Action</span><span class="val">화면 진입 차단·읽기 전용. 편집 버튼 비활성.</span></div>
+        <div class="exc-msg">설정 권한이 없습니다 (SYS.Admin 필요)</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. LINKED -->
+  <section class="sec" id="s6">
+    <div class="sec-hdr"><div class="sec-num">06</div><div class="sec-title-wrap"><div class="sec-title-en">Linked Screens</div><div class="sec-title-ko">연계 화면</div></div><div class="sec-line"></div></div>
+    <div class="lnk-wrap">
+      <div class="lnk-row">
+        <div class="lnk-node cur"><div class="lnk-id">SYS-03</div><div class="lnk-name">Notification Settings</div><div class="lnk-ko">현재 화면</div></div>
+      </div>
+      <div style="text-align:center;font-size:10px;color:var(--sub);margin:12px 0;">▼ 알림 규칙이 구동하는 하위 발송 (이벤트 소스)</div>
+      <div class="lnk-row">
+        <a class="lnk-node down" href="VOL02_DOC03_Expiry_Dashboard.html"><div class="lnk-id">DOC-03</div><div class="lnk-name">Expiry Dashboard</div><div class="lnk-ko">만료 알림 발송</div></a>
+        <a class="lnk-node down" href="VOL02_DOC04_Approval_Workflow.html"><div class="lnk-id">DOC-04</div><div class="lnk-name">Approval W/F</div><div class="lnk-ko">승인 대기 알림</div></a>
+        <a class="lnk-node down" href="VOL06_INT_Integration.html"><div class="lnk-id">INT-04</div><div class="lnk-name">Integrity Monitor</div><div class="lnk-ko">무결성·동기화 경고</div></a>
+        <a class="lnk-node down" href="index.html"><div class="lnk-id">ALL</div><div class="lnk-name">All Modules</div><div class="lnk-ko">전 모듈 이벤트</div></a>
+      </div>
+      <div style="text-align:center;font-size:10px;color:var(--sub);margin-top:14px;">SYS-03은 알림 엔진 — 전 모듈의 이벤트가 규칙에 따라 채널로 발송됨 · 발송 로그는 SYS-02에서 조회</div>
+    </div>
+  </section>
+
+  <!-- 7. BUSINESS RULES -->
+  <section class="sec" id="s7">
+    <div class="sec-hdr"><div class="sec-num">07</div><div class="sec-title-wrap"><div class="sec-title-en">Business Rules</div><div class="sec-title-ko">업무 규칙</div></div><div class="sec-line"></div></div>
+    <table class="br-mini">
+      <thead><tr><th style="width:96px;">ID</th><th>Rule · 규칙</th><th style="width:80px;">Action</th></tr></thead>
+      <tbody>
+        <tr><td class="br-id">BR-SYS-04</td><td><div class="br-en">Retry &amp; escalation — failed deliveries retry per configured count/interval; on exhaustion, escalate to SYS.Admin (or the rule's escalation role).</div><div class="br-ko">전송 실패 시 설정 횟수·간격으로 재시도, 소진 시 SYS.Admin(또는 지정 상위 역할)에게 에스컬레이션.</div></td><td class="br-act"><span class="aut">자동</span></td></tr>
+        <tr><td class="br-id">BR-SYS-02</td><td><div class="br-en">All sends logged — every notification dispatch (recipient, channel, time, result) and every rule change is recorded for audit (visible in SYS-02).</div><div class="br-ko">모든 알림 발송(수신자·채널·시각·결과)과 규칙 변경은 감사용으로 기록(SYS-02 조회).</div></td><td class="br-act"><span class="aut">자동</span></td></tr>
+        <tr><td class="br-id">BR-SYS-01</td><td><div class="br-en">Admin-only configuration — only SYS.Admin may create, edit, or toggle notification rules and channel credentials; others are read-only/blocked.</div><div class="br-ko">알림 규칙·채널 자격증명의 생성·편집·토글은 SYS.Admin만 가능, 그 외 읽기 전용·차단.</div></td><td class="br-act"><span class="blk">차단</span></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  </div>
+  <div class="page-footer">
+    <span class="pf-l">UOCM · USMCA Origin Compliance Management System</span>
+    <span class="pf-r">VOL.7 · SYS-03 · Notification Settings · L3 Spec</span>
+  </div>
+</div>
+</div>
+</body>
+</html>
