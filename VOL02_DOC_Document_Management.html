@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>UOCM · VOL.2 · DOC · Document Management</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;600;700&family=Bebas+Neue&display=swap');
+:root{
+  --brand:#10b981;--brand-dk:#059669;
+  --ink:#0a1422;--ink2:#101d2e;--ink3:#1c2c40;
+  --surface:#fff;--bg:#f4f7fa;--border:#d3dce6;--text:#1e2a38;--sub:#5b6b7d;
+  --doc:#2563eb;--lbl:#7c3aed;--org:#0891b2;--aud:#dc2626;--int:#6366f1;--sys:#64748b;--md:#d97706;
+  --mod:#2563eb;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);font-size:13px;line-height:1.6;}
+
+.uo-nav{position:sticky;top:0;z-index:9999;background:var(--ink);border-bottom:1px solid rgba(16,185,129,.22);box-shadow:0 2px 8px rgba(0,0,0,.4);}
+.uo-nav-inner{display:flex;align-items:stretch;overflow-x:auto;scrollbar-width:none;}
+.uo-nav-inner::-webkit-scrollbar{display:none;}
+.nav-home{display:flex;align-items:center;gap:8px;padding:0 16px;background:rgba(16,185,129,.1);border-right:1px solid rgba(16,185,129,.18);text-decoration:none;flex-shrink:0;min-height:42px;}
+.nav-home-logo{font-family:'Bebas Neue',sans-serif;font-size:17px;color:var(--brand);letter-spacing:2px;}
+.nav-home-sub{font-size:9px;color:rgba(255,255,255,.3);}
+.nav-vol{display:flex;align-items:center;gap:5px;padding:0 12px;text-decoration:none;font-size:10px;font-weight:700;color:rgba(255,255,255,.45);border-bottom:2px solid transparent;white-space:nowrap;min-height:42px;transition:color .12s;}
+.nav-vol:hover{color:rgba(255,255,255,.9);}
+.nav-vol.active{color:#fff;border-bottom-color:var(--brand);}
+.nav-vol .nv-code{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;}
+
+.page-wrap{display:flex;}
+.sidebar{width:236px;min-width:236px;background:var(--ink2);position:sticky;top:42px;height:calc(100vh - 42px);overflow-y:auto;scrollbar-width:thin;border-right:1px solid var(--ink3);}
+.sb-head{padding:16px 14px 12px;border-bottom:1px solid var(--ink3);}
+.sb-vol{font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(16,185,129,.55);letter-spacing:2px;margin-bottom:4px;}
+.sb-mod-en{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1px;color:#93c5fd;}
+.sb-mod-ko{font-size:10px;color:rgba(255,255,255,.3);}
+.sb-section{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.16);padding:12px 14px 4px;}
+.sb-link{display:flex;align-items:center;gap:7px;padding:6px 14px;text-decoration:none;color:rgba(255,255,255,.36);font-size:11px;border-left:2px solid transparent;transition:all .12s;}
+.sb-link:hover{color:rgba(255,255,255,.75);background:rgba(255,255,255,.03);}
+.sb-link.on{color:#fff;border-left-color:var(--doc);background:rgba(37,99,235,.1);}
+.sb-link .sl-id{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;width:44px;flex-shrink:0;color:rgba(147,197,253,.7);}
+.sb-link .sl-en{font-size:10px;font-weight:600;}
+.sb-link .sl-ko{font-size:9px;color:rgba(255,255,255,.2);margin-top:1px;}
+.sb-l3{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:3px;background:rgba(16,185,129,.12);color:rgba(16,185,129,.8);font-size:11px;text-decoration:none;margin-left:auto;transition:all .15s;flex-shrink:0;border:1px solid rgba(16,185,129,.28);}
+.sb-l3:hover{background:var(--brand);color:#000;border-color:var(--brand);transform:scale(1.15);}
+.sb-sep{height:1px;background:var(--ink3);margin:5px 0;}
+
+.main{flex:1;min-width:0;}
+
+.mod-hdr{padding:36px 48px 24px;position:relative;overflow:hidden;background:linear-gradient(135deg,color-mix(in srgb,#2563eb 34%,#000),color-mix(in srgb,#2563eb 13%,#000));}
+.mod-hdr-inner{position:relative;z-index:1;}
+.mod-eyebrow{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;margin-bottom:10px;opacity:.9;color:#93c5fd;}
+.mod-title-en{font-family:'Bebas Neue',sans-serif;font-size:48px;line-height:.95;letter-spacing:2px;color:#93c5fd;margin-bottom:4px;}
+.mod-title-ko{font-size:14px;font-weight:300;color:rgba(255,255,255,.42);letter-spacing:3px;margin-bottom:16px;}
+.mod-desc-bi{display:grid;grid-template-columns:1fr 1fr;gap:14px;max-width:900px;margin-bottom:14px;}
+.mdb-en{font-size:11px;color:rgba(255,255,255,.62);line-height:1.85;border-left:2px solid rgba(255,255,255,.12);padding-left:12px;}
+.mdb-ko{font-size:11px;color:rgba(255,255,255,.36);line-height:1.85;border-left:2px solid rgba(255,255,255,.06);padding-left:12px;}
+.mod-meta-strip{display:grid;grid-template-columns:repeat(6,1fr);gap:0;border:1px solid rgba(147,197,253,.18);border-radius:6px;overflow:hidden;margin:14px 0 16px;max-width:900px;background:rgba(0,0,0,.22);}
+.mms-item{padding:10px 14px;border-right:1px solid rgba(147,197,253,.12);}
+.mms-item:last-child{border-right:none;}
+.mms-l{font-size:8px;color:rgba(147,197,253,.6);text-transform:uppercase;letter-spacing:1.2px;font-family:'JetBrains Mono',monospace;}
+.mms-v{font-size:13px;font-weight:800;color:#fff;margin-top:3px;letter-spacing:.3px;}
+.mms-v.warn{color:#fde047;}
+.l3-hint{display:inline-block;font-size:10px;color:rgba(16,185,129,.85);font-weight:600;letter-spacing:1px;padding:5px 12px;background:rgba(16,185,129,.08);border:1px dashed rgba(16,185,129,.4);border-radius:3px;margin-bottom:8px;}
+.screen-pills{display:flex;gap:5px;flex-wrap:wrap;margin-top:10px;}
+.sp{display:flex;align-items:center;gap:5px;padding:5px 11px;border-radius:3px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);font-size:9px;color:rgba(255,255,255,.62);text-decoration:none;transition:all .15s;}
+.sp:hover{background:rgba(37,99,235,.22);border-color:rgba(37,99,235,.5);color:#fff;}
+.sp-id{font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--brand);}
+
+.content{padding:0 48px 48px;}
+.sec-div{display:flex;align-items:center;gap:12px;margin:28px 0 16px;}
+.sd-line{flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--border) 20%,var(--border) 80%,transparent);}
+.sd-lbl{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:var(--doc);letter-spacing:2px;white-space:nowrap;padding:4px 10px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:3px;}
+
+.flow-card{background:linear-gradient(135deg,#0a1422,#0c1c30);color:#e2e8f0;border-radius:10px;padding:20px 22px;margin-bottom:18px;box-shadow:0 4px 20px rgba(37,99,235,.15);}
+.flow-card-h{font-family:'JetBrains Mono',monospace;font-size:10px;color:#93c5fd;letter-spacing:2px;text-transform:uppercase;margin-bottom:14px;}
+.flow-track{margin-bottom:14px;}
+.flow-track-lbl{font-size:10px;color:rgba(255,255,255,.55);letter-spacing:1px;font-family:'JetBrains Mono',monospace;margin-bottom:8px;text-transform:uppercase;}
+.flow-row{display:flex;align-items:center;gap:0;flex-wrap:wrap;}
+.flow-node{display:flex;flex-direction:column;align-items:center;gap:3px;background:rgba(37,99,235,.12);border:1px solid rgba(147,197,253,.4);border-radius:8px;padding:10px 12px;min-width:96px;text-align:center;transition:all .15s;text-decoration:none;color:#e2e8f0;}
+.flow-node:hover{background:rgba(37,99,235,.25);border-color:#93c5fd;transform:translateY(-2px);box-shadow:0 6px 16px rgba(37,99,235,.3);}
+.flow-node.ext{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.2);border-style:dashed;}
+.flow-node.alert{background:rgba(220,38,38,.12);border-color:rgba(252,165,165,.5);}
+.fn-id{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;color:#93c5fd;letter-spacing:.5px;}
+.flow-node.ext .fn-id{color:rgba(255,255,255,.5);}
+.flow-node.alert .fn-id{color:#fca5a5;}
+.fn-name{font-size:11px;font-weight:700;color:#fff;}
+.fn-ko{font-size:9px;color:rgba(255,255,255,.5);}
+.fn-tag{font-size:8px;font-family:'JetBrains Mono',monospace;color:rgba(255,255,255,.5);margin-top:1px;}
+.flow-arr{font-size:18px;color:rgba(147,197,253,.5);padding:0 4px;font-weight:700;}
+
+.mod-kpi{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:18px;}
+.kpi-card{background:#fff;border:1px solid var(--border);border-top:3px solid var(--doc);border-radius:0 0 6px 6px;padding:14px 16px;}
+.kpi-l{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--sub);letter-spacing:1px;text-transform:uppercase;}
+.kpi-v{font-family:'Bebas Neue',sans-serif;font-size:34px;color:var(--text);line-height:1;margin-top:5px;letter-spacing:.5px;}
+.kpi-v.ok{color:#16a34a;}.kpi-v.warn{color:#a16207;}.kpi-v.alert{color:#dc2626;}.kpi-v.doc{color:var(--doc);}
+.kpi-s{font-size:10px;color:var(--sub);margin-top:3px;}
+
+.screen-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:18px;box-shadow:0 1px 3px rgba(0,0,0,.04);}
+.sc-hdr{padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:14px;border-bottom:1px solid var(--border);background:linear-gradient(135deg,color-mix(in srgb,#2563eb 28%,#000),color-mix(in srgb,#2563eb 12%,#000));}
+.sc-hdr-l{display:flex;align-items:center;gap:14px;flex:1;min-width:0;}
+.sc-icon{font-size:42px;line-height:1;flex-shrink:0;filter:drop-shadow(0 2px 4px rgba(0,0,0,.3));}
+.sc-title-wrap{flex:1;min-width:0;}
+.sc-id{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;color:#93c5fd;letter-spacing:.5px;}
+.sc-title-en{font-size:16px;font-weight:800;color:#fff;letter-spacing:-.3px;margin-top:2px;}
+.sc-title-ko{font-size:10px;color:rgba(255,255,255,.55);margin-top:2px;}
+.sc-tags{display:flex;flex-direction:column;align-items:flex-end;gap:4px;}
+.tag{font-size:9px;font-weight:700;padding:2px 9px;border-radius:3px;white-space:nowrap;}
+.t-web{background:rgba(37,99,235,.2);color:#93c5fd;border:1px solid rgba(37,99,235,.35);}
+.t-portal{background:rgba(13,184,122,.2);color:#5dffc4;border:1px solid rgba(13,184,122,.3);}
+.t-p1{background:rgba(16,185,129,.18);color:#6ee7b7;border:1px solid rgba(16,185,129,.32);}
+.t-core{background:rgba(212,160,23,.2);color:#fbbf24;border:1px solid rgba(212,160,23,.35);}
+.sc-l3-btn{display:inline-flex;align-items:center;gap:5px;padding:8px 14px;background:linear-gradient(135deg,#10b981,#059669);color:#03241a;font-size:11px;font-weight:800;border-radius:5px;text-decoration:none;letter-spacing:.5px;text-transform:uppercase;border:1px solid #059669;box-shadow:0 2px 6px rgba(16,185,129,.3);transition:all .15s;white-space:nowrap;}
+.sc-l3-btn:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(16,185,129,.5);background:linear-gradient(135deg,#34d399,#10b981);}
+.sc-body{padding:16px 18px;}
+.headline{display:flex;align-items:center;gap:10px;padding:11px 14px;background:linear-gradient(135deg,#eff6ff,#dbeafe);border:1px solid #bfdbfe;border-left:3px solid var(--doc);border-radius:0 5px 5px 0;margin-bottom:14px;}
+.headline-ico{font-size:18px;color:var(--doc);}
+.headline-t{font-size:12px;color:#1e40af;font-weight:700;line-height:1.55;}
+.headline-t .ko{display:block;color:#2563eb;font-weight:400;font-size:11px;margin-top:1px;}
+.qf-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px;}
+.qf{background:#fafbfd;border:1px solid var(--border);border-radius:5px;padding:9px 11px;}
+.qf-l{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--sub);letter-spacing:.7px;text-transform:uppercase;}
+.qf-v{font-size:11px;color:var(--text);font-weight:700;margin-top:3px;line-height:1.4;}
+.desc-bi{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;background:#eff6ff;border:1px solid var(--border);border-left:3px solid var(--doc);border-radius:0 6px 6px 0;padding:11px 14px;}
+.db-lbl{font-size:8px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;opacity:.55;}
+.db-en{font-size:11px;color:#1e40af;line-height:1.75;}
+.db-ko{font-size:11px;color:var(--sub);line-height:1.75;}
+.feat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:8px;margin-bottom:12px;}
+.feat-item{background:#fff;border:1px solid var(--border);border-top:2px solid var(--doc);border-radius:0 0 5px 5px;padding:10px 12px;}
+.feat-ico{font-size:16px;line-height:1;margin-bottom:5px;}
+.feat-t{font-size:11px;font-weight:800;color:var(--text);margin-bottom:2px;}
+.feat-d{font-size:10px;color:var(--sub);line-height:1.55;}
+.feat-d .ko{color:#94a3b8;font-size:9px;display:block;margin-top:1px;}
+.br-chips{display:flex;gap:5px;flex-wrap:wrap;padding-top:10px;border-top:1px dashed var(--border);}
+.br-chip{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;padding:3px 8px;border-radius:3px;background:#dbeafe;color:#1e40af;border:1px solid #93c5fd;text-decoration:none;letter-spacing:.3px;}
+.br-chip.crit{background:#fee2e2;color:#991b1b;border-color:#fca5a5;}
+.br-chip-lbl{font-size:9px;color:var(--sub);font-family:'JetBrains Mono',monospace;letter-spacing:.5px;margin-right:4px;align-self:center;}
+
+.ref-tbl{width:100%;border-collapse:collapse;font-size:11px;background:#fff;border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-bottom:18px;}
+.ref-tbl th{background:#f0f3f7;color:var(--text);padding:8px 12px;text-align:left;font-size:10px;font-weight:700;border-bottom:1px solid var(--border);}
+.ref-tbl td{padding:8px 12px;border-bottom:1px solid var(--border);}
+.ref-tbl tr:last-child td{border-bottom:none;}
+.ref-tbl tr:nth-child(even) td{background:#fafbfd;}
+.ref-tbl .code{font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--doc);font-size:11px;}
+.pill{display:inline-block;font-size:9px;font-weight:700;padding:2px 8px;border-radius:8px;}
+.p-ok{background:#dcfce7;color:#166534;}.p-w{background:#fef9c3;color:#92400e;}.p-e{background:#fee2e2;color:#991b1b;}.p-i{background:#dbeafe;color:#1e40af;}.p-n{background:#f1f5f9;color:#475569;}
+
+.br-wrap{margin-bottom:16px;}
+.br-tbl{width:100%;border-collapse:collapse;font-size:10px;}
+.br-tbl th{background:var(--text);color:#fff;padding:7px 10px;text-align:left;border:1px solid rgba(255,255,255,.08);font-size:9px;}
+.br-tbl td{padding:7px 10px;border:1px solid var(--border);vertical-align:top;line-height:1.6;}
+.br-tbl tr:nth-child(even) td{background:#fafbfd;}
+.br-id-c{font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--brand-dk);white-space:nowrap;}
+.b{display:inline-block;font-size:9px;font-weight:700;padding:2px 7px;border-radius:8px;}
+.b-blk{background:#fee2e2;color:#991b1b;}.b-alt{background:#fef9c3;color:#92400e;}.b-aut{background:#dbeafe;color:#1e40af;}
+
+.page-footer{padding:14px 48px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--ink);margin-top:20px;}
+.pf-l{font-size:10px;color:rgba(255,255,255,.25);font-family:'JetBrains Mono',monospace;}
+.pf-r{font-family:'JetBrains Mono',monospace;font-size:10px;color:rgba(16,185,129,.5);}
+@media(max-width:1024px){.mod-desc-bi{grid-template-columns:1fr;}.mod-meta-strip{grid-template-columns:repeat(3,1fr);}.mod-kpi{grid-template-columns:repeat(2,1fr);}.qf-grid{grid-template-columns:repeat(2,1fr);}.desc-bi{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<nav class="uo-nav"><div class="uo-nav-inner">
+  <a href="INDEX.html" class="nav-home"><span class="nav-home-logo">UOCM</span><span class="nav-home-sub">◀ Index</span></a>
+  <a href="VOL01_Overview.html" class="nav-vol"><span class="nv-code" style="color:#10b981;">OV</span><span>Overview</span></a>
+  <a href="VOL02_DOC_Document_Management.html" class="nav-vol active"><span class="nv-code" style="color:#2563eb;">DOC</span><span>Document</span></a>
+  <a href="VOL03_LBL_Label_Management.html" class="nav-vol"><span class="nv-code" style="color:#7c3aed;">LBL</span><span>Label</span></a>
+  <a href="VOL04_ORG_Origin_Management.html" class="nav-vol"><span class="nv-code" style="color:#0891b2;">ORG</span><span>Origin</span></a>
+  <a href="VOL05_AUD_Audit_Support.html" class="nav-vol"><span class="nv-code" style="color:#dc2626;">AUD</span><span>Audit</span></a>
+  <a href="VOL06_INT_Integration.html" class="nav-vol"><span class="nv-code" style="color:#6366f1;">INT</span><span>Integration</span></a>
+  <a href="VOL07_SYS_System.html" class="nav-vol"><span class="nv-code" style="color:#64748b;">SYS</span><span>System</span></a>
+  <a href="VOL08_MD_Master_Data.html" class="nav-vol"><span class="nv-code" style="color:#d97706;">MD</span><span>Master Data</span></a>
+</div></nav>
+<div class="page-wrap">
+<nav class="sidebar">
+  <div class="sb-head">
+    <div class="sb-vol">VOL.2 · DOC MODULE</div>
+    <div class="sb-mod-en">DOCUMENT</div>
+    <div class="sb-mod-ko">증빙 문서 관리</div>
+  </div>
+  <div class="sb-section">Overview · 개요</div>
+  <a class="sb-link" href="#flow"><span class="sl-id">FLOW</span><div><div class="sl-en">Process Flow</div><div class="sl-ko">화면 흐름</div></div></a>
+  <a class="sb-link" href="#kpi"><span class="sl-id">KPI</span><div><div class="sl-en">Module KPI</div><div class="sl-ko">핵심 지표</div></div></a>
+  <div class="sb-section">Repository · 보관</div>
+  <a class="sb-link on" href="#doc01"><span class="sl-id">DOC-01</span><div><div class="sl-en">Certificate Registry</div><div class="sl-ko">증빙 등록·보관</div></div><a class="sb-l3" href="VOL02_DOC01_Certificate_Registry.html" title="L3 상세 설계서" onclick="event.stopPropagation();">📋</a></a>
+  <a class="sb-link" href="#doc02"><span class="sl-id">DOC-02</span><div><div class="sl-en">Certificate Viewer</div><div class="sl-ko">증빙 상세·뷰어</div></div><span class="sb-l3" style="opacity:.4;cursor:default;" title="L3 예정">·</span></a>
+  <div class="sb-section">Expiry · 만료</div>
+  <a class="sb-link" href="#doc03"><span class="sl-id">DOC-03</span><div><div class="sl-en">Expiry Dashboard</div><div class="sl-ko">만료 대시보드·알림</div></div><span class="sb-l3" style="opacity:.4;cursor:default;" title="L3 예정">·</span></a>
+  <div class="sb-section">Approval · 승인</div>
+  <a class="sb-link" href="#doc04"><span class="sl-id">DOC-04</span><div><div class="sl-en">Approval Workflow</div><div class="sl-ko">승인 워크플로우</div></div><span class="sb-l3" style="opacity:.4;cursor:default;" title="L3 예정">·</span></a>
+  <a class="sb-link" href="#doc05"><span class="sl-id">DOC-05</span><div><div class="sl-en">Version History</div><div class="sl-ko">버전 이력</div></div><span class="sb-l3" style="opacity:.4;cursor:default;" title="L3 예정">·</span></a>
+  <div class="sb-section">Intake · 수집</div>
+  <a class="sb-link" href="#doc06"><span class="sl-id">DOC-06</span><div><div class="sl-en">Supplier Upload Portal</div><div class="sl-ko">공급사 업로드</div></div><span class="sb-l3" style="opacity:.4;cursor:default;" title="L3 예정">·</span></a>
+  <div class="sb-sep"></div>
+  <div class="sb-section">Reference · 참조</div>
+  <a class="sb-link" href="#ref-types"><span class="sl-id">TYPE</span><div><div class="sl-en">Certificate Types</div><div class="sl-ko">증빙 유형</div></div></a>
+  <a class="sb-link" href="#ref-alert"><span class="sl-id">ALRT</span><div><div class="sl-en">Expiry Thresholds</div><div class="sl-ko">만료 알림 기준</div></div></a>
+  <a class="sb-link" href="#br-doc"><span class="sl-id">BR</span><div><div class="sl-en">Business Rules</div><div class="sl-ko">업무 규칙</div></div></a>
+</nav>
+<div class="main">
+  <div class="mod-hdr">
+    <div class="mod-hdr-inner">
+      <div class="mod-eyebrow">VOL.2 · DOC · Document Management · 증빙 문서 관리</div>
+      <div class="mod-title-en">DOCUMENT<br>MANAGEMENT</div>
+      <div class="mod-title-ko">증빙 문서 관리 — Supplier Certificate 중앙 보관 · 만료 자동 알림 · 승인 워크플로우 · 버전 관리</div>
+      <div class="mod-desc-bi">
+        <div class="mdb-en">The Phase 1 foundation. Establishes a <strong>single source of truth</strong> for all origin-supporting documents — supplier certificates of origin, USMCA certifications, affidavits, and HTS classifications. Centralizes scattered email/Excel evidence, auto-tracks certificate validity with tiered expiry alerts (D-90 / D-30 / D-7 / expired), enforces a multi-step approval/verification workflow, and keeps full version history for audit. Feeds AUD (traceability) and LBL (label issuance must reference a valid certificate).</div>
+        <div class="mdb-ko">Phase 1 토대. 모든 원산지 증빙 문서(공급사 원산지증명서, USMCA 인증, 진술서, HTS 분류)의 <strong>단일 진실원천(SoT)</strong>을 구축합니다. 이메일·엑셀에 분산된 증빙을 중앙화하고, 인증서 유효기간을 단계별 만료 알림(D-90 / D-30 / D-7 / 만료)으로 자동 추적, 다단계 승인·검증 워크플로우를 강제하며, 감사용 전체 버전 이력을 유지합니다. AUD(역추적)·LBL(라벨 발행 시 유효 증빙 참조)로 연계됩니다.</div>
+      </div>
+      <div class="mod-meta-strip">
+        <div class="mms-item"><div class="mms-l">Screens</div><div class="mms-v">6</div></div>
+        <div class="mms-item"><div class="mms-l">L3 Done</div><div class="mms-v">1 (DOC-01)</div></div>
+        <div class="mms-item"><div class="mms-l">Expiry Alert</div><div class="mms-v warn">4-Tier</div></div>
+        <div class="mms-item"><div class="mms-l">Approval</div><div class="mms-v">Multi-step</div></div>
+        <div class="mms-item"><div class="mms-l">Versioning</div><div class="mms-v">Full</div></div>
+        <div class="mms-item"><div class="mms-l">Phase</div><div class="mms-v">P1 · 법인</div></div>
+      </div>
+      <div><span class="l3-hint">📋 각 화면 카드 / 사이드바 아이콘 클릭 시 L3 상세 설계서</span></div>
+      <div class="screen-pills">
+        <a class="sp" href="VOL02_DOC01_Certificate_Registry.html" title="L3 상세 · DOC-01"><span class="sp-id">DOC-01</span> Certificate Registry <span style="opacity:.5;font-size:8px;">📋</span></a>
+        <span class="sp"><span class="sp-id">DOC-02</span> Certificate Viewer</span>
+        <span class="sp"><span class="sp-id">DOC-03</span> Expiry Dashboard</span>
+        <span class="sp"><span class="sp-id">DOC-04</span> Approval Workflow</span>
+        <span class="sp"><span class="sp-id">DOC-05</span> Version History</span>
+        <span class="sp"><span class="sp-id">DOC-06</span> Supplier Upload</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- PROCESS FLOW -->
+    <div class="sec-div" id="flow"><div class="sd-line"></div><div class="sd-lbl">▼ PROCESS FLOW · 화면 흐름</div><div class="sd-line"></div></div>
+    <div class="flow-card">
+      <div class="flow-card-h">▼ Certificate Lifecycle · 증빙 생애주기</div>
+      <div class="flow-track">
+        <div class="flow-track-lbl">📥 INTAKE → APPROVAL → REPOSITORY · 수집·승인·보관</div>
+        <div class="flow-row">
+          <a class="flow-node ext"><span class="fn-id">SUPPLIER</span><span class="fn-name">증빙 발급</span><span class="fn-ko">COO/USMCA</span><span class="fn-tag">이메일/포털</span></a>
+          <span class="flow-arr">→</span>
+          <a class="flow-node" href="#doc06"><span class="fn-id">DOC-06</span><span class="fn-name">Upload Portal</span><span class="fn-ko">업로드 수집</span><span class="fn-tag">공급사/구매</span></a>
+          <span class="flow-arr">→</span>
+          <a class="flow-node" href="#doc01"><span class="fn-id">DOC-01</span><span class="fn-name">Registry</span><span class="fn-ko">증빙 등록</span><span class="fn-tag">메타 입력</span></a>
+          <span class="flow-arr">→</span>
+          <a class="flow-node" href="#doc04"><span class="fn-id">DOC-04</span><span class="fn-name">Approval W/F</span><span class="fn-ko">승인 검증</span><span class="fn-tag">다단계 결재</span></a>
+          <span class="flow-arr">→</span>
+          <a class="flow-node" href="#doc01"><span class="fn-id">VALID</span><span class="fn-name">유효 증빙</span><span class="fn-ko">SoT 반영</span><span class="fn-tag">검색 가능</span></a>
+        </div>
+      </div>
+      <div class="flow-track">
+        <div class="flow-track-lbl">⏰ MONITOR & RENEW · 만료 모니터링·갱신</div>
+        <div class="flow-row">
+          <a class="flow-node" href="#doc03"><span class="fn-id">DOC-03</span><span class="fn-name">Expiry Dash</span><span class="fn-ko">만료 추적</span><span class="fn-tag">4단계 알림</span></a>
+          <span class="flow-arr">→</span>
+          <a class="flow-node alert"><span class="fn-id">ALERT</span><span class="fn-name">D-90/30/7</span><span class="fn-ko">자동 알림</span><span class="fn-tag">담당자 푸시</span></a>
+          <span class="flow-arr">→</span>
+          <a class="flow-node ext"><span class="fn-id">SUPPLIER</span><span class="fn-name">갱신 요청</span><span class="fn-ko">재발급</span><span class="fn-tag">→ DOC-06</span></a>
+          <span class="flow-arr">→</span>
+          <a class="flow-node" href="#doc05"><span class="fn-id">DOC-05</span><span class="fn-name">Version Hist</span><span class="fn-ko">버전 갱신</span><span class="fn-tag">이력 보존</span></a>
+        </div>
+      </div>
+      <div class="flow-track">
+        <div class="flow-track-lbl">🔗 CONSUME · 활용</div>
+        <div class="flow-row">
+          <a class="flow-node ext"><span class="fn-id">LBL</span><span class="fn-name">라벨 발행</span><span class="fn-ko">유효 증빙 참조</span><span class="fn-tag">VOL.3</span></a>
+          <span class="flow-arr">⟷</span>
+          <a class="flow-node ext"><span class="fn-id">AUD</span><span class="fn-name">감사 대응</span><span class="fn-ko">역추적·리포트</span><span class="fn-tag">VOL.5</span></a>
+          <span class="flow-arr">⟷</span>
+          <a class="flow-node" href="#doc02"><span class="fn-id">DOC-02</span><span class="fn-name">Viewer</span><span class="fn-ko">증빙 열람</span><span class="fn-tag">PDF/이미지</span></a>
+        </div>
+      </div>
+      <div style="display:flex;gap:14px;margin-top:14px;font-size:9px;color:rgba(255,255,255,.55);font-family:'JetBrains Mono',monospace;letter-spacing:.5px;">
+        <span><span style="display:inline-block;width:10px;height:10px;background:rgba(37,99,235,.2);border:1px solid #93c5fd;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>DOC 화면</span>
+        <span><span style="display:inline-block;width:10px;height:10px;background:rgba(220,38,38,.2);border:1px solid #fca5a5;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>알림</span>
+        <span><span style="display:inline-block;width:10px;height:10px;background:rgba(255,255,255,.08);border:1px dashed rgba(255,255,255,.3);border-radius:2px;vertical-align:middle;margin-right:4px;"></span>외부/타 모듈</span>
+      </div>
+    </div>
+
+    <!-- KPI -->
+    <div class="sec-div" id="kpi"><div class="sd-line"></div><div class="sd-lbl">▼ MODULE KPI · 핵심 지표</div><div class="sd-line"></div></div>
+    <div class="mod-kpi">
+      <div class="kpi-card"><div class="kpi-l">Active Certificates</div><div class="kpi-v doc">—</div><div class="kpi-s">유효 증빙 건수</div></div>
+      <div class="kpi-card"><div class="kpi-l">Expiring ≤30d</div><div class="kpi-v warn">—</div><div class="kpi-s">30일 내 만료 임박</div></div>
+      <div class="kpi-card"><div class="kpi-l">Expired</div><div class="kpi-v alert">0</div><div class="kpi-s">만료 누락 (목표 0)</div></div>
+      <div class="kpi-card"><div class="kpi-l">Pending Approval</div><div class="kpi-v warn">—</div><div class="kpi-s">승인 대기</div></div>
+      <div class="kpi-card"><div class="kpi-l">SoT Coverage</div><div class="kpi-v ok">100<span style="font-size:14px;color:var(--sub);"> %</span></div><div class="kpi-s">중앙화 목표</div></div>
+    </div>
+
+    <!-- SCREENS -->
+    <div class="sec-div"><div class="sd-line"></div><div class="sd-lbl">▼ 6 SCREENS · 화면 설계</div><div class="sd-line"></div></div>
+
+    <!-- DOC-01 -->
+    <div class="screen-card" id="doc01">
+      <div class="sc-hdr">
+        <div class="sc-hdr-l">
+          <div class="sc-icon">📇</div>
+          <div class="sc-title-wrap">
+            <div class="sc-id">DOC-01 · ⚙ CORE</div>
+            <div class="sc-title-en">Certificate Registry</div>
+            <div class="sc-title-ko">증빙 등록·중앙 보관 — Supplier Certificate Single Source of Truth</div>
+          </div>
+        </div>
+        <div class="sc-tags"><span class="tag t-web">🖥 Web PC</span><span class="tag t-core">⚙ Core</span></div>
+        <a class="sc-l3-btn" href="VOL02_DOC01_Certificate_Registry.html" title="View L3 detailed spec">📋 L3 Detail →</a>
+      </div>
+      <div class="sc-body">
+        <div class="headline">
+          <span class="headline-ico">👀</span>
+          <div class="headline-t">What you'll see: 전 증빙 통합 그리드 + 유효/임박/만료 상태 색상 + 공급사·품목·국가·인증서유형 필터<span class="ko">[+ 등록] 시 파일 업로드 + 메타데이터 입력 + 만료일 자동 추적 등록</span></div>
+        </div>
+        <div class="qf-grid">
+          <div class="qf"><div class="qf-l">📥 INPUT</div><div class="qf-v">PDF/이미지 + 메타데이터</div></div>
+          <div class="qf"><div class="qf-l">📤 OUTPUT</div><div class="qf-v">유효 증빙 SoT 등록</div></div>
+          <div class="qf"><div class="qf-l">⚠ WATCH</div><div class="qf-v">만료 임박 (노랑/빨강)</div></div>
+          <div class="qf"><div class="qf-l">🎨 UI</div><div class="qf-v">Web Grid + Drawer Form</div></div>
+        </div>
+        <div class="desc-bi">
+          <div><div class="db-lbl">EN · Description</div><div class="db-en">Central registry of every origin-supporting document. Grid lists certificate no., supplier, part/scope, origin country, type, issue/expiry date, and status. Register via file upload + metadata; system auto-schedules tiered expiry alerts. Row click opens DOC-02 viewer. Feeds approval (DOC-04) and audit (AUD).</div></div>
+          <div><div class="db-lbl">KO · 설명</div><div class="db-ko">모든 원산지 증빙의 중앙 등록부. 그리드에 인증서번호·공급사·품목/범위·원산지국·유형·발급/만료일·상태 표시. 파일 업로드 + 메타데이터로 등록 시 단계별 만료 알림 자동 예약. 행 클릭 시 DOC-02 뷰어. 승인(DOC-04)·감사(AUD) 연계.</div></div>
+        </div>
+        <div class="feat-grid">
+          <div class="feat-item"><div class="feat-ico">📤</div><div class="feat-t">Upload + Metadata</div><div class="feat-d">PDF/이미지 + 인증서 메타 입력.<span class="ko">드래그앤드롭</span></div></div>
+          <div class="feat-item"><div class="feat-ico">🎨</div><div class="feat-t">Status Color</div><div class="feat-d">유효/임박/만료 4색 즉시 인식.<span class="ko">D-day 자동</span></div></div>
+          <div class="feat-item"><div class="feat-ico">🔍</div><div class="feat-t">Multi-Filter</div><div class="feat-d">공급사·품목·국가·유형 조합.<span class="ko">통합 검색</span></div></div>
+          <div class="feat-item"><div class="feat-ico">🔗</div><div class="feat-t">Linkage</div><div class="feat-d">품목/BOM/공급사 연결.<span class="ko">역추적 기반</span></div></div>
+        </div>
+        <div class="br-chips">
+          <span class="br-chip-lbl">관련 BR ▸</span>
+          <a class="br-chip crit" href="#br-doc">BR-DOC-01</a>
+          <a class="br-chip" href="#br-doc">BR-DOC-02</a>
+          <a class="br-chip" href="#br-doc">BR-DOC-05</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- DOC-02 -->
+    <div class="screen-card" id="doc02">
+      <div class="sc-hdr">
+        <div class="sc-hdr-l">
+          <div class="sc-icon">📄</div>
+          <div class="sc-title-wrap">
+            <div class="sc-id">DOC-02</div>
+            <div class="sc-title-en">Certificate Viewer</div>
+            <div class="sc-title-ko">증빙 상세·뷰어 — PDF/이미지 + 메타 + 연계 정보</div>
+          </div>
+        </div>
+        <div class="sc-tags"><span class="tag t-web">🖥 Web PC</span><span class="tag t-p1">Phase 1</span></div>
+        <span class="sc-l3-btn" style="opacity:.45;background:#cbd5e1;color:#475569;border-color:#cbd5e1;box-shadow:none;cursor:default;">L3 예정</span>
+      </div>
+      <div class="sc-body">
+        <div class="headline">
+          <span class="headline-ico">👀</span>
+          <div class="headline-t">What you'll see: 증빙 원본 미리보기(PDF/이미지) + 메타데이터 패널 + 연결 품목/공급사/버전 + 다운로드<span class="ko">감사 시 한 화면에서 증빙과 컨텍스트를 함께 제출</span></div>
+        </div>
+        <div class="desc-bi">
+          <div><div class="db-lbl">EN · Description</div><div class="db-en">Split view: original document preview on the left, metadata + linked entities (supplier, parts, BOM, versions, approval trail) on the right. One-click download and audit-package add. Shows validity status and remaining days prominently.</div></div>
+          <div><div class="db-lbl">KO · 설명</div><div class="db-ko">분할 화면: 좌측 원본 미리보기, 우측 메타데이터 + 연결 엔티티(공급사·품목·BOM·버전·결재 이력). 원클릭 다운로드 및 감사 패키지 추가. 유효 상태·잔여일 강조 표시.</div></div>
+        </div>
+        <div class="br-chips"><span class="br-chip-lbl">관련 BR ▸</span><a class="br-chip" href="#br-doc">BR-DOC-06</a></div>
+      </div>
+    </div>
+
+    <!-- DOC-03 -->
+    <div class="screen-card" id="doc03">
+      <div class="sc-hdr">
+        <div class="sc-hdr-l">
+          <div class="sc-icon">⏰</div>
+          <div class="sc-title-wrap">
+            <div class="sc-id">DOC-03 · ⚙ CORE</div>
+            <div class="sc-title-en">Expiry Dashboard &amp; Alerts</div>
+            <div class="sc-title-ko">만료 대시보드·알림 — 만료 누락 ZERO 핵심 화면</div>
+          </div>
+        </div>
+        <div class="sc-tags"><span class="tag t-web">🖥 Web PC</span><span class="tag t-core">⚙ Core</span></div>
+        <span class="sc-l3-btn" style="opacity:.45;background:#cbd5e1;color:#475569;border-color:#cbd5e1;box-shadow:none;cursor:default;">L3 예정</span>
+      </div>
+      <div class="sc-body">
+        <div class="headline">
+          <span class="headline-ico">👀</span>
+          <div class="headline-t">What you'll see: 만료 타임라인(D-90/30/7/만료 4구간) + 임박 증빙 리스트 + 담당자별 알림 현황<span class="ko">빠른 ROI 핵심 — 인증서 만료 누락을 0으로</span></div>
+        </div>
+        <div class="desc-bi">
+          <div><div class="db-lbl">EN · Description</div><div class="db-en">Mission-critical screen for the "zero missed expiry" KPI. Timeline buckets certificates by remaining validity (D-90 / D-30 / D-7 / Expired), pushes tiered notifications to the responsible owner + procurement, and tracks acknowledgement. Drives supplier renewal requests.</div></div>
+          <div><div class="db-lbl">KO · 설명</div><div class="db-ko">"만료 누락 0" KPI를 위한 핵심 화면. 잔여 유효기간(D-90/D-30/D-7/만료)으로 증빙을 구간화하고, 담당자·구매팀에 단계별 알림 푸시 + 확인(ack) 추적. 공급사 갱신 요청을 견인.</div></div>
+        </div>
+        <div class="br-chips"><span class="br-chip-lbl">관련 BR ▸</span><a class="br-chip crit" href="#br-doc">BR-DOC-03</a><a class="br-chip" href="#br-doc">BR-DOC-04</a></div>
+      </div>
+    </div>
+
+    <!-- DOC-04 -->
+    <div class="screen-card" id="doc04">
+      <div class="sc-hdr">
+        <div class="sc-hdr-l">
+          <div class="sc-icon">✅</div>
+          <div class="sc-title-wrap">
+            <div class="sc-id">DOC-04</div>
+            <div class="sc-title-en">Approval Workflow</div>
+            <div class="sc-title-ko">승인 워크플로우 — 다단계 결재·검증 라우팅</div>
+          </div>
+        </div>
+        <div class="sc-tags"><span class="tag t-web">🖥 Web PC</span><span class="tag t-p1">Phase 1</span></div>
+        <span class="sc-l3-btn" style="opacity:.45;background:#cbd5e1;color:#475569;border-color:#cbd5e1;box-shadow:none;cursor:default;">L3 예정</span>
+      </div>
+      <div class="sc-body">
+        <div class="headline">
+          <span class="headline-ico">👀</span>
+          <div class="headline-t">What you'll see: 결재함(상신/대기/승인/반려) + 검증 체크리스트 + 단계별 라우팅 + 코멘트<span class="ko">증빙 적합성 검증 후에만 유효 처리</span></div>
+        </div>
+        <div class="desc-bi">
+          <div><div class="db-lbl">EN · Description</div><div class="db-en">Multi-step approval/verification routing (Submitter → Reviewer → Approver). Each stage runs a compliance checklist (legibility, completeness, signatures, validity window). Reject returns to submitter with reasons. Only approved documents become "valid" in the SoT.</div></div>
+          <div><div class="db-lbl">KO · 설명</div><div class="db-ko">다단계 승인·검증 라우팅(상신자→검토자→승인자). 각 단계에서 적합성 체크리스트(판독성·완전성·서명·유효기간) 수행. 반려 시 사유와 함께 상신자에게 반송. 승인된 문서만 SoT에서 "유효" 처리.</div></div>
+        </div>
+        <div class="br-chips"><span class="br-chip-lbl">관련 BR ▸</span><a class="br-chip" href="#br-doc">BR-DOC-02</a><a class="br-chip" href="#br-doc">BR-DOC-07</a></div>
+      </div>
+    </div>
+
+    <!-- DOC-05 -->
+    <div class="screen-card" id="doc05">
+      <div class="sc-hdr">
+        <div class="sc-hdr-l">
+          <div class="sc-icon">🗂️</div>
+          <div class="sc-title-wrap">
+            <div class="sc-id">DOC-05</div>
+            <div class="sc-title-en">Version History</div>
+            <div class="sc-title-ko">버전 이력 — 갱신·교체 추적 + 감사 로그</div>
+          </div>
+        </div>
+        <div class="sc-tags"><span class="tag t-web">🖥 Web PC</span><span class="tag t-p1">Phase 1</span></div>
+        <span class="sc-l3-btn" style="opacity:.45;background:#cbd5e1;color:#475569;border-color:#cbd5e1;box-shadow:none;cursor:default;">L3 예정</span>
+      </div>
+      <div class="sc-body">
+        <div class="headline">
+          <span class="headline-ico">👀</span>
+          <div class="headline-t">What you'll see: 증빙별 버전 타임라인(v1→v2…) + 변경자/시점/사유 + 이전 버전 비교·열람<span class="ko">동일 문서 버전 충돌 방지</span></div>
+        </div>
+        <div class="desc-bi">
+          <div><div class="db-lbl">EN · Description</div><div class="db-en">Immutable version chain per certificate. Each renewal/replacement creates a new version while prior versions stay viewable (who/when/why). Eliminates the "version conflict" pain of shared drives; superseded versions are clearly flagged.</div></div>
+          <div><div class="db-lbl">KO · 설명</div><div class="db-ko">증빙별 불변 버전 체인. 갱신/교체 시 신규 버전 생성, 이전 버전은 열람 가능(누가·언제·왜). 공유폴더의 "버전 충돌" 문제 제거; 대체된 버전은 명확히 표시.</div></div>
+        </div>
+        <div class="br-chips"><span class="br-chip-lbl">관련 BR ▸</span><a class="br-chip" href="#br-doc">BR-DOC-05</a></div>
+      </div>
+    </div>
+
+    <!-- DOC-06 -->
+    <div class="screen-card" id="doc06">
+      <div class="sc-hdr">
+        <div class="sc-hdr-l">
+          <div class="sc-icon">📨</div>
+          <div class="sc-title-wrap">
+            <div class="sc-id">DOC-06</div>
+            <div class="sc-title-en">Supplier Upload Portal</div>
+            <div class="sc-title-ko">공급사 업로드·요청 — 증빙 수집 단일 창구</div>
+          </div>
+        </div>
+        <div class="sc-tags"><span class="tag t-portal">🌐 Portal</span><span class="tag t-p1">Phase 1</span></div>
+        <span class="sc-l3-btn" style="opacity:.45;background:#cbd5e1;color:#475569;border-color:#cbd5e1;box-shadow:none;cursor:default;">L3 예정</span>
+      </div>
+      <div class="sc-body">
+        <div class="headline">
+          <span class="headline-ico">👀</span>
+          <div class="headline-t">What you'll see: 공급사용 간편 업로드 화면 + 요청 항목 체크 + 제출 현황<span class="ko">이메일 분산 수집을 단일 창구로 대체 (선택 범위)</span></div>
+        </div>
+        <div class="desc-bi">
+          <div><div class="db-lbl">EN · Description</div><div class="db-en">Single intake channel replacing scattered email collection. Suppliers (or buyers on their behalf) upload requested certificates against a checklist; the system captures metadata and routes to DOC-01/DOC-04. Scope-optional — can launch as an internal-only intake first.</div></div>
+          <div><div class="db-lbl">KO · 설명</div><div class="db-ko">이메일 분산 수집을 대체하는 단일 수집 창구. 공급사(또는 구매 대행)가 요청 체크리스트에 따라 증빙 업로드 → 메타데이터 수집 후 DOC-01/DOC-04로 라우팅. 범위 선택 — 우선 내부 전용 수집으로 착수 가능.</div></div>
+        </div>
+        <div class="br-chips"><span class="br-chip-lbl">관련 BR ▸</span><a class="br-chip" href="#br-doc">BR-DOC-01</a></div>
+      </div>
+    </div>
+
+    <!-- REFERENCE: Certificate Types -->
+    <div class="sec-div" id="ref-types"><div class="sd-line"></div><div class="sd-lbl">▼ CERTIFICATE TYPES · 증빙 유형</div><div class="sd-line"></div></div>
+    <table class="ref-tbl">
+      <thead><tr><th style="width:90px;">Code</th><th style="width:230px;">Type · 유형</th><th>Description · 설명</th><th style="width:110px;">Expiry · 만료</th></tr></thead>
+      <tbody>
+        <tr><td class="code">COO</td><td><b>Certificate of Origin</b> · 원산지증명서</td><td>공급사 발급 원산지 증명. 부품/완제품의 원산지국 확인.</td><td><span class="pill p-w">유효기간</span></td></tr>
+        <tr><td class="code">USMCA</td><td><b>USMCA Certification</b> · USMCA 인증</td><td>USMCA 특혜관세용 원산지 증명(자기증명 포함). 블랭킷 12개월 가능.</td><td><span class="pill p-w">≤12개월</span></td></tr>
+        <tr><td class="code">AFFID</td><td><b>Supplier Affidavit</b> · 공급사 진술서</td><td>원산지/RVC 근거 진술. 자기증명 보조 문서.</td><td><span class="pill p-w">연 1회</span></td></tr>
+        <tr><td class="code">HTS</td><td><b>HTS Classification</b> · 품목분류</td><td>HTS 코드 분류 근거. 관세·원산지 판정 기준.</td><td><span class="pill p-n">상시</span></td></tr>
+        <tr><td class="code">MILL</td><td><b>Mill / Material Cert</b> · 소재 성적서</td><td>소재(철강 등) 출처·성분 증명. RVC 계산 근거.</td><td><span class="pill p-n">LOT별</span></td></tr>
+        <tr><td class="code">OEMDOC</td><td><b>OEM-specific Form</b> · OEM 요구 양식</td><td>현대/기아/MOBIS 고객 요구 양식별 증빙.</td><td><span class="pill p-i">고객별</span></td></tr>
+      </tbody>
+    </table>
+
+    <!-- REFERENCE: Expiry Thresholds -->
+    <div class="sec-div" id="ref-alert"><div class="sd-line"></div><div class="sd-lbl">▼ EXPIRY ALERT THRESHOLDS · 만료 알림 기준</div><div class="sd-line"></div></div>
+    <table class="ref-tbl">
+      <thead><tr><th style="width:110px;">Tier</th><th style="width:120px;">Trigger</th><th style="width:130px;">Status · 상태</th><th>Action · 동작</th></tr></thead>
+      <tbody>
+        <tr><td><span class="pill p-i">T1 · Notice</span></td><td class="code">D-90</td><td>유효 (예고)</td><td>담당자에게 갱신 예고 알림. 공급사 갱신 요청 권고.</td></tr>
+        <tr><td><span class="pill p-w">T2 · Warn</span></td><td class="code">D-30</td><td>임박 (노랑)</td><td>담당자 + 구매팀 알림. 그리드 노랑 강조. 갱신 요청 필수.</td></tr>
+        <tr><td><span class="pill p-e">T3 · Urgent</span></td><td class="code">D-7</td><td>긴급 (빨강)</td><td>담당자 + 팀장 에스컬레이션. 일일 알림. 라벨 발행 경고.</td></tr>
+        <tr><td><span class="pill p-e">T4 · Expired</span></td><td class="code">D-0 ↓</td><td>만료 (차단)</td><td>증빙 무효 처리. 해당 증빙 기반 라벨 발행 차단(BR-DOC-04). 관리자 알림.</td></tr>
+      </tbody>
+    </table>
+
+    <!-- BUSINESS RULES -->
+    <div class="sec-div" id="br-doc"><div class="sd-line"></div><div class="sd-lbl">▼ BUSINESS RULES · 업무 규칙</div><div class="sd-line"></div></div>
+    <div class="br-wrap">
+      <table class="br-tbl">
+        <thead><tr><th style="width:90px;">ID</th><th style="width:30%;">Rule · 규칙</th><th>Detail · 상세</th><th style="width:80px;">Action</th></tr></thead>
+        <tbody>
+          <tr><td class="br-id-c">BR-DOC-01</td><td><b>Metadata Mandatory</b><br><span style="color:var(--sub);font-size:10px;">필수 메타데이터</span></td><td>등록 시 인증서번호·공급사·원산지국·유형·발급일·만료일 필수. 누락 시 저장 차단.</td><td><span class="b b-blk">차단</span></td></tr>
+          <tr><td class="br-id-c">BR-DOC-02</td><td><b>Approval Before Valid</b><br><span style="color:var(--sub);font-size:10px;">승인 후 유효</span></td><td>승인 워크플로우(DOC-04) 완료 전까지 증빙은 "검토중" 상태이며 SoT 유효 증빙으로 인정되지 않음.</td><td><span class="b b-blk">차단</span></td></tr>
+          <tr><td class="br-id-c">BR-DOC-03</td><td><b>Tiered Expiry Alert</b><br><span style="color:var(--sub);font-size:10px;">단계별 만료 알림</span></td><td>D-90/D-30/D-7/만료 4단계 자동 알림. 담당자 미지정 시 구매팀 기본 라우팅.</td><td><span class="b b-aut">자동</span></td></tr>
+          <tr><td class="br-id-c">BR-DOC-04</td><td><b>Expired Blocks Label</b><br><span style="color:var(--sub);font-size:10px;">만료 시 라벨 차단</span></td><td>만료 증빙을 근거로 한 LBL 라벨 발행 차단. 유효 증빙으로 갱신해야 발행 가능.</td><td><span class="b b-blk">차단</span></td></tr>
+          <tr><td class="br-id-c">BR-DOC-05</td><td><b>Immutable Versioning</b><br><span style="color:var(--sub);font-size:10px;">버전 불변</span></td><td>등록·승인된 증빙은 삭제 불가. 갱신은 신규 버전 생성으로만 처리, 이전 버전 보존.</td><td><span class="b b-blk">차단</span></td></tr>
+          <tr><td class="br-id-c">BR-DOC-06</td><td><b>Audit Trail</b><br><span style="color:var(--sub);font-size:10px;">감사 추적</span></td><td>모든 조회·다운로드·상태변경 로그 기록(누가·언제·무엇). 감사 대응용 보존.</td><td><span class="b b-aut">자동</span></td></tr>
+          <tr><td class="br-id-c">BR-DOC-07</td><td><b>Reject Reason Required</b><br><span style="color:var(--sub);font-size:10px;">반려 사유 필수</span></td><td>승인 반려 시 사유 입력 필수. 상신자에게 사유와 함께 반송.</td><td><span class="b b-alt">검증</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+  <div class="page-footer">
+    <span class="pf-l">UOCM · USMCA Origin Compliance Management System</span>
+    <span class="pf-r">VOL.2 · DOC · Document Management · L2 Hub</span>
+  </div>
+</div>
+</div>
+</body>
+</html>
