@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>UOCM · VOL.3 · LBL · Label Management</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;600;700&family=Bebas+Neue&display=swap');
+:root{
+  --brand:#059669;--brand-dk:#047857;
+  --ink:#0a1422;--ink2:#101d2e;--ink3:#1c2c40;
+  --surface:#fff;--bg:#f4f7fa;--border:#d3dce6;--text:#1e2a38;--sub:#5b6b7d;
+  --doc:#7c3aed;--lbl:#7c3aed;--org:#0891b2;--aud:#dc2626;--int:#6366f1;--sys:#64748b;--md:#d97706;
+  --mod:#7c3aed;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);font-size:13px;line-height:1.6;}
+
+.uo-nav{position:sticky;top:0;z-index:9999;background:#fff;border-bottom:1px solid #e5eaf0;box-shadow:0 1px 4px rgba(15,39,71,.06);}
+.uo-nav-inner{display:flex;align-items:stretch;overflow-x:auto;scrollbar-width:none;}
+.uo-nav-inner::-webkit-scrollbar{display:none;}
+.nav-home{display:flex;align-items:center;gap:8px;padding:0 16px;background:rgba(5,150,105,.08);border-right:1px solid #e5eaf0;text-decoration:none;flex-shrink:0;min-height:42px;}
+.nav-home-logo{font-family:'Bebas Neue',sans-serif;font-size:17px;color:#059669;letter-spacing:2px;}
+.nav-home-sub{font-size:9px;color:#94a3b8;}
+.nav-vol{display:flex;align-items:center;gap:5px;padding:0 12px;text-decoration:none;font-size:10px;font-weight:700;color:#5b6b7d;border-bottom:2px solid transparent;white-space:nowrap;min-height:42px;transition:color .12s;}
+.nav-vol:hover{color:#0f2747;background:#f6f8fa;}
+.nav-vol.active{color:#0f2747;border-bottom-color:#059669;}
+.nav-vol .nv-code{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;}
+
+.page-wrap{display:flex;}
+.sidebar{width:236px;min-width:236px;background:#f6f8fa;position:sticky;top:42px;height:calc(100vh - 42px);overflow-y:auto;scrollbar-width:thin;border-right:1px solid #e5eaf0;}
+.sb-head{padding:16px 14px 12px;border-bottom:1px solid #e5eaf0;}
+.sb-vol{font-family:'JetBrains Mono',monospace;font-size:9px;color:#047857;letter-spacing:2px;margin-bottom:4px;}
+.sb-mod-en{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1px;color:#7c3aed;}
+.sb-mod-ko{font-size:10px;color:#94a3b8;}
+.sb-section{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#94a3b8;padding:12px 14px 4px;}
+.sb-link{display:flex;align-items:center;gap:7px;padding:6px 14px;text-decoration:none;color:#5b6b7d;font-size:11px;border-left:2px solid transparent;transition:all .12s;}
+.sb-link:hover{color:#0f2747;background:#eef2f7;}
+.sb-link.on{color:#0f2747;border-left-color:#7c3aed;background:rgba(124,58,237,.08);}
+.sb-link .sl-id{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;width:44px;flex-shrink:0;color:#7c3aed;}
+.sb-link .sl-en{font-size:10px;font-weight:600;}
+.sb-link .sl-ko{font-size:9px;color:#94a3b8;margin-top:1px;}
+.sb-l3{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:3px;background:rgba(5,150,105,.1);color:#047857;font-size:11px;text-decoration:none;margin-left:auto;transition:all .15s;flex-shrink:0;border:1px solid rgba(5,150,105,.3);}
+.sb-l3:hover{background:#059669;color:#fff;border-color:#059669;transform:scale(1.15);}
+.sb-sep{height:1px;background:#e5eaf0;margin:5px 0;}
+
+.main{flex:1;min-width:0;}
+
+.mod-hdr{padding:36px 48px 24px;position:relative;overflow:hidden;background:linear-gradient(135deg,#f1ecfe,#ffffff);border-bottom:1px solid #e5eaf0;}
+.mod-hdr-inner{position:relative;z-index:1;}
+.mod-eyebrow{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;margin-bottom:10px;opacity:.9;color:#7c3aed;}
+.mod-title-en{font-family:'Bebas Neue',sans-serif;font-size:48px;line-height:.95;letter-spacing:2px;color:#7c3aed;margin-bottom:4px;}
+.mod-title-ko{font-size:14px;font-weight:300;color:#5b6b7d;letter-spacing:3px;margin-bottom:16px;}
+.mod-desc-bi{display:grid;grid-template-columns:1fr 1fr;gap:14px;max-width:900px;margin-bottom:14px;}
+.mdb-en{font-size:11px;color:#5b6b7d;line-height:1.85;border-left:2px solid #cbd5e1;padding-left:12px;}
+.mdb-ko{font-size:11px;color:#94a3b8;line-height:1.85;border-left:2px solid #e5eaf0;padding-left:12px;}
+.mod-meta-strip{display:grid;grid-template-columns:repeat(6,1fr);gap:0;border:1px solid #ddd0f7;border-radius:6px;overflow:hidden;margin:14px 0 16px;max-width:900px;background:#fff;}
+.mms-item{padding:10px 14px;border-right:1px solid #e5eaf0;}
+.mms-item:last-child{border-right:none;}
+.mms-l{font-size:8px;color:#7c3aed;text-transform:uppercase;letter-spacing:1.2px;font-family:'JetBrains Mono',monospace;}
+.mms-v{font-size:13px;font-weight:800;color:#0f2747;margin-top:3px;letter-spacing:.3px;}
+.mms-v.warn{color:#a16207;}
+.l3-hint{display:inline-block;font-size:10px;color:#047857;font-weight:600;letter-spacing:1px;padding:5px 12px;background:rgba(5,150,105,.08);border:1px dashed rgba(5,150,105,.4);border-radius:3px;margin-bottom:8px;}
+.screen-pills{display:flex;gap:5px;flex-wrap:wrap;margin-top:10px;}
+.sp{display:flex;align-items:center;gap:5px;padding:5px 11px;border-radius:3px;background:#f6f8fa;border:1px solid #d3dce6;font-size:9px;color:#5b6b7d;text-decoration:none;transition:all .15s;}
+.sp:hover{background:rgba(124,58,237,.1);border-color:rgba(124,58,237,.4);color:#0f2747;}
+.sp-id{font-family:'JetBrains Mono',monospace;font-weight:700;color:#047857;}
+
+.content{padding:0 48px 48px;}
+.sec-div{display:flex;align-items:center;gap:12px;margin:28px 0 16px;}
+.sd-line{flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--border) 20%,var(--border) 80%,transparent);}
+.sd-lbl{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:var(--doc);letter-spacing:2px;white-space:nowrap;padding:4px 10px;background:#f5f3ff;border:1px solid #ddd6fe;border-radius:3px;}
+
+.flow-card{background:#fff;border:1px solid #e5eaf0;color:#1e2a38;border-radius:10px;padding:20px 22px;margin-bottom:18px;box-shadow:0 1px 4px rgba(15,39,71,.05);}
+.flow-card-h{font-family:'JetBrains Mono',monospace;font-size:10px;color:#7c3aed;letter-spacing:2px;text-transform:uppercase;margin-bottom:14px;}
+.flow-track{margin-bottom:14px;}
+.flow-track-lbl{font-size:10px;color:#5b6b7d;letter-spacing:1px;font-family:'JetBrains Mono',monospace;margin-bottom:8px;text-transform:uppercase;}
+.flow-row{display:flex;align-items:center;gap:0;flex-wrap:wrap;}
+.flow-node{display:flex;flex-direction:column;align-items:center;gap:3px;background:rgba(124,58,237,.07);border:1px solid #ddd6fe;border-radius:8px;padding:10px 12px;min-width:96px;text-align:center;transition:all .15s;text-decoration:none;color:#1e2a38;}
+.flow-node:hover{background:rgba(124,58,237,.14);border-color:#7c3aed;transform:translateY(-2px);box-shadow:0 6px 16px rgba(124,58,237,.2);}
+.flow-node.ext{background:#f6f8fa;border-color:#cbd5e1;border-style:dashed;}
+.flow-node.alert{background:#fef2f2;border-color:#fca5a5;}
+.fn-id{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;color:#7c3aed;letter-spacing:.5px;}
+.flow-node.ext .fn-id{color:#94a3b8;}
+.flow-node.alert .fn-id{color:#dc2626;}
+.fn-name{font-size:11px;font-weight:700;color:#0f2747;}
+.fn-ko{font-size:9px;color:#5b6b7d;}
+.fn-tag{font-size:8px;font-family:'JetBrains Mono',monospace;color:#94a3b8;margin-top:1px;}
+.flow-arr{font-size:18px;color:#c4b5fd;padding:0 4px;font-weight:700;}
+
+.mod-kpi{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:18px;}
+.kpi-card{background:#fff;border:1px solid var(--border);border-top:3px solid var(--doc);border-radius:0 0 6px 6px;padding:14px 16px;}
+.kpi-l{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--sub);letter-spacing:1px;text-transform:uppercase;}
+.kpi-v{font-family:'Bebas Neue',sans-serif;font-size:34px;color:var(--text);line-height:1;margin-top:5px;letter-spacing:.5px;}
+.kpi-v.ok{color:#16a34a;}.kpi-v.warn{color:#a16207;}.kpi-v.alert{color:#dc2626;}.kpi-v.doc{color:var(--doc);}
+.kpi-s{font-size:10px;color:var(--sub);margin-top:3px;}
+
+.screen-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:18px;box-shadow:0 1px 3px rgba(0,0,0,.04);}
+.sc-hdr{padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:14px;border-bottom:1px solid #ddd6fe;background:linear-gradient(135deg,#f1ecfe,#ede9fe);}
+.sc-hdr-l{display:flex;align-items:center;gap:14px;flex:1;min-width:0;}
+.sc-icon{font-size:42px;line-height:1;flex-shrink:0;filter:drop-shadow(0 2px 4px rgba(0,0,0,.3));}
+.sc-title-wrap{flex:1;min-width:0;}
+.sc-id{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;color:#7c3aed;letter-spacing:.5px;}
+.sc-title-en{font-size:16px;font-weight:800;color:#0f2747;letter-spacing:-.3px;margin-top:2px;}
+.sc-title-ko{font-size:10px;color:#5b6b7d;margin-top:2px;}
+.sc-tags{display:flex;flex-direction:column;align-items:flex-end;gap:4px;}
+.tag{font-size:9px;font-weight:700;padding:2px 9px;border-radius:3px;white-space:nowrap;}
+.t-web{background:rgba(124,58,237,.2);color:#c4b5fd;border:1px solid rgba(124,58,237,.35);}
+.t-portal{background:rgba(13,184,122,.2);color:#5dffc4;border:1px solid rgba(13,184,122,.3);}
+.t-p1{background:rgba(16,185,129,.18);color:#6ee7b7;border:1px solid rgba(16,185,129,.32);}
+.t-pda{background:rgba(217,119,6,.2);color:#fbbf24;border:1px solid rgba(217,119,6,.35);}
+.t-core{background:rgba(212,160,23,.2);color:#fbbf24;border:1px solid rgba(212,160,23,.35);}
+.sc-l3-btn{display:inline-flex;align-items:center;gap:5px;padding:8px 14px;background:linear-gradient(135deg,#10b981,#059669);color:#03241a;font-size:11px;font-weight:800;border-radius:5px;text-decoration:none;letter-spacing:.5px;text-transform:uppercase;border:1px solid #059669;box-shadow:0 2px 6px rgba(16,185,129,.3);transition:all .15s;white-space:nowrap;}
+.sc-l3-btn:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(16,185,129,.5);background:linear-gradient(135deg,#34d399,#10b981);}
+.sc-body{padding:16px 18px;}
+.headline{display:flex;align-items:center;gap:10px;padding:11px 14px;background:linear-gradient(135deg,#f5f3ff,#ede9fe);border:1px solid #ddd6fe;border-left:3px solid var(--doc);border-radius:0 5px 5px 0;margin-bottom:14px;}
+.headline-ico{font-size:18px;color:var(--doc);}
+.headline-t{font-size:12px;color:#5b21b6;font-weight:700;line-height:1.55;}
+.headline-t .ko{display:block;color:#7c3aed;font-weight:400;font-size:11px;margin-top:1px;}
+.qf-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px;}
+.qf{background:#fafbfd;border:1px solid var(--border);border-radius:5px;padding:9px 11px;}
+.qf-l{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--sub);letter-spacing:.7px;text-transform:uppercase;}
+.qf-v{font-size:11px;color:var(--text);font-weight:700;margin-top:3px;line-height:1.4;}
+.desc-bi{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;background:#f5f3ff;border:1px solid var(--border);border-left:3px solid var(--doc);border-radius:0 6px 6px 0;padding:11px 14px;}
+.db-lbl{font-size:8px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;opacity:.55;}
+.db-en{font-size:11px;color:#5b21b6;line-height:1.75;}
+.db-ko{font-size:11px;color:var(--sub);line-height:1.75;}
+.feat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:8px;margin-bottom:12px;}
+.feat-item{background:#fff;border:1px solid var(--border);border-top:2px solid var(--doc);border-radius:0 0 5px 5px;padding:10px 12px;}
+.feat-ico{font-size:16px;line-height:1;margin-bottom:5px;}
+.feat-t{font-size:11px;font-weight:800;color:var(--text);margin-bottom:2px;}
+.feat-d{font-size:10px;color:var(--sub);line-height:1.55;}
+.feat-d .ko{color:#94a3b8;font-size:9px;display:block;margin-top:1px;}
+.br-chips{display:flex;gap:5px;flex-wrap:wrap;padding-top:10px;border-top:1px dashed var(--border);}
+.br-chip{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;padding:3px 8px;border-radius:3px;background:#ede9fe;color:#5b21b6;border:1px solid #c4b5fd;text-decoration:none;letter-spacing:.3px;}
+.br-chip.crit{background:#fee2e2;color:#991b1b;border-color:#fca5a5;}
+.br-chip-lbl{font-size:9px;color:var(--sub);font-family:'JetBrains Mono',monospace;letter-spacing:.5px;margin-right:4px;align-self:center;}
+
+.ref-tbl{width:100%;border-collapse:collapse;font-size:11px;background:#fff;border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-bottom:18px;}
+.ref-tbl th{background:#f0f3f7;color:var(--text);padding:8px 12px;text-align:left;font-size:10px;font-weight:700;border-bottom:1px solid var(--border);}
+.ref-tbl td{padding:8px 12px;border-bottom:1px solid var(--border);}
+.ref-tbl tr:last-child td{border-bottom:none;}
+.ref-tbl tr:nth-child(even) td{background:#fafbfd;}
+.ref-tbl .code{font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--doc);font-size:11px;}
+.pill{display:inline-block;font-size:9px;font-weight:700;padding:2px 8px;border-radius:8px;}
+.p-ok{background:#dcfce7;color:#166534;}.p-w{background:#fef9c3;color:#92400e;}.p-e{background:#fee2e2;color:#991b1b;}.p-i{background:#ede9fe;color:#5b21b6;}.p-n{background:#f1f5f9;color:#475569;}
+
+.br-wrap{margin-bottom:16px;}
+.br-tbl{width:100%;border-collapse:collapse;font-size:10px;}
+.br-tbl th{background:var(--text);color:#fff;padding:7px 10px;text-align:left;border:1px solid rgba(255,255,255,.08);font-size:9px;}
+.br-tbl td{padding:7px 10px;border:1px solid var(--border);vertical-align:top;line-height:1.6;}
+.br-tbl tr:nth-child(even) td{background:#fafbfd;}
+.br-id-c{font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--brand-dk);white-space:nowrap;}
+.b{display:inline-block;font-size:9px;font-weight:700;padding:2px 7px;border-radius:8px;}
+.b-blk{background:#fee2e2;color:#991b1b;}.b-alt{background:#fef9c3;color:#92400e;}.b-aut{background:#ede9fe;color:#5b21b6;}
+
+.page-footer{padding:14px 48px;border-top:1px solid #e5eaf0;display:flex;align-items:center;justify-content:space-between;background:#f6f8fa;margin-top:20px;}
+.pf-l{font-size:10px;color:#94a3b8;font-family:'JetBrains Mono',monospace;}
+.pf-r{font-family:'JetBrains Mono',monospace;font-size:10px;color:#047857;}
+@media(max-width:1024px){.mod-desc-bi{grid-template-columns:1fr;}.mod-meta-strip{grid-template-columns:repeat(3,1fr);}.mod-kpi{grid-template-columns:repeat(2,1fr);}.qf-grid{grid-template-columns:repeat(2,1fr);}.desc-bi{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<nav class="uo-nav"><div class="uo-nav-inner">
+  <a href="index.html" class="nav-home"><span class="nav-home-logo">UOCM</span><span class="nav-home-sub">◀ Index</span></a>
+  <a href="VOL01_Overview.html" class="nav-vol"><span class="nv-code" style="color:#10b981;">OV</span><span>Overview</span></a>
+  <a href="VOL02_DOC_Document_Management.html" class="nav-vol"><span class="nv-code" style="color:#2563eb;">DOC</span><span>Document</span></a>
+  <a href="VOL03_LBL_Label_Management.html" class="nav-vol active"><span class="nv-code" style="color:#7c3aed;">LBL</span><span>Label</span></a>
+  <a href="VOL04_ORG_Origin_Management.html" class="nav-vol"><span class="nv-code" style="color:#0891b2;">ORG</span><span>Origin</span></a>
+  <a href="VOL05_AUD_Audit_Support.html" class="nav-vol"><span class="nv-code" style="color:#dc2626;">AUD</span><span>Audit</span></a>
+  <a href="VOL06_INT_Integration.html" class="nav-vol"><span class="nv-code" style="color:#6366f1;">INT</span><span>Integration</span></a>
+  <a href="VOL07_SYS_System.html" class="nav-vol"><span class="nv-code" style="color:#64748b;">SYS</span><span>System</span></a>
+  <a href="VOL08_MD_Master_Data.html" class="nav-vol"><span class="nv-code" style="color:#d97706;">MD</span><span>Master Data</span></a>
+</div></nav>
+<div class="page-wrap">
+<nav class="sidebar">
+  <div class="sb-head">
+    <div class="sb-vol">VOL.3 · LBL MODULE</div>
+    <div class="sb-mod-en">LABEL</div>
+    <div class="sb-mod-ko">라벨 관리</div>
+  </div>
+  <div class="sb-section">Overview · 개요</div>
+  <a class="sb-link" href="#flow"><span class="sl-id">FLOW</span><div><div class="sl-en">Process Flow</div><div class="sl-ko">화면 흐름</div></div></a>
+  <a class="sb-link" href="#kpi"><span class="sl-id">KPI</span><div><div class="sl-en">Module KPI</div><div class="sl-ko">핵심 지표</div></div></a>
+  <div class="sb-section">Template · 템플릿</div>
+  <a class="sb-link on" href="#lbl01"><span class="sl-id">LBL-01</span><div><div class="sl-en">Template Designer</div><div class="sl-ko">라벨 템플릿 디자이너</div></div><a class="sb-l3" href="VOL03_LBL01_Template_Designer.html" title="L3 상세 설계서" onclick="event.stopPropagation();">📋</a></a>
+  <div class="sb-section">Issue · 발행</div>
+  <a class="sb-link" href="#lbl02"><span class="sl-id">LBL-02</span><div><div class="sl-en">COO Label Issue</div><div class="sl-ko">원산지 라벨 발행</div></div><a class="sb-l3" href="VOL03_LBL02_COO_Label_Issue.html" title="L3 상세 설계서" onclick="event.stopPropagation();">📋</a></a>
+  <a class="sb-link" href="#lbl03"><span class="sl-id">LBL-03</span><div><div class="sl-en">Customer-specific Label</div><div class="sl-ko">고객 양식 라벨</div></div><a class="sb-l3" href="VOL03_LBL03_Customer_Label.html" title="L3 상세 설계서" onclick="event.stopPropagation();">📋</a></a>
+  <div class="sb-section">Output · 출력·이력</div>
+  <a class="sb-link" href="#lbl04"><span class="sl-id">LBL-04</span><div><div class="sl-en">Issuance History</div><div class="sl-ko">발행 이력</div></div><a class="sb-l3" href="VOL03_LBL04_Issuance_History.html" title="L3 상세 설계서" onclick="event.stopPropagation();">📋</a></a>
+  <a class="sb-link" href="#lbl05"><span class="sl-id">LBL-05</span><div><div class="sl-en">Label Print</div><div class="sl-ko">라벨 출력</div></div><a class="sb-l3" href="VOL03_LBL05_Label_Print.html" title="L3 상세 설계서" onclick="event.stopPropagation();">📋</a></a>
+  <div class="sb-sep"></div>
+  <div class="sb-section">Reference · 참조</div>
+  <a class="sb-link" href="#ref-forms"><span class="sl-id">FORM</span><div><div class="sl-en">OEM Form Types</div><div class="sl-ko">OEM 양식 유형</div></div></a>
+  <a class="sb-link" href="#ref-fields"><span class="sl-id">FLD</span><div><div class="sl-en">Required Fields</div><div class="sl-ko">라벨 필수 항목</div></div></a>
+  <a class="sb-link" href="#br-lbl"><span class="sl-id">BR</span><div><div class="sl-en">Business Rules</div><div class="sl-ko">업무 규칙</div></div></a>
+</nav>
+<div class="main">
+  <div class="mod-hdr">
+    <div class="mod-hdr-inner">
+      <div class="mod-eyebrow">VOL.3 · LBL · Label Management · 라벨 관리</div>
+      <div class="mod-title-en">LABEL<br>MANAGEMENT</div>
+      <div class="mod-title-ko">라벨 관리 — 원산지(COO) 라벨 · OEM 고객별 양식 발행 · 출력 · 발행 이력</div>
+      <div class="mod-desc-bi">
+        <div class="mdb-en">Phase 2 · operated directly by the corporation. Issues <strong>origin (COO) labels</strong> and <strong>OEM customer-specific labels</strong> (현대/기아/MOBIS) from approved templates. Labels may <strong>ONLY be issued against a VALID certificate in DOC</strong> — if the supporting evidence is expired, issuance is blocked (BR-LBL-01). Validates OEM form-specific required fields, assigns unique serial numbers, supports reprints with logged reasons, and keeps a full, immutable issuance history. Consumes DOC (valid certificate) and ORG (origin data).</div>
+        <div class="mdb-ko">Phase 2 · 법인 직접 운영. 승인된 템플릿으로 <strong>원산지(COO) 라벨</strong>과 <strong>OEM 고객별 양식 라벨</strong>(현대/기아/MOBIS)을 발행합니다. 라벨은 <strong>DOC의 유효 인증서가 있을 때만 발행</strong> 가능하며, 근거 증빙이 만료된 경우 발행이 차단됩니다(BR-LBL-01). OEM 양식별 필수필드를 검증하고, 유니크 일련번호를 부여하며, 사유 기록과 함께 재발행을 지원하고, 불변 발행 이력 전체를 유지합니다. DOC(유효 인증서)·ORG(원산지 데이터)를 활용합니다.</div>
+      </div>
+      <div class="mod-meta-strip">
+        <div class="mms-item"><div class="mms-l">Screens</div><div class="mms-v">5</div></div>
+        <div class="mms-item"><div class="mms-l">L3 Done</div><div class="mms-v">5 / 5</div></div>
+        <div class="mms-item"><div class="mms-l">OEM Forms</div><div class="mms-v">3</div></div>
+        <div class="mms-item"><div class="mms-l">Evidence Gate</div><div class="mms-v warn">DOC 연계</div></div>
+        <div class="mms-item"><div class="mms-l">Serial</div><div class="mms-v">Unique</div></div>
+        <div class="mms-item"><div class="mms-l">Phase</div><div class="mms-v">P2 · 법인</div></div>
+      </div>
+      <div><span class="l3-hint">📋 각 화면 카드 / 사이드바 아이콘 클릭 시 L3 상세 설계서</span></div>
+      <div class="screen-pills">
+        <a class="sp" href="VOL03_LBL01_Template_Designer.html" title="L3 상세 · LBL-01"><span class="sp-id">LBL-01</span> Template Designer <span style="opacity:.5;font-size:8px;">📋</span></a>
+        <a class="sp" href="VOL03_LBL02_COO_Label_Issue.html" title="L3 상세 · LBL-02"><span class="sp-id">LBL-02</span> COO Label Issue <span style="opacity:.5;font-size:8px;">📋</span></a>
+        <a class="sp" href="VOL03_LBL03_Customer_Label.html" title="L3 상세 · LBL-03"><span class="sp-id">LBL-03</span> Customer Label <span style="opacity:.5;font-size:8px;">📋</span></a>
+        <a class="sp" href="VOL03_LBL04_Issuance_History.html" title="L3 상세 · LBL-04"><span class="sp-id">LBL-04</span> Issuance History <span style="opacity:.5;font-size:8px;">📋</span></a>
+        <a class="sp" href="VOL03_LBL05_Label_Print.html" title="L3 상세 · LBL-05"><span class="sp-id">LBL-05</span> Label Print <span style="opacity:.5;font-size:8px;">📋</span></a>
+      </div>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- PROCESS FLOW -->
+    <div class="sec-div" id="flow"><div class="sd-line"></div><div class="sd-lbl">▼ PROCESS FLOW · 화면 흐름</div><div class="sd-line"></div></div>
+    <div class="flow-card">
+      <div class="flow-card-h">▼ Label Lifecycle · 라벨 생애주기</div>
+      <div class="flow-track">
+        <div class="flow-track-lbl">🧩 TEMPLATE → EVIDENCE GATE · 템플릿 정의·유효 증빙 확인</div>
+        <div class="flow-row">
+          <a class="flow-node" href="#lbl01"><span class="fn-id">LBL-01</span><span class="fn-name">Template</span><span class="fn-ko">정의·승인</span><span class="fn-tag">디자이너</span></a>
+          <span class="flow-arr">→</span>
+          <a class="flow-node ext"><span class="fn-id">DOC</span><span class="fn-name">유효 증빙 확인</span><span class="fn-ko">유효 인증서</span><span class="fn-tag">VOL.2</span></a>
+          <span class="flow-arr">→</span>
+          <a class="flow-node ext"><span class="fn-id">ORG</span><span class="fn-name">원산지 데이터</span><span class="fn-ko">COO/RVC</span><span class="fn-tag">VOL.4</span></a>
+        </div>
+      </div>
+      <div class="flow-track">
+        <div class="flow-track-lbl">🏷 ISSUE → PRINT → HISTORY · 발행·출력·이력</div>
+        <div class="flow-row">
+          <a class="flow-node" href="#lbl02"><span class="fn-id">LBL-02</span><span class="fn-name">COO 라벨</span><span class="fn-ko">원산지 발행</span><span class="fn-tag">CORE</span></a>
+          <span class="flow-arr">/</span>
+          <a class="flow-node" href="#lbl03"><span class="fn-id">LBL-03</span><span class="fn-name">고객 양식</span><span class="fn-ko">OEM 발행</span><span class="fn-tag">현대/기아/MOBIS</span></a>
+          <span class="flow-arr">→</span>
+          <a class="flow-node" href="#lbl05"><span class="fn-id">LBL-05</span><span class="fn-name">Print</span><span class="fn-ko">라벨 출력</span><span class="fn-tag">PDA/프린터</span></a>
+          <span class="flow-arr">→</span>
+          <a class="flow-node" href="#lbl04"><span class="fn-id">LBL-04</span><span class="fn-name">History</span><span class="fn-ko">발행 이력</span><span class="fn-tag">불변 로그</span></a>
+        </div>
+      </div>
+      <div class="flow-track">
+        <div class="flow-track-lbl">⛔ BLOCK · 발행 차단</div>
+        <div class="flow-row">
+          <a class="flow-node alert"><span class="fn-id">BLOCK</span><span class="fn-name">만료 증빙</span><span class="fn-ko">발행 차단</span><span class="fn-tag">BR-LBL-01</span></a>
+          <span class="flow-arr">→</span>
+          <a class="flow-node ext"><span class="fn-id">DOC</span><span class="fn-name">증빙 갱신</span><span class="fn-ko">유효화 필요</span><span class="fn-tag">→ 재발행</span></a>
+          <span class="flow-arr">⟷</span>
+          <a class="flow-node ext"><span class="fn-id">AUD</span><span class="fn-name">감사 대응</span><span class="fn-ko">이력 제출</span><span class="fn-tag">VOL.5</span></a>
+        </div>
+      </div>
+      <div style="display:flex;gap:14px;margin-top:14px;font-size:9px;color:#5b6b7d;font-family:'JetBrains Mono',monospace;letter-spacing:.5px;">
+        <span><span style="display:inline-block;width:10px;height:10px;background:rgba(124,58,237,.2);border:1px solid #c4b5fd;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>LBL 화면</span>
+        <span><span style="display:inline-block;width:10px;height:10px;background:rgba(220,38,38,.2);border:1px solid #fca5a5;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>차단</span>
+        <span><span style="display:inline-block;width:10px;height:10px;background:#f6f8fa;border:1px dashed #cbd5e1;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>외부/타 모듈</span>
+      </div>
+    </div>
+
+    <!-- KPI -->
+    <div class="sec-div" id="kpi"><div class="sd-line"></div><div class="sd-lbl">▼ MODULE KPI · 핵심 지표</div><div class="sd-line"></div></div>
+    <div class="mod-kpi">
+      <div class="kpi-card"><div class="kpi-l">Templates</div><div class="kpi-v doc">—</div><div class="kpi-s">승인 템플릿 수</div></div>
+      <div class="kpi-card"><div class="kpi-l">Labels Issued Today</div><div class="kpi-v ok">—</div><div class="kpi-s">금일 발행 건수</div></div>
+      <div class="kpi-card"><div class="kpi-l">Reprints</div><div class="kpi-v warn">—</div><div class="kpi-s">재발행 건수</div></div>
+      <div class="kpi-card"><div class="kpi-l">Blocked · Expired</div><div class="kpi-v alert">—</div><div class="kpi-s">만료 증빙 차단 건</div></div>
+      <div class="kpi-card"><div class="kpi-l">OEM Forms</div><div class="kpi-v doc">3</div><div class="kpi-s">현대 · 기아 · MOBIS</div></div>
+    </div>
+
+    <!-- SCREENS -->
+    <div class="sec-div"><div class="sd-line"></div><div class="sd-lbl">▼ 5 SCREENS · 화면 설계</div><div class="sd-line"></div></div>
+
+    <!-- LBL-01 -->
+    <div class="screen-card" id="lbl01">
+      <div class="sc-hdr">
+        <div class="sc-hdr-l">
+          <div class="sc-icon">🎨</div>
+          <div class="sc-title-wrap">
+            <div class="sc-id">LBL-01</div>
+            <div class="sc-title-en">Template Designer</div>
+            <div class="sc-title-ko">라벨 템플릿 디자이너 — 양식 정의·승인 후 발행 사용</div>
+          </div>
+        </div>
+        <div class="sc-tags"><span class="tag t-web">🖥 Web PC</span><span class="tag t-p1">Phase 2</span></div>
+        <a class="sc-l3-btn" href="VOL03_LBL01_Template_Designer.html" title="View L3 detailed spec">📋 L3 Detail →</a>
+      </div>
+      <div class="sc-body">
+        <div class="headline">
+          <span class="headline-ico">👀</span>
+          <div class="headline-t">What you'll see: 라벨 레이아웃 캔버스 + 필드/바코드/QR 배치 + OEM 양식별 템플릿 + 승인 상태<span class="ko">템플릿은 승인 후에만 발행에 사용 (BR-LBL-02)</span></div>
+        </div>
+        <div class="qf-grid">
+          <div class="qf"><div class="qf-l">📥 INPUT</div><div class="qf-v">필드 정의 + 레이아웃</div></div>
+          <div class="qf"><div class="qf-l">📤 OUTPUT</div><div class="qf-v">승인된 라벨 템플릿</div></div>
+          <div class="qf"><div class="qf-l">⚠ WATCH</div><div class="qf-v">미승인 템플릿 사용 차단</div></div>
+          <div class="qf"><div class="qf-l">🎨 UI</div><div class="qf-v">Web Canvas Designer</div></div>
+        </div>
+        <div class="desc-bi">
+          <div><div class="db-lbl">EN · Description</div><div class="db-en">Visual designer for label templates. Define layout, fixed text, dynamic fields (origin country, part, LOT, certificate no., serial), barcodes and QR codes. Maintain separate templates per OEM form (COO standard, 현대/기아/MOBIS). Templates pass an approval step before they can be used for issuance.</div></div>
+          <div><div class="db-lbl">KO · 설명</div><div class="db-ko">라벨 템플릿용 비주얼 디자이너. 레이아웃·고정 텍스트·동적 필드(원산지국·품목·LOT·인증서번호·일련번호)·바코드·QR 배치 정의. OEM 양식별(COO 표준, 현대/기아/MOBIS) 템플릿 분리 관리. 템플릿은 승인 단계를 거쳐야 발행에 사용 가능.</div></div>
+        </div>
+        <div class="feat-grid">
+          <div class="feat-item"><div class="feat-ico">🧩</div><div class="feat-t">Layout Canvas</div><div class="feat-d">필드/바코드/QR 자유 배치.<span class="ko">드래그앤드롭</span></div></div>
+          <div class="feat-item"><div class="feat-ico">🔣</div><div class="feat-t">Dynamic Fields</div><div class="feat-d">발행 시 데이터 바인딩.<span class="ko">DOC/ORG 연계</span></div></div>
+          <div class="feat-item"><div class="feat-ico">🏭</div><div class="feat-t">OEM Variants</div><div class="feat-d">양식별 필수필드 차이 반영.<span class="ko">현대/기아/MOBIS</span></div></div>
+          <div class="feat-item"><div class="feat-ico">✅</div><div class="feat-t">Approval Gate</div><div class="feat-d">승인 후에만 발행 사용.<span class="ko">버전 관리</span></div></div>
+        </div>
+        <div class="br-chips">
+          <span class="br-chip-lbl">관련 BR ▸</span>
+          <a class="br-chip" href="#br-lbl">BR-LBL-02</a>
+          <a class="br-chip" href="#br-lbl">BR-LBL-05</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- LBL-02 -->
+    <div class="screen-card" id="lbl02">
+      <div class="sc-hdr">
+        <div class="sc-hdr-l">
+          <div class="sc-icon">🏷️</div>
+          <div class="sc-title-wrap">
+            <div class="sc-id">LBL-02 · ⚙ CORE</div>
+            <div class="sc-title-en">COO Label Issue</div>
+            <div class="sc-title-ko">원산지 라벨 발행 — 유효 증빙 연계 핵심 발행 화면</div>
+          </div>
+        </div>
+        <div class="sc-tags"><span class="tag t-web">🖥 Web PC</span><span class="tag t-core">⚙ Core</span></div>
+        <a class="sc-l3-btn" href="VOL03_LBL02_COO_Label_Issue.html" title="View L3 detailed spec">📋 L3 Detail →</a>
+      </div>
+      <div class="sc-body">
+        <div class="headline">
+          <span class="headline-ico">👀</span>
+          <div class="headline-t">What you'll see: 품목·LOT 선택 → 유효 증빙(DOC) 자동 확인 → 원산지국 바인딩 → COO 라벨 미리보기·발행<span class="ko">만료 증빙이면 발행 차단 (BR-LBL-01) — 빠른 ROI 핵심</span></div>
+        </div>
+        <div class="qf-grid">
+          <div class="qf"><div class="qf-l">📥 INPUT</div><div class="qf-v">품목 · LOT · 수량</div></div>
+          <div class="qf"><div class="qf-l">📤 OUTPUT</div><div class="qf-v">COO 라벨 + 일련번호</div></div>
+          <div class="qf"><div class="qf-l">⚠ WATCH</div><div class="qf-v">유효 증빙 없음 → 차단</div></div>
+          <div class="qf"><div class="qf-l">🎨 UI</div><div class="qf-v">Web 발행 폼 + 미리보기</div></div>
+        </div>
+        <div class="desc-bi">
+          <div><div class="db-lbl">EN · Description</div><div class="db-en">Core issuance screen for origin (COO) labels. On part/LOT selection the system checks DOC for a valid certificate and pulls origin data from ORG. A unique serial is assigned, the label is previewed against the approved template, and issuance is recorded. If the supporting evidence is expired or missing, issuance is hard-blocked (BR-LBL-01).</div></div>
+          <div><div class="db-lbl">KO · 설명</div><div class="db-ko">원산지(COO) 라벨 발행 핵심 화면. 품목/LOT 선택 시 DOC의 유효 인증서를 확인하고 ORG에서 원산지 데이터를 가져옴. 유니크 일련번호 부여 후 승인 템플릿으로 미리보기·발행하고 이력 기록. 근거 증빙이 만료·누락이면 발행 강제 차단(BR-LBL-01).</div></div>
+        </div>
+        <div class="br-chips"><span class="br-chip-lbl">관련 BR ▸</span><a class="br-chip crit" href="#br-lbl">BR-LBL-01</a><a class="br-chip" href="#br-lbl">BR-LBL-06</a></div>
+      </div>
+    </div>
+
+    <!-- LBL-03 -->
+    <div class="screen-card" id="lbl03">
+      <div class="sc-hdr">
+        <div class="sc-hdr-l">
+          <div class="sc-icon">🏭</div>
+          <div class="sc-title-wrap">
+            <div class="sc-id">LBL-03</div>
+            <div class="sc-title-en">Customer-specific Label</div>
+            <div class="sc-title-ko">고객 양식 라벨 — 현대/기아/MOBIS OEM 양식별 발행</div>
+          </div>
+        </div>
+        <div class="sc-tags"><span class="tag t-web">🖥 Web PC</span><span class="tag t-p1">Phase 2</span></div>
+        <a class="sc-l3-btn" href="VOL03_LBL03_Customer_Label.html" title="View L3 detailed spec">📋 L3 Detail →</a>
+      </div>
+      <div class="sc-body">
+        <div class="headline">
+          <span class="headline-ico">👀</span>
+          <div class="headline-t">What you'll see: 고객(현대/기아/MOBIS) 선택 → 양식별 템플릿 + 필수필드 검증 → 발행<span class="ko">OEM 양식별 필수필드를 모두 충족해야 발행 (BR-LBL-05)</span></div>
+        </div>
+        <div class="qf-grid">
+          <div class="qf"><div class="qf-l">📥 INPUT</div><div class="qf-v">고객 + 품목 + LOT</div></div>
+          <div class="qf"><div class="qf-l">📤 OUTPUT</div><div class="qf-v">OEM 양식 라벨</div></div>
+          <div class="qf"><div class="qf-l">⚠ WATCH</div><div class="qf-v">양식별 필수필드 누락</div></div>
+          <div class="qf"><div class="qf-l">🎨 UI</div><div class="qf-v">Web 발행 폼 + 검증</div></div>
+        </div>
+        <div class="desc-bi">
+          <div><div class="db-lbl">EN · Description</div><div class="db-en">Issues OEM customer-specific labels per each customer's required form (현대 HMC, 기아 KIA, MOBIS). Selecting the customer loads the matching approved template and validates the form-specific mandatory fields before issuance. Like COO issuance, a valid DOC certificate is required and a unique serial is assigned.</div></div>
+          <div><div class="db-lbl">KO · 설명</div><div class="db-ko">고객별 요구 양식(현대 HMC, 기아 KIA, MOBIS)에 따른 OEM 라벨 발행. 고객 선택 시 해당 승인 템플릿을 로드하고 양식별 필수필드를 검증 후 발행. COO 발행과 동일하게 유효 DOC 증빙이 필요하며 유니크 일련번호 부여.</div></div>
+        </div>
+        <div class="br-chips"><span class="br-chip-lbl">관련 BR ▸</span><a class="br-chip crit" href="#br-lbl">BR-LBL-01</a><a class="br-chip" href="#br-lbl">BR-LBL-05</a><a class="br-chip" href="#br-lbl">BR-LBL-06</a></div>
+      </div>
+    </div>
+
+    <!-- LBL-04 -->
+    <div class="screen-card" id="lbl04">
+      <div class="sc-hdr">
+        <div class="sc-hdr-l">
+          <div class="sc-icon">🗂️</div>
+          <div class="sc-title-wrap">
+            <div class="sc-id">LBL-04</div>
+            <div class="sc-title-en">Issuance History</div>
+            <div class="sc-title-ko">발행 이력 — 불변 이력 · 취소만 가능 · 재발행 사유 추적</div>
+          </div>
+        </div>
+        <div class="sc-tags"><span class="tag t-web">🖥 Web PC</span><span class="tag t-p1">Phase 2</span></div>
+        <a class="sc-l3-btn" href="VOL03_LBL04_Issuance_History.html" title="View L3 detailed spec">📋 L3 Detail →</a>
+      </div>
+      <div class="sc-body">
+        <div class="headline">
+          <span class="headline-ico">👀</span>
+          <div class="headline-t">What you'll see: 발행 이력 그리드(일련번호·품목·LOT·고객·증빙·발행일·발행자) + 취소/재발행 추적<span class="ko">발행 이력은 불변, 수정 불가 — 취소만 가능 (BR-LBL-03)</span></div>
+        </div>
+        <div class="desc-bi">
+          <div><div class="db-lbl">EN · Description</div><div class="db-en">Full, immutable record of every issued label. Grid shows serial, part, LOT, customer/form, referenced certificate, issue date and issuer. Records cannot be edited — only cancelled, and reprints capture a logged reason (BR-LBL-04). Feeds AUD with a defensible issuance trail.</div></div>
+          <div><div class="db-lbl">KO · 설명</div><div class="db-ko">발행된 모든 라벨의 불변 이력. 그리드에 일련번호·품목·LOT·고객/양식·참조 증빙·발행일·발행자 표시. 이력은 수정 불가, 취소만 가능하며 재발행 시 사유 기록(BR-LBL-04). AUD에 방어 가능한 발행 추적 제공.</div></div>
+        </div>
+        <div class="br-chips"><span class="br-chip-lbl">관련 BR ▸</span><a class="br-chip crit" href="#br-lbl">BR-LBL-03</a><a class="br-chip" href="#br-lbl">BR-LBL-04</a></div>
+      </div>
+    </div>
+
+    <!-- LBL-05 -->
+    <div class="screen-card" id="lbl05">
+      <div class="sc-hdr">
+        <div class="sc-hdr-l">
+          <div class="sc-icon">🖨️</div>
+          <div class="sc-title-wrap">
+            <div class="sc-id">LBL-05</div>
+            <div class="sc-title-en">Label Print</div>
+            <div class="sc-title-ko">라벨 출력 — PDA/프린터 현장 출력</div>
+          </div>
+        </div>
+        <div class="sc-tags"><span class="tag t-pda">📱 PDA/Printer</span><span class="tag t-p1">Phase 2</span></div>
+        <a class="sc-l3-btn" href="VOL03_LBL05_Label_Print.html" title="View L3 detailed spec">📋 L3 Detail →</a>
+      </div>
+      <div class="sc-body">
+        <div class="headline">
+          <span class="headline-ico">👀</span>
+          <div class="headline-t">What you'll see: PDA/라벨프린터용 출력 화면 + 발행 건 선택 + 매수 지정 + 재출력<span class="ko">현장에서 발행된 라벨을 라벨프린터로 즉시 출력</span></div>
+        </div>
+        <div class="desc-bi">
+          <div><div class="db-lbl">EN · Description</div><div class="db-en">On-site print interface for label printers and PDA devices. Operators select issued label records and print to a label printer, specifying copies. Reprints reference the original issuance and capture a reason. Designed for shop-floor / packaging use, not a desktop design tool.</div></div>
+          <div><div class="db-lbl">KO · 설명</div><div class="db-ko">라벨프린터·PDA용 현장 출력 인터페이스. 작업자가 발행된 라벨 건을 선택해 매수 지정 후 라벨프린터로 출력. 재출력은 원 발행 건을 참조하고 사유 기록. 현장/포장 작업용으로 설계, 데스크톱 디자인 도구가 아님.</div></div>
+        </div>
+        <div class="br-chips"><span class="br-chip-lbl">관련 BR ▸</span><a class="br-chip" href="#br-lbl">BR-LBL-04</a><a class="br-chip" href="#br-lbl">BR-LBL-06</a></div>
+      </div>
+    </div>
+
+    <!-- REFERENCE: OEM Form Types -->
+    <div class="sec-div" id="ref-forms"><div class="sd-line"></div><div class="sd-lbl">▼ OEM FORM TYPES · OEM 양식 유형</div><div class="sd-line"></div></div>
+    <table class="ref-tbl">
+      <thead><tr><th style="width:90px;">Code</th><th style="width:210px;">Form · 양식</th><th>Required Fields · 필수필드 차이</th><th style="width:110px;">Scope · 적용</th></tr></thead>
+      <tbody>
+        <tr><td class="code">COO</td><td><b>COO Standard</b> · 원산지 표준</td><td>원산지국 · 품목 · LOT · 인증서번호 · 발행일 · 일련번호 (표준 6필드).</td><td><span class="pill p-i">기본</span></td></tr>
+        <tr><td class="code">HMC</td><td><b>현대 (HMC)</b> · 현대자동차</td><td>표준 + 납품처 코드 · 현대 품번(P/N) · 부품 바코드(Code-128).</td><td><span class="pill p-w">고객별</span></td></tr>
+        <tr><td class="code">KIA</td><td><b>기아 (KIA)</b> · 기아</td><td>표준 + 기아 품번 · 차종/사양 · QR 코드 필수.</td><td><span class="pill p-w">고객별</span></td></tr>
+        <tr><td class="code">MOBIS</td><td><b>MOBIS</b> · 현대모비스</td><td>표준 + 모비스 품번 · 모듈 식별자 · 포장 단위 라벨.</td><td><span class="pill p-w">고객별</span></td></tr>
+      </tbody>
+    </table>
+
+    <!-- REFERENCE: Required Fields -->
+    <div class="sec-div" id="ref-fields"><div class="sd-line"></div><div class="sd-lbl">▼ LABEL REQUIRED FIELDS · 라벨 필수 항목</div><div class="sd-line"></div></div>
+    <table class="ref-tbl">
+      <thead><tr><th style="width:140px;">Field · 항목</th><th style="width:120px;">Source · 출처</th><th>Description · 설명</th><th style="width:90px;">Rule</th></tr></thead>
+      <tbody>
+        <tr><td><b>원산지국</b> · Origin Country</td><td class="code">ORG / DOC</td><td>제품의 원산지국. 유효 증빙·원산지 데이터에서 바인딩.</td><td><span class="pill p-e">필수</span></td></tr>
+        <tr><td><b>품목</b> · Part</td><td class="code">MD · 품목</td><td>품목 코드/명. 발행 대상 식별.</td><td><span class="pill p-e">필수</span></td></tr>
+        <tr><td><b>LOT</b> · Lot No.</td><td class="code">생산/입력</td><td>생산 LOT 번호. 역추적 단위.</td><td><span class="pill p-e">필수</span></td></tr>
+        <tr><td><b>인증서번호</b> · Certificate No.</td><td class="code">DOC</td><td>참조한 유효 증빙의 인증서번호. 만료 시 발행 차단.</td><td><span class="pill p-e">필수</span></td></tr>
+        <tr><td><b>발행일</b> · Issue Date</td><td class="code">시스템</td><td>라벨 발행 일자. 자동 기록.</td><td><span class="pill p-e">필수</span></td></tr>
+        <tr><td><b>일련번호</b> · Serial No.</td><td class="code">시스템</td><td>발행 건별 유니크 일련번호. 중복 불가.</td><td><span class="pill p-e">유니크</span></td></tr>
+      </tbody>
+    </table>
+
+    <!-- BUSINESS RULES -->
+    <div class="sec-div" id="br-lbl"><div class="sd-line"></div><div class="sd-lbl">▼ BUSINESS RULES · 업무 규칙</div><div class="sd-line"></div></div>
+    <div class="br-wrap">
+      <table class="br-tbl">
+        <thead><tr><th style="width:90px;">ID</th><th style="width:30%;">Rule · 규칙</th><th>Detail · 상세</th><th style="width:80px;">Action</th></tr></thead>
+        <tbody>
+          <tr><td class="br-id-c">BR-LBL-01</td><td><b>Valid Evidence Required</b><br><span style="color:var(--sub);font-size:10px;">유효 증빙 필수</span></td><td>유효한 DOC 증빙이 없거나 만료된 경우 라벨 발행 차단. DOC 만료 상태와 실시간 연계.</td><td><span class="b b-blk">차단</span></td></tr>
+          <tr><td class="br-id-c">BR-LBL-02</td><td><b>Approved Template Only</b><br><span style="color:var(--sub);font-size:10px;">템플릿 승인 후 사용</span></td><td>승인되지 않은 템플릿으로는 발행 불가. 템플릿은 승인 단계를 거친 후에만 발행에 사용.</td><td><span class="b b-blk">차단</span></td></tr>
+          <tr><td class="br-id-c">BR-LBL-03</td><td><b>Immutable History</b><br><span style="color:var(--sub);font-size:10px;">발행 이력 불변</span></td><td>발행 이력은 수정·삭제 불가. 잘못된 발행은 취소(cancel)로만 처리, 취소 이력도 보존.</td><td><span class="b b-blk">차단</span></td></tr>
+          <tr><td class="br-id-c">BR-LBL-04</td><td><b>Reprint Reason Logged</b><br><span style="color:var(--sub);font-size:10px;">재발행 사유 기록</span></td><td>재발행/재출력 시 사유 입력 필수. 원 발행 건 참조와 함께 사유 로그 기록.</td><td><span class="b b-alt">검증</span></td></tr>
+          <tr><td class="br-id-c">BR-LBL-05</td><td><b>OEM Field Validation</b><br><span style="color:var(--sub);font-size:10px;">OEM 양식별 필수필드 검증</span></td><td>고객 양식(현대/기아/MOBIS)별 필수필드를 모두 충족해야 발행. 누락 시 발행 차단.</td><td><span class="b b-blk">차단</span></td></tr>
+          <tr><td class="br-id-c">BR-LBL-06</td><td><b>Unique Serial</b><br><span style="color:var(--sub);font-size:10px;">일련번호 유니크</span></td><td>라벨 일련번호는 전 발행 건에서 유니크. 중복 일련번호 발행 불가.</td><td><span class="b b-blk">차단</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+  <div class="page-footer">
+    <span class="pf-l">UOCM · USMCA Origin Compliance Management System</span>
+    <span class="pf-r">VOL.3 · LBL · Label Management · L2 Hub</span>
+  </div>
+</div>
+</div>
+</body>
+</html>
