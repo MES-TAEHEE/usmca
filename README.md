@@ -10,7 +10,7 @@ Tier-1 자동차 부품 공급사(현대 · 기아 · MOBIS 납품)의 USMCA 원
 
 | VOL | 코드 | 모듈 | Phase | 파일 |
 |-----|------|------|-------|------|
-| — | — | **Index** (시스템 개요) | — | `INDEX.html` |
+| — | — | **Index** (시스템 개요) | — | `index.html` |
 | 01 | — | Overview · 범위 · 로드맵 · 기술스택 | — | `VOL01_Overview.html` |
 | 02 | **DOC** | Document Management · 증빙문서관리 | P1 | `VOL02_DOC_Document_Management.html` |
 | 03 | **LBL** | Label Management · 라벨관리 | P2 | `VOL03_LBL_Label_Management.html` |
@@ -31,4 +31,4 @@ Tier-1 자동차 부품 공급사(현대 · 기아 · MOBIS 납품)의 USMCA 원
 
 ## 보기
 
-각 `.html` 파일을 브라우저로 직접 엽니다. `INDEX.html` 이 진입점입니다.
+각 `.html` 파일을 브라우저로 직접 엽니다. `index.html` 이 진입점입니다.
