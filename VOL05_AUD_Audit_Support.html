@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>UOCM · VOL.5 · AUD · Audit Support</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;600;700&family=Bebas+Neue&display=swap');
+:root{
+  --brand:#059669;--brand-dk:#047857;
+  --ink:#0a1422;--ink2:#101d2e;--ink3:#1c2c40;
+  --surface:#fff;--bg:#f4f7fa;--border:#d3dce6;--text:#1e2a38;--sub:#5b6b7d;
+  --doc:#dc2626;--lbl:#7c3aed;--org:#0891b2;--aud:#dc2626;--int:#6366f1;--sys:#64748b;--md:#d97706;
+  --mod:#dc2626;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);font-size:13px;line-height:1.6;}
+
+.uo-nav{position:sticky;top:0;z-index:9999;background:#fff;border-bottom:1px solid #e5eaf0;box-shadow:0 1px 4px rgba(15,39,71,.06);}
+.uo-nav-inner{display:flex;align-items:stretch;overflow-x:auto;scrollbar-width:none;}
+.uo-nav-inner::-webkit-scrollbar{display:none;}
+.nav-home{display:flex;align-items:center;gap:8px;padding:0 16px;background:rgba(5,150,105,.08);border-right:1px solid #e5eaf0;text-decoration:none;flex-shrink:0;min-height:42px;}
+.nav-home-logo{font-family:'Bebas Neue',sans-serif;font-size:17px;color:#059669;letter-spacing:2px;}
+.nav-home-sub{font-size:9px;color:#94a3b8;}
+.nav-vol{display:flex;align-items:center;gap:5px;padding:0 12px;text-decoration:none;font-size:10px;font-weight:700;color:#5b6b7d;border-bottom:2px solid transparent;white-space:nowrap;min-height:42px;transition:color .12s;}
+.nav-vol:hover{color:#0f2747;background:#f6f8fa;}
+.nav-vol.active{color:#0f2747;border-bottom-color:#059669;}
+.nav-vol .nv-code{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;}
+
+.page-wrap{display:flex;}
+.sidebar{width:236px;min-width:236px;background:#f6f8fa;position:sticky;top:42px;height:calc(100vh - 42px);overflow-y:auto;scrollbar-width:thin;border-right:1px solid #e5eaf0;}
+.sb-head{padding:16px 14px 12px;border-bottom:1px solid #e5eaf0;}
+.sb-vol{font-family:'JetBrains Mono',monospace;font-size:9px;color:#047857;letter-spacing:2px;margin-bottom:4px;}
+.sb-mod-en{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1px;color:#dc2626;}
+.sb-mod-ko{font-size:10px;color:#94a3b8;}
+.sb-section{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#94a3b8;padding:12px 14px 4px;}
+.sb-link{display:flex;align-items:center;gap:7px;padding:6px 14px;text-decoration:none;color:#5b6b7d;font-size:11px;border-left:2px solid transparent;transition:all .12s;}
+.sb-link:hover{color:#0f2747;background:#eef2f7;}
+.sb-link.on{color:#0f2747;border-left-color:#dc2626;background:rgba(220,38,38,.08);}
+.sb-link .sl-id{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;width:44px;flex-shrink:0;color:#dc2626;}
+.sb-link .sl-en{font-size:10px;font-weight:600;}
+.sb-link .sl-ko{font-size:9px;color:#94a3b8;margin-top:1px;}
+.sb-l3{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:3px;background:rgba(5,150,105,.1);color:#047857;font-size:11px;text-decoration:none;margin-left:auto;transition:all .15s;flex-shrink:0;border:1px solid rgba(5,150,105,.3);}
+.sb-l3:hover{background:#059669;color:#fff;border-color:#059669;transform:scale(1.15);}
+.sb-sep{height:1px;background:#e5eaf0;margin:5px 0;}
+
+.main{flex:1;min-width:0;}
+
+.mod-hdr{padding:36px 48px 24px;position:relative;overflow:hidden;background:linear-gradient(135deg,#fef0f0,#ffffff);border-bottom:1px solid #e5eaf0;}
+.mod-hdr-inner{position:relative;z-index:1;}
+.mod-eyebrow{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;margin-bottom:10px;opacity:.9;color:#dc2626;}
+.mod-title-en{font-family:'Bebas Neue',sans-serif;font-size:48px;line-height:.95;letter-spacing:2px;color:#dc2626;margin-bottom:4px;}
+.mod-title-ko{font-size:14px;font-weight:300;color:#5b6b7d;letter-spacing:3px;margin-bottom:16px;}
+.mod-desc-bi{display:grid;grid-template-columns:1fr 1fr;gap:14px;max-width:900px;margin-bottom:14px;}
+.mdb-en{font-size:11px;color:#5b6b7d;line-height:1.85;border-left:2px solid #cbd5e1;padding-left:12px;}
+.mdb-ko{font-size:11px;color:#94a3b8;line-height:1.85;border-left:2px solid #e5eaf0;padding-left:12px;}
+.mod-meta-strip{display:grid;grid-template-columns:repeat(6,1fr);gap:0;border:1px solid #f7cdcd;border-radius:6px;overflow:hidden;margin:14px 0 16px;max-width:900px;background:#fff;}
+.mms-item{padding:10px 14px;border-right:1px solid #e5eaf0;}
+.mms-item:last-child{border-right:none;}
+.mms-l{font-size:8px;color:#dc2626;text-transform:uppercase;letter-spacing:1.2px;font-family:'JetBrains Mono',monospace;}
+.mms-v{font-size:13px;font-weight:800;color:#0f2747;margin-top:3px;letter-spacing:.3px;}
+.mms-v.warn{color:#a16207;}
+.l3-hint{display:inline-block;font-size:10px;color:#047857;font-weight:600;letter-spacing:1px;padding:5px 12px;background:rgba(5,150,105,.08);border:1px dashed rgba(5,150,105,.4);border-radius:3px;margin-bottom:8px;}
+.screen-pills{display:flex;gap:5px;flex-wrap:wrap;margin-top:10px;}
+.sp{display:flex;align-items:center;gap:5px;padding:5px 11px;border-radius:3px;background:#f6f8fa;border:1px solid #d3dce6;font-size:9px;color:#5b6b7d;text-decoration:none;transition:all .15s;}
+.sp:hover{background:rgba(220,38,38,.1);border-color:rgba(220,38,38,.4);color:#0f2747;}
+.sp-id{font-family:'JetBrains Mono',monospace;font-weight:700;color:#047857;}
+
+.content{padding:0 48px 48px;}
+.sec-div{display:flex;align-items:center;gap:12px;margin:28px 0 16px;}
+.sd-line{flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--border) 20%,var(--border) 80%,transparent);}
+.sd-lbl{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:var(--doc);letter-spacing:2px;white-space:nowrap;padding:4px 10px;background:#fef2f2;border:1px solid #fecaca;border-radius:3px;}
+
+.flow-card{background:#fff;border:1px solid #e5eaf0;color:#1e2a38;border-radius:10px;padding:20px 22px;margin-bottom:18px;box-shadow:0 1px 4px rgba(15,39,71,.05);}
+.flow-card-h{font-family:'JetBrains Mono',monospace;font-size:10px;color:#dc2626;letter-spacing:2px;text-transform:uppercase;margin-bottom:14px;}
+.flow-track{margin-bottom:14px;}
+.flow-track-lbl{font-size:10px;color:#5b6b7d;letter-spacing:1px;font-family:'JetBrains Mono',monospace;margin-bottom:8px;text-transform:uppercase;}
+.flow-row{display:flex;align-items:center;gap:0;flex-wrap:wrap;}
+.flow-node{display:flex;flex-direction:column;align-items:center;gap:3px;background:rgba(220,38,38,.07);border:1px solid #fecaca;border-radius:8px;padding:10px 12px;min-width:96px;text-align:center;transition:all .15s;text-decoration:none;color:#1e2a38;}
+.flow-node:hover{background:rgba(220,38,38,.14);border-color:#dc2626;transform:translateY(-2px);box-shadow:0 6px 16px rgba(220,38,38,.2);}
+.flow-node.ext{background:#f6f8fa;border-color:#cbd5e1;border-style:dashed;}
+.flow-node.alert{background:#fef2f2;border-color:#fca5a5;}
+.fn-id{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;color:#dc2626;letter-spacing:.5px;}
+.flow-node.ext .fn-id{color:#94a3b8;}
+.flow-node.alert .fn-id{color:#dc2626;}
+.fn-name{font-size:11px;font-weight:700;color:#0f2747;}
+.fn-ko{font-size:9px;color:#5b6b7d;}
+.fn-tag{font-size:8px;font-family:'JetBrains Mono',monospace;color:#94a3b8;margin-top:1px;}
+.flow-arr{font-size:18px;color:#fca5a5;padding:0 4px;font-weight:700;}
+
+.mod-kpi{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:18px;}
+.kpi-card{background:#fff;border:1px solid var(--border);border-top:3px solid var(--doc);border-radius:0 0 6px 6px;padding:14px 16px;}
+.kpi-l{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--sub);letter-spacing:1px;text-transform:uppercase;}
+.kpi-v{font-family:'Bebas Neue',sans-serif;font-size:34px;color:var(--text);line-height:1;margin-top:5px;letter-spacing:.5px;}
+.kpi-v.ok{color:#16a34a;}.kpi-v.warn{color:#a16207;}.kpi-v.alert{color:#dc2626;}.kpi-v.doc{color:var(--doc);}
+.kpi-s{font-size:10px;color:var(--sub);margin-top:3px;}
+
+.screen-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:18px;box-shadow:0 1px 3px rgba(0,0,0,.04);}
+.sc-hdr{padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:14px;border-bottom:1px solid #fecaca;background:linear-gradient(135deg,#fef0f0,#fee2e2);}
+.sc-hdr-l{display:flex;align-items:center;gap:14px;flex:1;min-width:0;}
+.sc-icon{font-size:42px;line-height:1;flex-shrink:0;filter:drop-shadow(0 2px 4px rgba(0,0,0,.3));}
+.sc-title-wrap{flex:1;min-width:0;}
+.sc-id{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;color:#dc2626;letter-spacing:.5px;}
+.sc-title-en{font-size:16px;font-weight:800;color:#0f2747;letter-spacing:-.3px;margin-top:2px;}
+.sc-title-ko{font-size:10px;color:#5b6b7d;margin-top:2px;}
+.sc-tags{display:flex;flex-direction:column;align-items:flex-end;gap:4px;}
+.tag{font-size:9px;font-weight:700;padding:2px 9px;border-radius:3px;white-space:nowrap;}
+.t-web{background:rgba(220,38,38,.2);color:#fca5a5;border:1px solid rgba(220,38,38,.35);}
+.t-portal{background:rgba(13,184,122,.2);color:#5dffc4;border:1px solid rgba(13,184,122,.3);}
+.t-p1{background:rgba(16,185,129,.18);color:#6ee7b7;border:1px solid rgba(16,185,129,.32);}
+.t-core{background:rgba(212,160,23,.2);color:#fbbf24;border:1px solid rgba(212,160,23,.35);}
+.sc-l3-btn{display:inline-flex;align-items:center;gap:5px;padding:8px 14px;background:linear-gradient(135deg,#10b981,#059669);color:#03241a;font-size:11px;font-weight:800;border-radius:5px;text-decoration:none;letter-spacing:.5px;text-transform:uppercase;border:1px solid #059669;box-shadow:0 2px 6px rgba(16,185,129,.3);transition:all .15s;white-space:nowrap;}
+.sc-l3-btn:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(16,185,129,.5);background:linear-gradient(135deg,#34d399,#10b981);}
+.sc-body{padding:16px 18px;}
+.headline{display:flex;align-items:center;gap:10px;padding:11px 14px;background:linear-gradient(135deg,#fef2f2,#fee2e2);border:1px solid #fecaca;border-left:3px solid var(--doc);border-radius:0 5px 5px 0;margin-bottom:14px;}
+.headline-ico{font-size:18px;color:var(--doc);}
+.headline-t{font-size:12px;color:#991b1b;font-weight:700;line-height:1.55;}
+.headline-t .ko{display:block;color:#dc2626;font-weight:400;font-size:11px;margin-top:1px;}
+.qf-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px;}
+.qf{background:#fafbfd;border:1px solid var(--border);border-radius:5px;padding:9px 11px;}
+.qf-l{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--sub);letter-spacing:.7px;text-transform:uppercase;}
+.qf-v{font-size:11px;color:var(--text);font-weight:700;margin-top:3px;line-height:1.4;}
+.desc-bi{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;background:#fef2f2;border:1px solid var(--border);border-left:3px solid var(--doc);border-radius:0 6px 6px 0;padding:11px 14px;}
+.db-lbl{font-size:8px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;opacity:.55;}
+.db-en{font-size:11px;color:#991b1b;line-height:1.75;}
+.db-ko{font-size:11px;color:var(--sub);line-height:1.75;}
+.feat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:8px;margin-bottom:12px;}
+.feat-item{background:#fff;border:1px solid var(--border);border-top:2px solid var(--doc);border-radius:0 0 5px 5px;padding:10px 12px;}
+.feat-ico{font-size:16px;line-height:1;margin-bottom:5px;}
+.feat-t{font-size:11px;font-weight:800;color:var(--text);margin-bottom:2px;}
+.feat-d{font-size:10px;color:var(--sub);line-height:1.55;}
+.feat-d .ko{color:#94a3b8;font-size:9px;display:block;margin-top:1px;}
+.br-chips{display:flex;gap:5px;flex-wrap:wrap;padding-top:10px;border-top:1px dashed var(--border);}
+.br-chip{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;padding:3px 8px;border-radius:3px;background:#fee2e2;color:#991b1b;border:1px solid #fca5a5;text-decoration:none;letter-spacing:.3px;}
+.br-chip.crit{background:#fee2e2;color:#991b1b;border-color:#fca5a5;}
+.br-chip-lbl{font-size:9px;color:var(--sub);font-family:'JetBrains Mono',monospace;letter-spacing:.5px;margin-right:4px;align-self:center;}
+
+.ref-tbl{width:100%;border-collapse:collapse;font-size:11px;background:#fff;border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-bottom:18px;}
+.ref-tbl th{background:#f0f3f7;color:var(--text);padding:8px 12px;text-align:left;font-size:10px;font-weight:700;border-bottom:1px solid var(--border);}
+.ref-tbl td{padding:8px 12px;border-bottom:1px solid var(--border);}
+.ref-tbl tr:last-child td{border-bottom:none;}
+.ref-tbl tr:nth-child(even) td{background:#fafbfd;}
+.ref-tbl .code{font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--doc);font-size:11px;}
+.pill{display:inline-block;font-size:9px;font-weight:700;padding:2px 8px;border-radius:8px;}
+.p-ok{background:#dcfce7;color:#166534;}.p-w{background:#fef9c3;color:#92400e;}.p-e{background:#fee2e2;color:#991b1b;}.p-i{background:#dbeafe;color:#1e40af;}.p-n{background:#f1f5f9;color:#475569;}
+
+.br-wrap{margin-bottom:16px;}
+.br-tbl{width:100%;border-collapse:collapse;font-size:10px;}
+.br-tbl th{background:var(--text);color:#fff;padding:7px 10px;text-align:left;border:1px solid rgba(255,255,255,.08);font-size:9px;}
+.br-tbl td{padding:7px 10px;border:1px solid var(--border);vertical-align:top;line-height:1.6;}
+.br-tbl tr:nth-child(even) td{background:#fafbfd;}
+.br-id-c{font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--brand-dk);white-space:nowrap;}
+.b{display:inline-block;font-size:9px;font-weight:700;padding:2px 7px;border-radius:8px;}
+.b-blk{background:#fee2e2;color:#991b1b;}.b-alt{background:#fef9c3;color:#92400e;}.b-aut{background:#dbeafe;color:#1e40af;}
+
+.page-footer{padding:14px 48px;border-top:1px solid #e5eaf0;display:flex;align-items:center;justify-content:space-between;background:#f6f8fa;margin-top:20px;}
+.pf-l{font-size:10px;color:#94a3b8;font-family:'JetBrains Mono',monospace;}
+.pf-r{font-family:'JetBrains Mono',monospace;font-size:10px;color:#047857;}
+@media(max-width:1024px){.mod-desc-bi{grid-template-columns:1fr;}.mod-meta-strip{grid-template-columns:repeat(3,1fr);}.mod-kpi{grid-template-columns:repeat(2,1fr);}.qf-grid{grid-template-columns:repeat(2,1fr);}.desc-bi{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<nav class="uo-nav"><div class="uo-nav-inner">
+  <a href="index.html" class="nav-home"><span class="nav-home-logo">UOCM</span><span class="nav-home-sub">◀ Index</span></a>
+  <a href="VOL01_Overview.html" class="nav-vol"><span class="nv-code" style="color:#10b981;">OV</span><span>Overview</span></a>
+  <a href="VOL02_DOC_Document_Management.html" class="nav-vol"><span class="nv-code" style="color:#2563eb;">DOC</span><span>Document</span></a>
+  <a href="VOL03_LBL_Label_Management.html" class="nav-vol"><span class="nv-code" style="color:#7c3aed;">LBL</span><span>Label</span></a>
+  <a href="VOL04_ORG_Origin_Management.html" class="nav-vol"><span class="nv-code" style="color:#0891b2;">ORG</span><span>Origin</span></a>
+  <a href="VOL05_AUD_Audit_Support.html" class="nav-vol active"><span class="nv-code" style="color:#dc2626;">AUD</span><span>Audit</span></a>
+  <a href="VOL06_INT_Integration.html" class="nav-vol"><span class="nv-code" style="color:#6366f1;">INT</span><span>Integration</span></a>
+  <a href="VOL07_SYS_System.html" class="nav-vol"><span class="nv-code" style="color:#64748b;">SYS</span><span>System</span></a>
+  <a href="VOL08_MD_Master_Data.html" class="nav-vol"><span class="nv-code" style="color:#d97706;">MD</span><span>Master Data</span></a>
+</div></nav>
+<div class="page-wrap">
+<nav class="sidebar">
+  <div class="sb-head">
+    <div class="sb-vol">VOL.5 · AUD MODULE</div>
+    <div class="sb-mod-en">AUDIT</div>
+    <div class="sb-mod-ko">감사 대응</div>
+  </div>
+  <div class="sb-section">Overview · 개요</div>
+  <a class="sb-link" href="#flow"><span class="sl-id">FLOW</span><div><div class="sl-en">Process Flow</div><div class="sl-ko">화면 흐름</div></div></a>
+  <a class="sb-link" href="#kpi"><span class="sl-id">KPI</span><div><div class="sl-en">Module KPI</div><div class="sl-ko">핵심 지표</div></div></a>
+  <div class="sb-section">Trace &amp; Search · 추적·검색</div>
+  <a class="sb-link on" href="#aud01"><span class="sl-id">AUD-01</span><div><div class="sl-en">Traceability Explorer</div><div class="sl-ko">역추적 탐색기</div></div><a class="sb-l3" href="VOL05_AUD01_Traceability_Explorer.html" title="L3 상세 설계서" onclick="event.stopPropagation();">📋</a></a>
+  <a class="sb-link" href="#aud02"><span class="sl-id">AUD-02</span><div><div class="sl-en">Integrated Search</div><div class="sl-ko">통합 검색</div></div><a class="sb-l3" href="VOL05_AUD02_Integrated_Search.html" title="L3 상세 설계서" onclick="event.stopPropagation();">📋</a></a>
+  <div class="sb-section">Report &amp; Export · 리포트·출력</div>
+  <a class="sb-link" href="#aud03"><span class="sl-id">AUD-03</span><div><div class="sl-en">Report Generator</div><div class="sl-ko">감사 리포트 생성</div></div><a class="sb-l3" href="VOL05_AUD03_Report_Generator.html" title="L3 상세 설계서" onclick="event.stopPropagation();">📋</a></a>
+  <a class="sb-link" href="#aud04"><span class="sl-id">AUD-04</span><div><div class="sl-en">Audit Package Export</div><div class="sl-ko">증빙 패키지 출력</div></div><a class="sb-l3" href="VOL05_AUD04_Audit_Package.html" title="L3 상세 설계서" onclick="event.stopPropagation();">📋</a></a>
+  <div class="sb-sep"></div>
+  <div class="sb-section">Reference · 참조</div>
+  <a class="sb-link" href="#ref-types"><span class="sl-id">TYPE</span><div><div class="sl-en">Audit Types</div><div class="sl-ko">감사 유형</div></div></a>
+  <a class="sb-link" href="#ref-tmpl"><span class="sl-id">TMPL</span><div><div class="sl-en">Report Templates</div><div class="sl-ko">리포트 템플릿</div></div></a>
+  <a class="sb-link" href="#br-aud"><span class="sl-id">BR</span><div><div class="sl-en">Business Rules</div><div class="sl-ko">업무 규칙</div></div></a>
+</nav>
+<div class="main">
+  <div class="mod-hdr">
+    <div class="mod-hdr-inner">
+      <div class="mod-eyebrow">VOL.5 · AUD · Audit Support · 감사 대응</div>
+      <div class="mod-title-en">AUDIT<br>SUPPORT</div>
+      <div class="mod-title-ko">감사 대응 — CBP 검증·OEM 정기감사 대응 · 부품→증빙→완제품 역추적 · 통합 검색 · 리포트·증빙 패키지 자동 출력</div>
+      <div class="mod-desc-bi">
+        <div class="mdb-en">The cross-cutting audit layer. When CBP requests verification or an OEM runs a periodic audit, AUD turns scattered evidence into a defensible response in minutes. <strong>Traceability</strong> walks the chain parts → supporting evidence → finished goods; <strong>Integrated Search</strong> spans every module at once; the <strong>Report Generator</strong> auto-produces origin / part-evidence / RVC-basis reports; and <strong>Package Export</strong> bundles a complete, validated evidence package. Consumes DOC (certificates), ORG (origin determinations), and LBL (issued labels) data. Primary goal — drastically cut audit response time.</div>
+        <div class="mdb-ko">전 모듈을 가로지르는 감사 대응 계층. CBP 검증 요청이나 OEM 정기감사 시, 분산된 증빙을 수 분 내 방어 가능한 답변으로 전환합니다. <strong>역추적(Traceability)</strong>은 부품 → 증빙 → 완제품 체인을 추적하고, <strong>통합 검색</strong>은 모든 모듈을 한 번에 조회하며, <strong>리포트 생성기</strong>는 원산지·부품별 증빙·RVC 근거 리포트를 자동 생성, <strong>패키지 출력</strong>은 검증된 완전한 증빙 패키지를 묶어냅니다. DOC(증빙)·ORG(원산지 판정)·LBL(발행 라벨) 데이터를 활용합니다. 핵심 목표 — 감사 대응 시간 대폭 단축.</div>
+      </div>
+      <div class="mod-meta-strip">
+        <div class="mms-item"><div class="mms-l">Screens</div><div class="mms-v">4</div></div>
+        <div class="mms-item"><div class="mms-l">L3 Done</div><div class="mms-v">4 / 4</div></div>
+        <div class="mms-item"><div class="mms-l">Traceability</div><div class="mms-v">Full Chain</div></div>
+        <div class="mms-item"><div class="mms-l">Search</div><div class="mms-v">Cross-module</div></div>
+        <div class="mms-item"><div class="mms-l">Export</div><div class="mms-v">Auto Package</div></div>
+        <div class="mms-item"><div class="mms-l">Phase</div><div class="mms-v">P1~ · cross</div></div>
+      </div>
+      <div><span class="l3-hint">📋 각 화면 카드 / 사이드바 아이콘 클릭 시 L3 상세 설계서</span></div>
+      <div class="screen-pills">
+        <a class="sp" href="VOL05_AUD01_Traceability_Explorer.html" title="L3 상세 · AUD-01"><span class="sp-id">AUD-01</span> Traceability Explorer <span style="opacity:.5;font-size:8px;">📋</span></a>
+        <a class="sp" href="VOL05_AUD02_Integrated_Search.html" title="L3 상세 · AUD-02"><span class="sp-id">AUD-02</span> Integrated Search <span style="opacity:.5;font-size:8px;">📋</span></a>
+        <a class="sp" href="VOL05_AUD03_Report_Generator.html" title="L3 상세 · AUD-03"><span class="sp-id">AUD-03</span> Report Generator <span style="opacity:.5;font-size:8px;">📋</span></a>
+        <a class="sp" href="VOL05_AUD04_Audit_Package.html" title="L3 상세 · AUD-04"><span class="sp-id">AUD-04</span> Audit Package Export <span style="opacity:.5;font-size:8px;">📋</span></a>
+      </div>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- PROCESS FLOW -->
+    <div class="sec-div" id="flow"><div class="sd-line"></div><div class="sd-lbl">▼ PROCESS FLOW · 화면 흐름</div><div class="sd-line"></div></div>
+    <div class="flow-card">
+      <div class="flow-card-h">▼ Audit Response Lifecycle · 감사 대응 생애주기</div>
+      <div class="flow-track">
+        <div class="flow-track-lbl">🔎 REQUEST → SEARCH / TRACE → REPORT → PACKAGE · 요청·검색·추적·리포트·출력</div>
+        <div class="flow-row">
+          <a class="flow-node alert"><span class="fn-id">REQUEST</span><span class="fn-name">감사 요청</span><span class="fn-ko">CBP / OEM</span><span class="fn-tag">검증·정기감사</span></a>
+          <span class="flow-arr">→</span>
+          <a class="flow-node" href="#aud02"><span class="fn-id">AUD-02</span><span class="fn-name">Integrated Search</span><span class="fn-ko">통합 검색</span><span class="fn-tag">전 모듈</span></a>
+          <span class="flow-arr">⟷</span>
+          <a class="flow-node" href="#aud01"><span class="fn-id">AUD-01</span><span class="fn-name">Traceability</span><span class="fn-ko">역추적</span><span class="fn-tag">부품→완제품</span></a>
+          <span class="flow-arr">→</span>
+          <a class="flow-node" href="#aud03"><span class="fn-id">AUD-03</span><span class="fn-name">Report Gen</span><span class="fn-ko">리포트 생성</span><span class="fn-tag">템플릿 자동</span></a>
+          <span class="flow-arr">→</span>
+          <a class="flow-node" href="#aud04"><span class="fn-id">AUD-04</span><span class="fn-name">Package Export</span><span class="fn-ko">증빙 패키지</span><span class="fn-tag">제출본</span></a>
+        </div>
+      </div>
+      <div class="flow-track">
+        <div class="flow-track-lbl">🔗 SOURCE DATA · 원천 데이터</div>
+        <div class="flow-row">
+          <a class="flow-node ext"><span class="fn-id">DOC</span><span class="fn-name">증빙 문서</span><span class="fn-ko">인증서·진술서</span><span class="fn-tag">VOL.2</span></a>
+          <span class="flow-arr">→</span>
+          <a class="flow-node ext"><span class="fn-id">ORG</span><span class="fn-name">원산지 판정</span><span class="fn-ko">RVC·원산지국</span><span class="fn-tag">VOL.4</span></a>
+          <span class="flow-arr">→</span>
+          <a class="flow-node ext"><span class="fn-id">LBL</span><span class="fn-name">발행 라벨</span><span class="fn-ko">완제품 표시</span><span class="fn-tag">VOL.3</span></a>
+          <span class="flow-arr">→</span>
+          <a class="flow-node" href="#aud01"><span class="fn-id">TRACE</span><span class="fn-name">불변 체인</span><span class="fn-ko">원천 연결</span><span class="fn-tag">자동 추적</span></a>
+        </div>
+      </div>
+      <div style="display:flex;gap:14px;margin-top:14px;font-size:9px;color:#5b6b7d;font-family:'JetBrains Mono',monospace;letter-spacing:.5px;">
+        <span><span style="display:inline-block;width:10px;height:10px;background:rgba(220,38,38,.2);border:1px solid #fca5a5;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>AUD 화면</span>
+        <span><span style="display:inline-block;width:10px;height:10px;background:#fef2f2;border:1px solid #fca5a5;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>감사 요청</span>
+        <span><span style="display:inline-block;width:10px;height:10px;background:#f6f8fa;border:1px dashed #cbd5e1;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>외부/타 모듈</span>
+      </div>
+    </div>
+
+    <!-- KPI -->
+    <div class="sec-div" id="kpi"><div class="sd-line"></div><div class="sd-lbl">▼ MODULE KPI · 핵심 지표</div><div class="sd-line"></div></div>
+    <div class="mod-kpi">
+      <div class="kpi-card"><div class="kpi-l">Audit Requests YTD</div><div class="kpi-v doc">—</div><div class="kpi-s">연간 감사 요청 건수</div></div>
+      <div class="kpi-card"><div class="kpi-l">Avg Response Time</div><div class="kpi-v ok">↓</div><div class="kpi-s">평균 대응 시간 (단축)</div></div>
+      <div class="kpi-card"><div class="kpi-l">Traceability Coverage</div><div class="kpi-v ok">100<span style="font-size:14px;color:var(--sub);"> %</span></div><div class="kpi-s">역추적 커버리지</div></div>
+      <div class="kpi-card"><div class="kpi-l">Reports Generated</div><div class="kpi-v doc">—</div><div class="kpi-s">생성 리포트 수</div></div>
+      <div class="kpi-card"><div class="kpi-l">Packages Exported</div><div class="kpi-v doc">—</div><div class="kpi-s">출력 증빙 패키지</div></div>
+    </div>
+
+    <!-- SCREENS -->
+    <div class="sec-div"><div class="sd-line"></div><div class="sd-lbl">▼ 4 SCREENS · 화면 설계</div><div class="sd-line"></div></div>
+
+    <!-- AUD-01 -->
+    <div class="screen-card" id="aud01">
+      <div class="sc-hdr">
+        <div class="sc-hdr-l">
+          <div class="sc-icon">🔗</div>
+          <div class="sc-title-wrap">
+            <div class="sc-id">AUD-01 · ⚙ CORE</div>
+            <div class="sc-title-en">Traceability Explorer</div>
+            <div class="sc-title-ko">역추적 탐색기 — 부품 → 증빙 → 완제품 불변 체인 추적</div>
+          </div>
+        </div>
+        <div class="sc-tags"><span class="tag t-web">🖥 Web PC</span><span class="tag t-core">⚙ Core</span></div>
+        <a class="sc-l3-btn" href="VOL05_AUD01_Traceability_Explorer.html" title="View L3 detailed spec">📋 L3 Detail →</a>
+      </div>
+      <div class="sc-body">
+        <div class="headline">
+          <span class="headline-ico">👀</span>
+          <div class="headline-t">What you'll see: 완제품·부품·증빙·라벨을 잇는 시각 추적 트리/그래프 + 양방향 드릴(부품→완제품, 완제품→부품) + 노드별 원천 데이터<span class="ko">감사관 질문에 한 화면으로 "이 부품의 증빙은 무엇인가"를 즉답</span></div>
+        </div>
+        <div class="qf-grid">
+          <div class="qf"><div class="qf-l">📥 INPUT</div><div class="qf-v">부품/완제품/증빙 식별자</div></div>
+          <div class="qf"><div class="qf-l">📤 OUTPUT</div><div class="qf-v">전체 추적 체인 + 증빙</div></div>
+          <div class="qf"><div class="qf-l">⚠ WATCH</div><div class="qf-v">누락 증빙 (빨강 강조)</div></div>
+          <div class="qf"><div class="qf-l">🎨 UI</div><div class="qf-v">Web Graph / Tree Drill</div></div>
+        </div>
+        <div class="desc-bi">
+          <div><div class="db-lbl">EN · Description</div><div class="db-en">Visual chain explorer linking parts ↔ supporting evidence (DOC) ↔ origin determinations (ORG) ↔ finished goods &amp; labels (LBL). Bidirectional drill answers both "what evidence backs this part?" and "which parts feed this finished good?". Built on immutable source data — never re-derived. Missing or expired evidence is highlighted in red.</div></div>
+          <div><div class="db-lbl">KO · 설명</div><div class="db-ko">부품 ↔ 증빙(DOC) ↔ 원산지 판정(ORG) ↔ 완제품·라벨(LBL)을 잇는 시각 체인 탐색기. 양방향 드릴로 "이 부품의 근거 증빙은?", "이 완제품에 들어간 부품은?"을 모두 답변. 불변 원천 데이터 기반 — 재계산하지 않음. 누락·만료 증빙은 빨강 강조.</div></div>
+        </div>
+        <div class="feat-grid">
+          <div class="feat-item"><div class="feat-ico">🌳</div><div class="feat-t">Chain Graph</div><div class="feat-d">부품·증빙·완제품 시각 트리.<span class="ko">노드 클릭 드릴</span></div></div>
+          <div class="feat-item"><div class="feat-ico">↔️</div><div class="feat-t">Bidirectional</div><div class="feat-d">상향·하향 양방향 추적.<span class="ko">정/역방향</span></div></div>
+          <div class="feat-item"><div class="feat-ico">🔒</div><div class="feat-t">Immutable Source</div><div class="feat-d">불변 원천 데이터 기반.<span class="ko">자동 연결</span></div></div>
+          <div class="feat-item"><div class="feat-ico">🚩</div><div class="feat-t">Gap Highlight</div><div class="feat-d">누락 증빙 즉시 강조.<span class="ko">빨강 표시</span></div></div>
+        </div>
+        <div class="br-chips">
+          <span class="br-chip-lbl">관련 BR ▸</span>
+          <a class="br-chip crit" href="#br-aud">BR-AUD-01</a>
+          <a class="br-chip" href="#br-aud">BR-AUD-04</a>
+          <a class="br-chip" href="#br-aud">BR-AUD-05</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- AUD-02 -->
+    <div class="screen-card" id="aud02">
+      <div class="sc-hdr">
+        <div class="sc-hdr-l">
+          <div class="sc-icon">🔍</div>
+          <div class="sc-title-wrap">
+            <div class="sc-id">AUD-02</div>
+            <div class="sc-title-en">Integrated Search</div>
+            <div class="sc-title-ko">통합 검색 — 전 모듈 단일 검색창</div>
+          </div>
+        </div>
+        <div class="sc-tags"><span class="tag t-web">🖥 Web PC</span><span class="tag t-p1">Phase 1~</span></div>
+        <a class="sc-l3-btn" href="VOL05_AUD02_Integrated_Search.html" title="View L3 detailed spec">📋 L3 Detail →</a>
+      </div>
+      <div class="sc-body">
+        <div class="headline">
+          <span class="headline-ico">👀</span>
+          <div class="headline-t">What you'll see: 단일 검색창 + 모듈별(DOC/ORG/LBL) 결과 패싯 + 키워드·식별자·기간·공급사 필터<span class="ko">감사관이 던지는 어떤 키로도 즉시 원천 데이터에 도달</span></div>
+        </div>
+        <div class="desc-bi">
+          <div><div class="db-lbl">EN · Description</div><div class="db-en">One search box across every module at once. Query by part no., certificate no., supplier, HTS, label/lot, or free text; results are faceted by module (DOC / ORG / LBL) with deep links into the source record and into AUD-01 traceability. Eliminates module-hopping during live audits.</div></div>
+          <div><div class="db-lbl">KO · 설명</div><div class="db-ko">전 모듈을 한 번에 검색하는 단일 창구. 부품번호·인증서번호·공급사·HTS·라벨/LOT·자유 텍스트로 조회, 결과를 모듈별(DOC/ORG/LBL) 패싯으로 제공하고 원천 레코드 및 AUD-01 역추적으로 딥링크. 실시간 감사 중 모듈 이동 제거.</div></div>
+        </div>
+        <div class="br-chips"><span class="br-chip-lbl">관련 BR ▸</span><a class="br-chip" href="#br-aud">BR-AUD-04</a></div>
+      </div>
+    </div>
+
+    <!-- AUD-03 -->
+    <div class="screen-card" id="aud03">
+      <div class="sc-hdr">
+        <div class="sc-hdr-l">
+          <div class="sc-icon">📊</div>
+          <div class="sc-title-wrap">
+            <div class="sc-id">AUD-03</div>
+            <div class="sc-title-en">Report Generator</div>
+            <div class="sc-title-ko">감사 리포트 생성 — 템플릿 기반 자동 작성</div>
+          </div>
+        </div>
+        <div class="sc-tags"><span class="tag t-web">🖥 Web PC</span><span class="tag t-p1">Phase 1~</span></div>
+        <a class="sc-l3-btn" href="VOL05_AUD03_Report_Generator.html" title="View L3 detailed spec">📋 L3 Detail →</a>
+      </div>
+      <div class="sc-body">
+        <div class="headline">
+          <span class="headline-ico">👀</span>
+          <div class="headline-t">What you'll see: 리포트 템플릿 선택(원산지 증명·부품별 증빙·RVC 근거) + 대상 범위 지정 + 자동 채움 미리보기 + 생성 이력<span class="ko">반복 수작업 없이 감사 리포트를 자동 작성</span></div>
+        </div>
+        <div class="desc-bi">
+          <div><div class="db-lbl">EN · Description</div><div class="db-en">Template-driven report builder. Pick a template (Origin Certification Package / Part-by-Part Evidence / RVC Basis), set scope, and the system auto-populates from DOC/ORG/LBL source data. Preview before generating; every generation is logged with watermark/hash for tamper-evidence. Drives the package export (AUD-04).</div></div>
+          <div><div class="db-lbl">KO · 설명</div><div class="db-ko">템플릿 기반 리포트 생성기. 템플릿(원산지 증명 패키지·부품별 증빙·RVC 근거)을 선택하고 범위를 지정하면 DOC/ORG/LBL 원천 데이터에서 자동 채움. 생성 전 미리보기; 모든 생성은 워터마크/해시와 함께 이력 기록(변조 방지). 패키지 출력(AUD-04)으로 연계.</div></div>
+        </div>
+        <div class="br-chips"><span class="br-chip-lbl">관련 BR ▸</span><a class="br-chip" href="#br-aud">BR-AUD-02</a><a class="br-chip crit" href="#br-aud">BR-AUD-06</a></div>
+      </div>
+    </div>
+
+    <!-- AUD-04 -->
+    <div class="screen-card" id="aud04">
+      <div class="sc-hdr">
+        <div class="sc-hdr-l">
+          <div class="sc-icon">📦</div>
+          <div class="sc-title-wrap">
+            <div class="sc-id">AUD-04</div>
+            <div class="sc-title-en">Audit Package Export</div>
+            <div class="sc-title-ko">증빙 패키지 출력 — 완전한 제출본 묶음</div>
+          </div>
+        </div>
+        <div class="sc-tags"><span class="tag t-web">🖥 Web PC</span><span class="tag t-p1">Phase 1~</span></div>
+        <a class="sc-l3-btn" href="VOL05_AUD04_Audit_Package.html" title="View L3 detailed spec">📋 L3 Detail →</a>
+      </div>
+      <div class="sc-body">
+        <div class="headline">
+          <span class="headline-ico">👀</span>
+          <div class="headline-t">What you'll see: 패키지 구성 항목 체크리스트 + 유효성 검증(만료/누락 경고) + 목차·색인 자동 생성 + ZIP/PDF 출력<span class="ko">제출 직전 누락·만료 증빙을 차단하여 불완전 제출 방지</span></div>
+        </div>
+        <div class="desc-bi">
+          <div><div class="db-lbl">EN · Description</div><div class="db-en">Bundles a complete, submission-ready evidence package (reports + underlying certificates + traceability snapshot) into a single ZIP/PDF with auto index. A validation pass includes only valid evidence and warns on expired/missing items before export, preventing incomplete submissions. Output is watermarked/hashed for integrity.</div></div>
+          <div><div class="db-lbl">KO · 설명</div><div class="db-ko">완전한 제출용 증빙 패키지(리포트 + 근거 인증서 + 역추적 스냅샷)를 목차 자동 생성과 함께 단일 ZIP/PDF로 묶음. 유효성 검증으로 유효 증빙만 포함하고 출력 전 만료·누락 항목을 경고하여 불완전 제출 방지. 출력물은 무결성을 위해 워터마크/해시 처리.</div></div>
+        </div>
+        <div class="br-chips"><span class="br-chip-lbl">관련 BR ▸</span><a class="br-chip crit" href="#br-aud">BR-AUD-03</a><a class="br-chip" href="#br-aud">BR-AUD-05</a><a class="br-chip" href="#br-aud">BR-AUD-06</a></div>
+      </div>
+    </div>
+
+    <!-- REFERENCE: Audit Types -->
+    <div class="sec-div" id="ref-types"><div class="sd-line"></div><div class="sd-lbl">▼ AUDIT TYPES · 감사 유형</div><div class="sd-line"></div></div>
+    <table class="ref-tbl">
+      <thead><tr><th style="width:110px;">Code</th><th style="width:230px;">Type · 유형</th><th>Description · 설명</th><th style="width:110px;">Trigger · 발생</th></tr></thead>
+      <tbody>
+        <tr><td class="code">CBP</td><td><b>CBP Verification</b> · CBP 검증</td><td>미국 세관(CBP)의 USMCA 특혜관세 원산지 검증 요청. 부품→증빙→완제품 추적 + 원산지 증명 제출.</td><td><span class="pill p-e">요청 시</span></td></tr>
+        <tr><td class="code">OEM</td><td><b>OEM Periodic Audit</b> · OEM 정기감사</td><td>현대/기아/MOBIS 등 고객의 정기 공급사 감사. 부품별 증빙·RVC 근거·라벨 일치 확인.</td><td><span class="pill p-w">정기</span></td></tr>
+        <tr><td class="code">INT</td><td><b>Internal Audit</b> · 내부 감사</td><td>자체 사전 점검. 증빙 누락·만료·추적 단절을 선제 발견하여 외부 감사 전 보완.</td><td><span class="pill p-i">상시/주기</span></td></tr>
+      </tbody>
+    </table>
+
+    <!-- REFERENCE: Report Templates -->
+    <div class="sec-div" id="ref-tmpl"><div class="sd-line"></div><div class="sd-lbl">▼ REPORT TEMPLATES · 리포트 템플릿</div><div class="sd-line"></div></div>
+    <table class="ref-tbl">
+      <thead><tr><th style="width:130px;">Template</th><th style="width:240px;">Name · 명칭</th><th>Contents · 구성</th><th style="width:110px;">Source · 원천</th></tr></thead>
+      <tbody>
+        <tr><td class="code">ORIGIN-PKG</td><td><b>Origin Certification Package</b> · 원산지 증명 패키지</td><td>완제품별 원산지 증명 + 첨부 인증서(COO/USMCA) + 자기증명. CBP 제출 표준본.</td><td><span class="pill p-i">DOC·ORG</span></td></tr>
+        <tr><td class="code">PART-EVID</td><td><b>Part-by-Part Evidence</b> · 부품별 증빙</td><td>부품 단위 증빙 매트릭스 — 공급사·원산지국·인증서·유효기간 일람.</td><td><span class="pill p-i">DOC</span></td></tr>
+        <tr><td class="code">RVC-BASIS</td><td><b>RVC Basis Report</b> · RVC 근거</td><td>역내부가가치(RVC) 계산 근거 — 소재·원가 구성·판정 결과 추적.</td><td><span class="pill p-i">ORG</span></td></tr>
+      </tbody>
+    </table>
+
+    <!-- BUSINESS RULES -->
+    <div class="sec-div" id="br-aud"><div class="sd-line"></div><div class="sd-lbl">▼ BUSINESS RULES · 업무 규칙</div><div class="sd-line"></div></div>
+    <div class="br-wrap">
+      <table class="br-tbl">
+        <thead><tr><th style="width:90px;">ID</th><th style="width:30%;">Rule · 규칙</th><th>Detail · 상세</th><th style="width:80px;">Action</th></tr></thead>
+        <tbody>
+          <tr><td class="br-id-c">BR-AUD-01</td><td><b>Trace on Immutable Source</b><br><span style="color:var(--sub);font-size:10px;">불변 원천 기반 역추적</span></td><td>역추적은 DOC/ORG/LBL의 불변 원천 데이터를 기반으로 자동 구성. 임의 수정·재계산 불가, 원천 변경 시에만 반영.</td><td><span class="b b-aut">자동</span></td></tr>
+          <tr><td class="br-id-c">BR-AUD-02</td><td><b>Report Generation Log</b><br><span style="color:var(--sub);font-size:10px;">리포트 생성 이력 로그</span></td><td>모든 리포트 생성은 작성자·시점·범위·템플릿·해시를 이력으로 기록. 감사 추적 및 재현용 보존.</td><td><span class="b b-aut">자동</span></td></tr>
+          <tr><td class="br-id-c">BR-AUD-03</td><td><b>Valid Evidence Only</b><br><span style="color:var(--sub);font-size:10px;">유효 증빙만 포함·만료 경고</span></td><td>패키지에는 유효 증빙만 포함. 만료·검토중 증빙 포함 시 출력 전 경고 및 제외 안내.</td><td><span class="b b-alt">검증</span></td></tr>
+          <tr><td class="br-id-c">BR-AUD-04</td><td><b>Audit Access Trail</b><br><span style="color:var(--sub);font-size:10px;">감사 접근 전수 기록</span></td><td>모든 검색·역추적 조회·증빙 열람·출력 행위를 누가·언제·무엇으로 전수 기록.</td><td><span class="b b-aut">자동</span></td></tr>
+          <tr><td class="br-id-c">BR-AUD-05</td><td><b>Missing Evidence Highlight</b><br><span style="color:var(--sub);font-size:10px;">누락 증빙 강조</span></td><td>추적 체인·패키지에서 누락·만료 증빙을 빨강으로 강조하여 사전 보완 유도.</td><td><span class="b b-alt">검증</span></td></tr>
+          <tr><td class="br-id-c">BR-AUD-06</td><td><b>Tamper-Evident Output</b><br><span style="color:var(--sub);font-size:10px;">리포트 변조 방지</span></td><td>생성 리포트·패키지에 워터마크 및 해시 부여로 변조 방지·무결성 검증 가능.</td><td><span class="b b-aut">자동</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+  <div class="page-footer">
+    <span class="pf-l">UOCM · USMCA Origin Compliance Management System</span>
+    <span class="pf-r">VOL.5 · AUD · Audit Support · L2 Hub</span>
+  </div>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>UOCM · VOL.5 · AUD-02 · Integrated Search · 상세 설계서</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;600;700&family=Bebas+Neue&display=swap');
+:root{
+  --brand:#059669;--brand-dk:#047857;
+  --ink:#0a1422;--ink2:#101d2e;--ink3:#1c2c40;
+  --surface:#fff;--bg:#f4f7fa;--border:#d3dce6;--text:#1e2a38;--sub:#5b6b7d;
+  --doc:#dc2626;--doc-dk:#b91c1c;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);font-size:13px;line-height:1.6;}
+
+/* NAV */
+.uo-nav{position:sticky;top:0;z-index:9999;background:#fff;border-bottom:1px solid #e5eaf0;box-shadow:0 1px 4px rgba(15,39,71,.06);}
+.uo-nav-inner{display:flex;align-items:stretch;overflow-x:auto;scrollbar-width:none;}
+.uo-nav-inner::-webkit-scrollbar{display:none;}
+.nav-home{display:flex;align-items:center;gap:8px;padding:0 16px;background:rgba(5,150,105,.08);border-right:1px solid #e5eaf0;text-decoration:none;flex-shrink:0;min-height:42px;}
+.nav-home-logo{font-family:'Bebas Neue',sans-serif;font-size:17px;color:var(--brand);letter-spacing:2px;}
+.nav-home-sub{font-size:9px;color:#94a3b8;}
+.nav-vol{display:flex;align-items:center;gap:5px;padding:0 12px;text-decoration:none;font-size:10px;font-weight:700;color:#5b6b7d;border-bottom:2px solid transparent;white-space:nowrap;min-height:42px;transition:color .12s;}
+.nav-vol:hover{color:#0f2747;background:#f6f8fa;}
+.nav-vol.active{color:#0f2747;border-bottom-color:#059669;}
+.nav-vol .nv-code{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;}
+
+/* BREADCRUMB */
+.l3-crumb{background:#f6f8fa;border-bottom:1px solid #e5eaf0;padding:7px 24px;display:flex;align-items:center;gap:8px;font-size:10px;color:#5b6b7d;font-family:'JetBrains Mono',monospace;letter-spacing:.5px;}
+.l3-crumb a{color:#5b6b7d;text-decoration:none;transition:color .12s;}
+.l3-crumb a:hover{color:#0f2747;}
+.l3-crumb .arr{color:#cbd5e1;}
+.l3-crumb .current{color:#047857;font-weight:700;}
+.l3-crumb .lvl{font-size:8px;padding:1px 6px;border:1px solid #d3dce6;border-radius:2px;color:#94a3b8;margin-right:4px;}
+
+/* LAYOUT */
+.page-wrap{display:flex;}
+.sidebar{width:240px;min-width:240px;background:#f6f8fa;position:sticky;top:69px;height:calc(100vh - 69px);overflow-y:auto;scrollbar-width:thin;border-right:1px solid #e5eaf0;}
+.sb-head{padding:16px 14px 12px;border-bottom:1px solid #e5eaf0;}
+.sb-vol{font-family:'JetBrains Mono',monospace;font-size:9px;color:#047857;letter-spacing:2px;margin-bottom:4px;}
+.sb-mod-en{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1px;color:#0f2747;}
+.sb-mod-ko{font-size:10px;color:#94a3b8;}
+.sb-section{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#94a3b8;padding:14px 14px 6px;}
+.sb-link{display:flex;align-items:center;gap:7px;padding:6px 14px;text-decoration:none;color:#5b6b7d;font-size:11px;border-left:2px solid transparent;transition:all .12s;}
+.sb-link:hover{color:#0f2747;background:#eef2f7;}
+.sb-link.on{color:#0f2747;border-left-color:#059669;background:rgba(5,150,105,.08);}
+.sb-link .sl-id{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;width:44px;flex-shrink:0;color:#dc2626;}
+.sb-link.on .sl-id{color:#047857;}
+.sb-link .sl-en{font-size:10px;font-weight:600;}
+.sb-link .sl-ko{font-size:9px;color:#94a3b8;margin-top:1px;}
+.sb-toc{padding:6px 14px 14px;border-top:1px solid #e5eaf0;margin-top:6px;}
+.sb-toc-title{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#047857;margin-bottom:6px;}
+.sb-toc a{display:block;padding:4px 8px;border-radius:3px;font-size:10px;color:#5b6b7d;text-decoration:none;transition:all .12s;}
+.sb-toc a:hover{color:#0f2747;background:#eef2f7;}
+.sb-toc a .num{font-family:'JetBrains Mono',monospace;color:#059669;font-size:9px;margin-right:6px;}
+
+.main{flex:1;min-width:0;}
+
+/* SCREEN HEADER */
+.scr-hdr{padding:32px 48px 26px;background:linear-gradient(135deg,#fef0f0,#ffffff);position:relative;overflow:hidden;border-bottom:1px solid #e5eaf0;}
+.scr-hdr::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(220,38,38,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(220,38,38,.05) 1px,transparent 1px);background-size:32px 32px;pointer-events:none;}
+.scr-hdr::after{content:'';position:absolute;top:-40%;right:-10%;width:380px;height:380px;background:radial-gradient(circle,rgba(220,38,38,.12),transparent 70%);pointer-events:none;}
+.scr-hdr-inner{position:relative;z-index:1;}
+.scr-eyebrow{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#dc2626;margin-bottom:12px;display:flex;align-items:center;gap:10px;}
+.scr-eyebrow .dot{width:5px;height:5px;background:#f87171;border-radius:50%;box-shadow:0 0 8px #f87171;}
+.scr-id-block{display:flex;align-items:flex-end;gap:18px;margin-bottom:14px;}
+.scr-id{font-family:'Bebas Neue',sans-serif;font-size:54px;letter-spacing:2px;color:#dc2626;line-height:.9;text-shadow:0 0 22px rgba(220,38,38,.25);}
+.scr-title-en{font-family:'Bebas Neue',sans-serif;font-size:46px;letter-spacing:1.5px;color:#0f2747;line-height:.95;}
+.scr-title-ko{font-size:13px;color:#5b6b7d;letter-spacing:3px;}
+.scr-meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px;}
+.meta-chip{display:flex;align-items:center;gap:6px;padding:5px 11px;background:#f6f8fa;border:1px solid #d3dce6;border-radius:3px;font-size:10px;color:#1e2a38;}
+.meta-chip .mc-lbl{font-family:'JetBrains Mono',monospace;font-size:8px;color:#94a3b8;letter-spacing:1px;text-transform:uppercase;}
+.meta-chip .mc-val{font-weight:700;}
+.meta-chip.web{border-color:rgba(220,38,38,.3);color:#dc2626;}
+.meta-chip.phase{border-color:rgba(16,185,129,.3);color:#047857;}
+.meta-chip.role{border-color:rgba(248,113,113,.3);color:#dc2626;}
+
+.content{padding:0 48px 60px;}
+.sec{margin-top:36px;}
+.sec-hdr{display:flex;align-items:center;gap:14px;margin-bottom:16px;}
+.sec-num{font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--doc);letter-spacing:1px;line-height:1;min-width:42px;}
+.sec-title-wrap{flex:1;}
+.sec-title-en{font-size:18px;font-weight:800;color:var(--text);letter-spacing:-.3px;}
+.sec-title-ko{font-size:11px;color:var(--sub);margin-top:1px;}
+.sec-line{flex:1;height:1px;background:linear-gradient(90deg,var(--doc),transparent);max-width:200px;}
+
+/* OVERVIEW */
+.ov-grid{display:grid;grid-template-columns:1.6fr 1fr;gap:14px;}
+.ov-desc{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--doc);border-radius:0 6px 6px 0;padding:16px 18px;}
+.ov-desc-en{font-size:12px;color:var(--text);line-height:1.85;margin-bottom:10px;}
+.ov-desc-ko{font-size:11px;color:var(--sub);line-height:1.85;padding-top:10px;border-top:1px dashed var(--border);}
+.ov-meta{background:var(--surface);border:1px solid var(--border);border-radius:6px;overflow:hidden;}
+.ov-meta-row{display:flex;border-bottom:1px solid var(--border);font-size:11px;}
+.ov-meta-row:last-child{border-bottom:none;}
+.ov-meta-k{flex:0 0 110px;background:#f6f8fa;padding:8px 12px;font-weight:700;color:var(--sub);font-size:10px;letter-spacing:.5px;text-transform:uppercase;border-right:1px solid var(--border);}
+.ov-meta-v{flex:1;padding:8px 12px;color:var(--text);}
+.ov-meta-v .ko{font-size:10px;color:var(--sub);margin-left:6px;}
+.ov-meta-v code{font-family:'JetBrains Mono',monospace;font-size:10px;background:#f0f3f7;padding:1px 6px;border-radius:3px;color:var(--doc);}
+
+/* MOCKUP */
+.mock-wrap{background:#eef1f5;border:1px solid var(--border);border-radius:8px;padding:14px;}
+.mock-lbl{font-size:9px;font-weight:700;color:var(--sub);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.mock-lbl::before{content:'';width:6px;height:6px;background:var(--doc);border-radius:50%;}
+.mock-win{background:#fff;border:1px solid #c8d0db;border-radius:6px;overflow:hidden;box-shadow:0 4px 14px rgba(0,0,0,.08);}
+.mock-tbar{background:var(--text);color:#fff;padding:8px 14px;display:flex;align-items:center;gap:8px;font-size:11px;font-weight:700;}
+.mock-tbar .dots{display:flex;gap:5px;}
+.mock-tbar .dots span{width:9px;height:9px;border-radius:50%;display:block;background:rgba(255,255,255,.25);}
+.mock-tbar .bc{margin-left:auto;font-size:9px;color:rgba(255,255,255,.4);font-family:'JetBrains Mono',monospace;}
+.mock-toolbar{background:#f6f8fa;border-bottom:1px solid var(--border);padding:8px 14px;display:flex;gap:7px;align-items:center;flex-wrap:wrap;}
+.mock-toolbar select,.mock-toolbar input{padding:4px 9px;border:1px solid var(--border);border-radius:3px;font-size:11px;background:#fff;color:var(--text);}
+.mbtn{padding:5px 12px;border-radius:4px;font-size:11px;font-weight:700;border:1px solid transparent;cursor:pointer;display:inline-flex;align-items:center;gap:5px;}
+.mbtn-pri{background:var(--doc);color:#fff;border-color:var(--doc);}
+.mbtn-sec{background:#fff;color:var(--text);border-color:var(--border);}
+.mbtn-ghost{background:transparent;color:var(--sub);border-color:var(--border);}
+.mock-body{padding:14px;}
+
+.kpi-strip{display:flex;gap:0;border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-bottom:14px;}
+.kc{flex:1;padding:10px 13px;border-right:1px solid var(--border);background:#fafbfc;}
+.kc:last-child{border-right:none;}
+.kv{font-size:22px;font-weight:900;font-family:'JetBrains Mono',monospace;line-height:1;}
+.kl{font-size:9px;color:var(--sub);margin-top:3px;}
+
+.tbl{width:100%;border-collapse:collapse;font-size:11px;}
+.tbl th{background:#f0f3f7;padding:7px 9px;font-weight:700;border:1px solid var(--border);text-align:left;font-size:10px;color:var(--text);}
+.tbl th .th-ko{font-weight:400;color:var(--sub);font-size:9px;display:block;}
+.tbl td{padding:6px 9px;border:1px solid var(--border);vertical-align:middle;}
+.tbl .rok td{background:#f0fdf4;}
+.tbl .rw td{background:#fffbeb;}
+.tbl .rd td{background:#fef2f2;}
+.tbl tr:hover td{filter:brightness(.98);}
+.tbl .mono{font-family:'JetBrains Mono',monospace;font-size:10px;}
+.b{display:inline-block;font-size:9px;font-weight:700;padding:2px 7px;border-radius:8px;}
+.b-ok{background:#dcfce7;color:#166534;}.b-w{background:#fef9c3;color:#92400e;}.b-e{background:#fee2e2;color:#991b1b;}.b-i{background:#fee2e2;color:#991b1b;}.b-n{background:#f1f5f9;color:#475569;}
+
+/* DRAWER FORM MOCK */
+.drawer{background:#fff;border:1px solid var(--border);border-radius:6px;overflow:hidden;box-shadow:0 6px 24px rgba(0,0,0,.1);}
+.drawer-h{background:linear-gradient(135deg,#0e2148,#b91c1c);color:#fff;padding:11px 16px;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:space-between;}
+.drawer-h .x{opacity:.6;}
+.drawer-b{padding:16px;display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.fld{display:flex;flex-direction:column;gap:4px;}
+.fld.full{grid-column:1/3;}
+.fld-l{font-size:10px;font-weight:700;color:var(--sub);}
+.fld-l .req{color:#dc2626;}
+.fld-in{border:1px solid var(--border);border-radius:4px;padding:7px 10px;font-size:11px;color:var(--text);background:#fff;}
+.fld-in.ph{color:#9aa7b5;}
+.drop{grid-column:1/3;border:2px dashed #fca5a5;border-radius:8px;background:#fef2f2;padding:22px;text-align:center;color:#991b1b;}
+.drop .di{font-size:30px;}
+.drawer-f{border-top:1px solid var(--border);padding:12px 16px;display:flex;justify-content:flex-end;gap:8px;background:#f6f8fa;}
+
+/* COMPONENT SPEC */
+.cs-tbl{width:100%;border-collapse:collapse;font-size:11px;background:var(--surface);border:1px solid var(--border);border-radius:6px;overflow:hidden;}
+.cs-tbl th{background:#fef2f2;color:#b91c1c;padding:9px 10px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;border-bottom:1px solid #cdddf5;}
+.cs-tbl th .th-ko{display:block;color:#7aa0e0;font-weight:400;font-size:9px;letter-spacing:0;text-transform:none;margin-top:1px;}
+.cs-tbl td{padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:top;}
+.cs-tbl tr:last-child td{border-bottom:none;}
+.cs-tbl tr:hover td{background:#f9fafb;}
+.cs-tbl .c-id{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;color:var(--doc);}
+.cs-tbl .c-name{font-weight:700;color:var(--text);}
+.cs-tbl .c-name .ko{font-size:10px;font-weight:400;color:var(--sub);display:block;margin-top:1px;}
+.cs-tbl .c-type{font-family:'JetBrains Mono',monospace;font-size:10px;color:#7c3aed;background:#f5f3ff;padding:2px 6px;border-radius:3px;display:inline-block;}
+.cs-tbl .c-req.y{color:#dc2626;font-weight:700;font-family:'JetBrains Mono',monospace;font-size:9px;}
+.cs-tbl .c-req.n{color:var(--sub);font-family:'JetBrains Mono',monospace;font-size:9px;}
+.cs-tbl .c-validation{font-size:10px;color:var(--text);line-height:1.6;}
+.cs-tbl .c-validation code{font-family:'JetBrains Mono',monospace;font-size:9px;background:#fff7ed;color:#9a3412;padding:1px 5px;border-radius:2px;}
+
+/* EVENT FLOW */
+.ef-wrap{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:18px 20px;}
+.ef-step{display:grid;grid-template-columns:46px 1fr;gap:14px;padding:10px 0;position:relative;}
+.ef-step:not(:last-child)::before{content:'';position:absolute;left:23px;top:42px;bottom:-10px;width:2px;background:linear-gradient(180deg,var(--doc),rgba(220,38,38,.15));}
+.ef-num{width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,var(--doc),#b91c1c);color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;box-shadow:0 4px 12px rgba(220,38,38,.25);position:relative;z-index:1;}
+.ef-step.terminal .ef-num{background:linear-gradient(135deg,#059669,#047857);box-shadow:0 4px 12px rgba(5,150,105,.25);}
+.ef-step.error .ef-num{background:linear-gradient(135deg,#dc2626,#991b1b);box-shadow:0 4px 12px rgba(220,38,38,.25);}
+.ef-trig{display:flex;align-items:center;gap:6px;margin-bottom:4px;}
+.ef-trig-tag{font-family:'JetBrains Mono',monospace;font-size:8px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:2px 7px;border-radius:2px;}
+.ef-trig-tag.user{background:#fee2e2;color:#991b1b;}
+.ef-trig-tag.system{background:#f3e8ff;color:#7c3aed;}
+.ef-trig-tag.scheduled{background:#fef3c7;color:#92400e;}
+.ef-trig-name{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:var(--text);}
+.ef-action{font-size:12px;color:var(--text);line-height:1.7;margin-bottom:3px;}
+.ef-action-ko{font-size:11px;color:var(--sub);line-height:1.7;}
+.ef-result{margin-top:6px;padding:7px 10px;background:#f6f8fa;border-left:2px solid var(--doc);border-radius:0 3px 3px 0;font-size:10px;color:var(--text);}
+.ef-result .er-lbl{font-family:'JetBrains Mono',monospace;font-size:8px;font-weight:700;color:var(--doc);letter-spacing:1px;margin-right:6px;}
+.ef-result code{font-family:'JetBrains Mono',monospace;font-size:10px;background:#fff;padding:1px 5px;border-radius:2px;border:1px solid var(--border);color:#7c3aed;}
+.ef-step.error .ef-result{border-left-color:#dc2626;background:#fef2f2;}
+.ef-step.error .ef-result .er-lbl{color:#dc2626;}
+.ef-step.terminal .ef-result{border-left-color:#059669;background:#f0fdf4;}
+.ef-step.terminal .ef-result .er-lbl{color:#059669;}
+
+/* EXCEPTION */
+.exc-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;}
+.exc-card{background:var(--surface);border:1px solid var(--border);border-top:3px solid #dc2626;border-radius:0 0 6px 6px;padding:13px 15px;}
+.exc-card.warn{border-top-color:#f59e0b;}
+.exc-card.info{border-top-color:#dc2626;}
+.exc-hdr{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.exc-code{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;color:#dc2626;background:#fef2f2;padding:2px 8px;border-radius:3px;}
+.exc-card.warn .exc-code{color:#92400e;background:#fef3c7;}
+.exc-card.info .exc-code{color:#991b1b;background:#fee2e2;}
+.exc-name{font-size:12px;font-weight:700;color:var(--text);flex:1;}
+.exc-name .ko{font-size:10px;font-weight:400;color:var(--sub);display:block;}
+.exc-row{display:grid;grid-template-columns:64px 1fr;gap:8px;padding:5px 0;border-top:1px dashed var(--border);font-size:10px;}
+.exc-row:first-of-type{border-top:none;}
+.exc-row .lbl{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;color:var(--sub);letter-spacing:.5px;text-transform:uppercase;padding-top:2px;}
+.exc-row .val{color:var(--text);line-height:1.6;}
+.exc-row .val code{font-family:'JetBrains Mono',monospace;font-size:9px;background:#f0f3f7;padding:1px 5px;border-radius:2px;color:#7c3aed;}
+.exc-msg{margin-top:8px;padding:7px 10px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:10px;text-align:center;background:#fef2f2;border:1px solid #fecaca;color:#991b1b;}
+.exc-card.warn .exc-msg{background:#fffbeb;border-color:#fde68a;color:#92400e;}
+.exc-card.info .exc-msg{background:#fef2f2;border-color:#fecaca;color:#991b1b;}
+
+/* LINKAGE */
+.lnk-wrap{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:20px 24px;}
+.lnk-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:center;}
+.lnk-node{padding:12px 16px;border-radius:6px;text-align:center;min-width:128px;border:2px solid;text-decoration:none;}
+.lnk-node.up{background:#f0fdf4;border-color:#22c55e;}
+.lnk-node.cur{background:linear-gradient(135deg,#0e2148,#b91c1c);border-color:#f87171;color:#fff;box-shadow:0 4px 16px rgba(220,38,38,.25);}
+.lnk-node.down{background:#fef3c7;border-color:#f59e0b;}
+.lnk-id{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;letter-spacing:.5px;margin-bottom:3px;}
+.lnk-node.up .lnk-id{color:#15803d;}
+.lnk-node.cur .lnk-id{color:#fca5a5;}
+.lnk-node.down .lnk-id{color:#92400e;}
+.lnk-name{font-size:11px;font-weight:700;color:var(--text);}
+.lnk-node.cur .lnk-name{color:#fff;}
+.lnk-ko{font-size:9px;opacity:.7;margin-top:2px;}
+.lnk-arr{font-size:20px;color:var(--sub);font-weight:700;}
+
+/* BR MINI */
+.br-mini{width:100%;border-collapse:collapse;font-size:11px;background:var(--surface);border:1px solid var(--border);border-radius:6px;overflow:hidden;}
+.br-mini th{background:#fef2f2;color:#991b1b;padding:8px 10px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;border-bottom:1px solid #fecaca;}
+.br-mini td{padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:top;}
+.br-mini tr:last-child td{border-bottom:none;}
+.br-mini .br-id{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;color:var(--brand-dk);white-space:nowrap;}
+.br-mini .br-en{font-size:11px;color:var(--text);line-height:1.6;}
+.br-mini .br-ko{font-size:10px;color:var(--sub);line-height:1.6;margin-top:3px;}
+.br-mini .br-act{text-align:center;}
+.br-mini .br-act span{display:inline-block;font-size:9px;font-weight:700;padding:2px 7px;border-radius:3px;}
+.br-mini .br-act .blk{background:#fee2e2;color:#991b1b;}
+.br-mini .br-act .alt{background:#fef9c3;color:#92400e;}
+.br-mini .br-act .aut{background:#fee2e2;color:#991b1b;}
+
+.page-footer{padding:24px 48px;border-top:1px solid #e5eaf0;background:#f6f8fa;color:#94a3b8;display:flex;justify-content:space-between;align-items:center;font-size:10px;}
+.page-footer .pf-l{font-family:'JetBrains Mono',monospace;letter-spacing:.5px;}
+.page-footer .pf-r{color:#047857;font-family:'JetBrains Mono',monospace;}
+
+@media(max-width:1100px){.ov-grid{grid-template-columns:1fr;}.exc-grid{grid-template-columns:1fr;}.drawer-b{grid-template-columns:1fr;}.fld.full,.drop{grid-column:auto;}.scr-id-block{flex-direction:column;align-items:flex-start;gap:6px;}.scr-id{font-size:42px;}.scr-title-en{font-size:32px;}}
+</style>
+</head>
+<body>
+<nav class="uo-nav"><div class="uo-nav-inner">
+  <a href="index.html" class="nav-home"><span class="nav-home-logo">UOCM</span><span class="nav-home-sub">Index</span></a>
+  <a href="VOL01_Overview.html" class="nav-vol"><span class="nv-code" style="color:#10b981;">OV</span><span>Overview</span></a>
+  <a href="VOL02_DOC_Document_Management.html" class="nav-vol"><span class="nv-code" style="color:#2563eb;">DOC</span><span>Document</span></a>
+  <a href="VOL03_LBL_Label_Management.html" class="nav-vol"><span class="nv-code" style="color:#7c3aed;">LBL</span><span>Label</span></a>
+  <a href="VOL04_ORG_Origin_Management.html" class="nav-vol"><span class="nv-code" style="color:#0891b2;">ORG</span><span>Origin</span></a>
+  <a href="VOL05_AUD_Audit_Support.html" class="nav-vol active"><span class="nv-code" style="color:#dc2626;">AUD</span><span>Audit</span></a>
+  <a href="VOL06_INT_Integration.html" class="nav-vol"><span class="nv-code" style="color:#6366f1;">INT</span><span>Integration</span></a>
+  <a href="VOL07_SYS_System.html" class="nav-vol"><span class="nv-code" style="color:#64748b;">SYS</span><span>System</span></a>
+  <a href="VOL08_MD_Master_Data.html" class="nav-vol"><span class="nv-code" style="color:#d97706;">MD</span><span>Master Data</span></a>
+</div></nav>
+
+<div class="l3-crumb">
+  <span class="lvl">L1</span><a href="index.html">UOCM Index</a>
+  <span class="arr">▸</span>
+  <span class="lvl">L2</span><a href="VOL05_AUD_Audit_Support.html">VOL.5 · AUD Audit Support</a>
+  <span class="arr">▸</span>
+  <span class="lvl">L3</span><span class="current">AUD-02 · Integrated Search</span>
+</div>
+
+<div class="page-wrap">
+<nav class="sidebar">
+  <div class="sb-head">
+    <div class="sb-vol">VOL.5 · AUD MODULE</div>
+    <div class="sb-mod-en">AUDIT</div>
+    <div class="sb-mod-ko">감사 대응 지원</div>
+  </div>
+  <div class="sb-section">L3 Screens · 화면 상세</div>
+  <a class="sb-link" href="VOL05_AUD01_Traceability_Explorer.html"><span class="sl-id">AUD-01</span><div><div class="sl-en">Traceability Explorer</div><div class="sl-ko">역추적 탐색</div></div></a>
+  <a class="sb-link on" href="VOL05_AUD02_Integrated_Search.html"><span class="sl-id">AUD-02</span><div><div class="sl-en">Integrated Search</div><div class="sl-ko">통합 검색</div></div></a>
+  <a class="sb-link" href="VOL05_AUD03_Report_Generator.html"><span class="sl-id">AUD-03</span><div><div class="sl-en">Report Generator</div><div class="sl-ko">리포트 생성</div></div></a>
+  <a class="sb-link" href="VOL05_AUD04_Audit_Package.html"><span class="sl-id">AUD-04</span><div><div class="sl-en">Audit Package</div><div class="sl-ko">감사 패키지</div></div></a>
+  <div class="sb-toc">
+    <div class="sb-toc-title">On this page</div>
+    <a href="#s1"><span class="num">01</span>Overview</a>
+    <a href="#s2"><span class="num">02</span>Screen Mockup</a>
+    <a href="#s3"><span class="num">03</span>UI Components</a>
+    <a href="#s4"><span class="num">04</span>Event &amp; Action Flow</a>
+    <a href="#s5"><span class="num">05</span>Exception Handling</a>
+    <a href="#s6"><span class="num">06</span>Linked Screens</a>
+    <a href="#s7"><span class="num">07</span>Business Rules</a>
+  </div>
+</nav>
+
+<div class="main">
+  <div class="scr-hdr">
+    <div class="scr-hdr-inner">
+      <div class="scr-eyebrow"><span class="dot"></span>VOL.5 · AUD · Audit Support · 전 모듈 통합 검색</div>
+      <div class="scr-id-block">
+        <div class="scr-id">AUD-02</div>
+        <div><div class="scr-title-en">Integrated Search</div></div>
+      </div>
+      <div class="scr-title-ko">통 합 검 색</div>
+      <div class="scr-meta">
+        <div class="meta-chip web"><span class="mc-lbl">Device</span><span class="mc-val">🖥 Web PC</span></div>
+        <div class="meta-chip phase"><span class="mc-lbl">Phase</span><span class="mc-val">1 ~ · 전 단계</span></div>
+        <div class="meta-chip role"><span class="mc-lbl">Role</span><span class="mc-val">Compliance / Auditor (AUD.View)</span></div>
+        <div class="meta-chip"><span class="mc-lbl">Freq</span><span class="mc-val">감사 / 조회 시</span></div>
+        <div class="meta-chip"><span class="mc-lbl">URL</span><span class="mc-val" style="font-family:'JetBrains Mono',monospace;">/aud/search</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="content">
+
+  <!-- 1. OVERVIEW -->
+  <section class="sec" id="s1">
+    <div class="sec-hdr"><div class="sec-num">01</div><div class="sec-title-wrap"><div class="sec-title-en">Overview</div><div class="sec-title-ko">화면 개요</div></div><div class="sec-line"></div></div>
+    <div class="ov-grid">
+      <div class="ov-desc">
+        <div class="ov-desc-en"><strong>Integrated Search</strong> gives an auditor one search box across <strong>every module at once</strong> — certificates, parts, origins, labels and suppliers — returning a single unified, faceted result set so any piece of evidence can be found instantly without hopping between screens. A full-text query runs against a consolidated search index spanning <code>doc_certificate</code>, <code>org_part_origin</code>, <code>lbl_issue</code> and the <code>md_*</code> masters; results are grouped by entity type with icons, status badges and key fields. A left facet panel (module / period / status / country) narrows the set, and every row drills down to its <strong>source screen</strong> or jumps straight into <strong>traceability (AUD-01)</strong>. Permission-filtered results, access logging (BR-AUD-04) and source-of-truth linkage (BR-AUD-01) make this the auditor's fastest entry point into evidence.</div>
+        <div class="ov-desc-ko"><strong>통합 검색</strong>은 감사자가 <strong>전 모듈을 한 번에</strong> 검색하는 단일 검색창입니다. 증빙·부품·원산지·라벨·공급사를 가로질러 통합·패싯 결과를 반환해, 화면 이동 없이 어떤 증적이든 즉시 찾습니다. 전문(full-text) 질의가 <code>doc_certificate</code>·<code>org_part_origin</code>·<code>lbl_issue</code>·<code>md_*</code> 마스터를 아우르는 통합 검색 인덱스를 조회하며, 결과는 엔티티 유형별(아이콘·상태배지·핵심필드)로 그룹화됩니다. 좌측 패싯 패널(모듈/기간/상태/국가)로 좁히고, 각 행은 <strong>원본 화면 열람</strong> 또는 <strong>역추적(AUD-01)</strong>으로 바로 이동합니다. 권한 필터·접근 로그(BR-AUD-04)·SoT 연결(BR-AUD-01)로 증적 진입의 최단 경로를 제공합니다.</div>
+      </div>
+      <div class="ov-meta">
+        <div class="ov-meta-row"><div class="ov-meta-k">Screen ID</div><div class="ov-meta-v"><code>AUD-02</code></div></div>
+        <div class="ov-meta-row"><div class="ov-meta-k">Entry</div><div class="ov-meta-v">AUD 메뉴 · 전역 검색바 <span class="ko">상단 단축</span></div></div>
+        <div class="ov-meta-row"><div class="ov-meta-k">Layout</div><div class="ov-meta-v">Search Bar + Facet + Results <span class="ko">검색·패싯·결과</span></div></div>
+        <div class="ov-meta-row"><div class="ov-meta-k">Index</div><div class="ov-meta-v">통합 전문 검색 인덱스 <span class="ko">cross-module</span></div></div>
+        <div class="ov-meta-row"><div class="ov-meta-k">Tables</div><div class="ov-meta-v"><code>doc_certificate</code>, <code>org_part_origin</code>, <code>lbl_issue</code>, <code>md_*</code></div></div>
+        <div class="ov-meta-row"><div class="ov-meta-k">RBAC</div><div class="ov-meta-v"><code>AUD.View</code></div></div>
+        <div class="ov-meta-row"><div class="ov-meta-k">Export</div><div class="ov-meta-v">Excel · 검색 결과 목록</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. SCREEN MOCKUP -->
+  <section class="sec" id="s2">
+    <div class="sec-hdr"><div class="sec-num">02</div><div class="sec-title-wrap"><div class="sec-title-en">Screen Mockup</div><div class="sec-title-ko">화면 목업 — Web 통합 검색 + 패싯</div></div><div class="sec-line"></div></div>
+
+    <div class="mock-wrap">
+      <div class="mock-lbl">AUD-02 · Integrated Search · Unified Results</div>
+      <div class="mock-win">
+        <div class="mock-tbar"><span class="dots"><span></span><span></span><span></span></span> UOCM — Integrated Search <span class="bc">/aud/search</span></div>
+        <div class="mock-toolbar">
+          <input placeholder="🔍 전 모듈 통합 검색 — 인증서·부품·원산지·라벨·공급사" style="flex:1;min-width:260px;font-weight:700;">
+          <button class="mbtn mbtn-pri">검색</button>
+          <button class="mbtn mbtn-ghost">★ 저장된 검색</button>
+          <button class="mbtn mbtn-ghost">⤓ Excel</button>
+        </div>
+        <div class="mock-body">
+          <!-- type facet chips -->
+          <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:12px;">
+            <span style="font-size:9px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.5px;margin-right:2px;">유형 ·</span>
+            <span class="b" style="background:#0e2148;color:#fff;cursor:pointer;">전체 142</span>
+            <span class="b b-i" style="cursor:pointer;">📄 증빙 64</span>
+            <span class="b b-n" style="cursor:pointer;">🔩 부품 38</span>
+            <span class="b b-n" style="cursor:pointer;">🌐 원산지 21</span>
+            <span class="b b-n" style="cursor:pointer;">🏷 라벨 12</span>
+            <span class="b b-n" style="cursor:pointer;">🏭 공급사 7</span>
+          </div>
+
+          <div style="display:grid;grid-template-columns:188px 1fr;gap:14px;">
+            <!-- left facet panel -->
+            <div style="border:1px solid var(--border);border-radius:6px;overflow:hidden;align-self:start;">
+              <div style="background:#f0f3f7;padding:7px 10px;font-size:10px;font-weight:700;color:var(--text);">필터 · Facets</div>
+              <div style="padding:9px 11px;font-size:10px;">
+                <div style="font-weight:700;color:var(--sub);font-size:9px;text-transform:uppercase;margin-bottom:4px;">모듈 · Module</div>
+                <label style="display:block;margin-bottom:2px;"><input type="checkbox" checked> DOC 증빙 <span style="color:var(--sub);">(64)</span></label>
+                <label style="display:block;margin-bottom:2px;"><input type="checkbox" checked> ORG 원산지 <span style="color:var(--sub);">(59)</span></label>
+                <label style="display:block;margin-bottom:2px;"><input type="checkbox" checked> LBL 라벨 <span style="color:var(--sub);">(12)</span></label>
+                <label style="display:block;margin-bottom:2px;"><input type="checkbox" checked> MD 공급사 <span style="color:var(--sub);">(7)</span></label>
+                <div style="font-weight:700;color:var(--sub);font-size:9px;text-transform:uppercase;margin:9px 0 4px;border-top:1px dashed var(--border);padding-top:8px;">기간 · Period</div>
+                <span class="fld-in" style="display:block;font-size:10px;padding:5px 8px;">최근 12개월 ▾</span>
+                <div style="font-weight:700;color:var(--sub);font-size:9px;text-transform:uppercase;margin:9px 0 4px;border-top:1px dashed var(--border);padding-top:8px;">상태 · Status</div>
+                <label style="display:block;margin-bottom:2px;"><input type="checkbox" checked> 유효 <span style="color:var(--sub);">(118)</span></label>
+                <label style="display:block;margin-bottom:2px;"><input type="checkbox"> 임박 <span style="color:var(--sub);">(11)</span></label>
+                <label style="display:block;margin-bottom:2px;"><input type="checkbox"> 만료 <span style="color:var(--sub);">(3)</span></label>
+                <div style="font-weight:700;color:var(--sub);font-size:9px;text-transform:uppercase;margin:9px 0 4px;border-top:1px dashed var(--border);padding-top:8px;">국가 · Country</div>
+                <label style="display:block;margin-bottom:2px;"><input type="checkbox" checked> 🇺🇸 US <span style="color:var(--sub);">(71)</span></label>
+                <label style="display:block;margin-bottom:2px;"><input type="checkbox" checked> 🇲🇽 MX <span style="color:var(--sub);">(33)</span></label>
+                <label style="display:block;margin-bottom:2px;"><input type="checkbox"> 🇨🇳 CN <span style="color:var(--sub);">(38)</span></label>
+              </div>
+            </div>
+
+            <!-- grouped results -->
+            <div>
+              <div style="font-size:10px;color:var(--sub);margin-bottom:8px;">검색어 <strong style="color:var(--doc);">"BRK-STL-09"</strong> · 142건 · 0.08s · 권한 필터 적용</div>
+
+              <!-- group: certificates -->
+              <div style="font-size:10px;font-weight:700;color:#991b1b;margin:4px 0 6px;">📄 증빙 · Certificates <span style="color:var(--sub);font-weight:400;">(2)</span></div>
+              <table class="tbl">
+                <tbody>
+                  <tr class="rok"><td style="width:118px;" class="mono">COO-25-1180</td><td>대성금속 · BRK-STL-09 · 🇲🇽 MX <span class="b b-i">COO</span></td><td style="width:64px;"><span class="b b-ok">유효</span></td><td style="width:130px;"><button class="mbtn mbtn-sec" style="padding:3px 8px;">열람</button> <button class="mbtn mbtn-pri" style="padding:3px 8px;">역추적</button></td></tr>
+                  <tr class="rok"><td class="mono">HTS-25-0044</td><td>대성금속 · BRK-STL-09 분류 <span class="b b-n">HTS</span></td><td><span class="b b-ok">유효</span></td><td><button class="mbtn mbtn-sec" style="padding:3px 8px;">열람</button> <button class="mbtn mbtn-pri" style="padding:3px 8px;">역추적</button></td></tr>
+                </tbody>
+              </table>
+
+              <!-- group: parts -->
+              <div style="font-size:10px;font-weight:700;color:#991b1b;margin:12px 0 6px;">🔩 부품 · Parts <span style="color:var(--sub);font-weight:400;">(1)</span></div>
+              <table class="tbl">
+                <tbody>
+                  <tr><td style="width:118px;" class="mono">BRK-STL-09</td><td>Steel Brake Bracket · RVC 68% <span class="b b-i">USMCA 적격</span></td><td style="width:64px;"><span class="b b-ok">판정</span></td><td style="width:130px;"><button class="mbtn mbtn-sec" style="padding:3px 8px;">열람</button> <button class="mbtn mbtn-pri" style="padding:3px 8px;">역추적</button></td></tr>
+                </tbody>
+              </table>
+
+              <!-- group: origin -->
+              <div style="font-size:10px;font-weight:700;color:#991b1b;margin:12px 0 6px;">🌐 원산지 · Origin <span style="color:var(--sub);font-weight:400;">(1)</span></div>
+              <table class="tbl">
+                <tbody>
+                  <tr class="rw"><td style="width:118px;" class="mono">ORG-BRK-STL-09</td><td>BRK-STL-09 원산지 판정 · 🇲🇽 MX <span class="b b-w">재검토</span></td><td style="width:64px;"><span class="b b-w">임박</span></td><td style="width:130px;"><button class="mbtn mbtn-sec" style="padding:3px 8px;">열람</button> <button class="mbtn mbtn-pri" style="padding:3px 8px;">역추적</button></td></tr>
+                </tbody>
+              </table>
+
+              <!-- group: supplier -->
+              <div style="font-size:10px;font-weight:700;color:#991b1b;margin:12px 0 6px;">🏭 공급사 · Suppliers <span style="color:var(--sub);font-weight:400;">(1)</span></div>
+              <table class="tbl">
+                <tbody>
+                  <tr><td style="width:118px;" class="mono">SUP-0042</td><td>대성금속 (Daesung Metal) · 🇲🇽 MX · 증빙 8건</td><td style="width:64px;"><span class="b b-ok">활성</span></td><td style="width:130px;"><button class="mbtn mbtn-sec" style="padding:3px 8px;">열람</button> <button class="mbtn mbtn-pri" style="padding:3px 8px;">역추적</button></td></tr>
+                </tbody>
+              </table>
+
+              <div style="margin-top:10px;font-size:9px;color:var(--sub);">행 [열람]→원본 화면(DOC/ORG/LBL) · [역추적]→AUD-01 · 권한 외 항목은 결과에서 제외</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. UI COMPONENTS -->
+  <section class="sec" id="s3">
+    <div class="sec-hdr"><div class="sec-num">03</div><div class="sec-title-wrap"><div class="sec-title-en">UI Component Specification</div><div class="sec-title-ko">UI 컴포넌트 명세</div></div><div class="sec-line"></div></div>
+    <table class="cs-tbl">
+      <thead><tr><th style="width:84px;">ID</th><th style="width:180px;">Component <span class="th-ko">컴포넌트</span></th><th style="width:120px;">Type</th><th style="width:50px;">Req</th><th>Validation / Behavior <span class="th-ko">검증·동작</span></th></tr></thead>
+      <tbody>
+        <tr><td class="c-id">CMP-01</td><td class="c-name">Search Bar<span class="ko">통합 검색바</span></td><td><span class="c-type">TEXT</span></td><td class="c-req y">Y</td><td class="c-validation">전 모듈 전문(full-text) 검색. 인증서번호·품목·공급사·라벨ID 부분일치. <code>debounce 300ms</code> · 최소 2자. Enter 또는 [검색].</td></tr>
+        <tr><td class="c-id">CMP-02</td><td class="c-name">Facet Filters<span class="ko">패싯 필터</span></td><td><span class="c-type">CHECK / SELECT</span></td><td class="c-req n">N</td><td class="c-validation">모듈·기간·상태·국가 다중 선택. 각 패싯에 결과 건수 표시. 선택 즉시 결과·건수 갱신(AND 조합).</td></tr>
+        <tr><td class="c-id">CMP-03</td><td class="c-name">Type Chips<span class="ko">유형 칩</span></td><td><span class="c-type">CHIP</span></td><td class="c-req n">N</td><td class="c-validation">증빙·부품·원산지·라벨·공급사 유형 토글. "전체" + 유형별 건수. 클릭 시 해당 그룹만 노출.</td></tr>
+        <tr><td class="c-id">CMP-04</td><td class="c-name">Grouped Results<span class="ko">그룹 결과</span></td><td><span class="c-type">LIST</span></td><td class="c-req y">Y</td><td class="c-validation">엔티티 유형별 그룹화(아이콘·핵심필드·상태배지). 권한 필터 적용(BR-AUD-04). 무한 스크롤/페이징.</td></tr>
+        <tr><td class="c-id">CMP-05</td><td class="c-name">Result Row Actions<span class="ko">행 액션</span></td><td><span class="c-type">BUTTON×2</span></td><td class="c-req y">Y</td><td class="c-validation">[열람]→원본 화면(DOC/ORG/LBL) · [역추적]→AUD-01. 클릭 시 접근 로그 기록(BR-AUD-04).</td></tr>
+        <tr><td class="c-id">CMP-06</td><td class="c-name">Saved Searches<span class="ko">저장된 검색</span></td><td><span class="c-type">DROPDOWN</span></td><td class="c-req n">N</td><td class="c-validation">질의+패싯 조합 저장·재실행. 감사자별 즐겨찾기. 이름 지정.</td></tr>
+        <tr><td class="c-id">CMP-07</td><td class="c-name">Export<span class="ko">엑셀 내보내기</span></td><td><span class="c-type">BUTTON</span></td><td class="c-req n">N</td><td class="c-validation">현재 결과·패싯을 Excel 출력(감사 목록). 대량 시 백그라운드 작업·완료 알림(→ EXC-05). 다운로드 로그.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- 4. EVENT FLOW -->
+  <section class="sec" id="s4">
+    <div class="sec-hdr"><div class="sec-num">04</div><div class="sec-title-wrap"><div class="sec-title-en">Event &amp; Action Flow</div><div class="sec-title-ko">이벤트 · 액션 흐름</div></div><div class="sec-line"></div></div>
+    <div class="ef-wrap">
+      <div class="ef-step">
+        <div class="ef-num">1</div>
+        <div>
+          <div class="ef-trig"><span class="ef-trig-tag user">USER</span><span class="ef-trig-name">Enter query</span></div>
+          <div class="ef-action">감사자가 검색바에 키워드 입력(인증서번호·품목·공급사 등) 후 Enter / [검색].</div>
+          <div class="ef-action-ko">최소 2자 · 부분일치 허용.</div>
+          <div class="ef-result"><span class="er-lbl">RESULT</span>Query submitted · 질의 전송</div>
+        </div>
+      </div>
+      <div class="ef-step">
+        <div class="ef-num">2</div>
+        <div>
+          <div class="ef-trig"><span class="ef-trig-tag system">SYSTEM</span><span class="ef-trig-name">Search index across modules</span></div>
+          <div class="ef-action">통합 검색 인덱스를 <code>doc_certificate</code>·<code>org_part_origin</code>·<code>lbl_issue</code>·<code>md_*</code>에 동시 조회. 권한 필터 적용(BR-AUD-04).</div>
+          <div class="ef-action-ko">접근 로그 기록 · 권한 외 항목 제외.</div>
+          <div class="ef-result"><span class="er-lbl">RESULT</span>Unified hits ranked · 통합 결과 랭킹</div>
+        </div>
+      </div>
+      <div class="ef-step">
+        <div class="ef-num">3</div>
+        <div>
+          <div class="ef-trig"><span class="ef-trig-tag user">USER</span><span class="ef-trig-name">Refine with facets</span></div>
+          <div class="ef-action">유형 칩·좌측 패싯(모듈/기간/상태/국가)으로 결과 좁힘. 건수 실시간 갱신.</div>
+          <div class="ef-action-ko">결과 0건 시 패싯 완화 제안(→ EXC-01).</div>
+          <div class="ef-result"><span class="er-lbl">RESULT</span>Faceted results · 그룹별 결과 표시</div>
+        </div>
+      </div>
+      <div class="ef-step terminal">
+        <div class="ef-num">✓</div>
+        <div>
+          <div class="ef-trig"><span class="ef-trig-tag user">USER</span><span class="ef-trig-name">Open source / Jump to traceability</span></div>
+          <div class="ef-action">행 [열람]→원본 화면(DOC/ORG/LBL) 또는 [역추적]→AUD-01로 진입. SoT 원본 확인(BR-AUD-01).</div>
+          <div class="ef-action-ko">증적 확보 완료 · 전 과정 감사 로그.</div>
+          <div class="ef-result"><span class="er-lbl">DONE</span>Evidence located &amp; opened · 증적 도달(종료)</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. EXCEPTION -->
+  <section class="sec" id="s5">
+    <div class="sec-hdr"><div class="sec-num">05</div><div class="sec-title-wrap"><div class="sec-title-en">Exception Handling</div><div class="sec-title-ko">예외 처리</div></div><div class="sec-line"></div></div>
+    <div class="exc-grid">
+      <div class="exc-card">
+        <div class="exc-hdr"><span class="exc-code">EXC-01</span><span class="exc-name">No Results<span class="ko">결과 없음</span></span></div>
+        <div class="exc-row"><span class="lbl">Trigger</span><span class="val">질의·패싯 조합에 일치 항목 없음.</span></div>
+        <div class="exc-row"><span class="lbl">Action</span><span class="val">빈 상태 + 유사어·패싯 완화 제안 표시.</span></div>
+        <div class="exc-msg">검색 결과가 없습니다 · 필터를 완화해 보세요</div>
+      </div>
+      <div class="exc-card warn">
+        <div class="exc-hdr"><span class="exc-code">EXC-02</span><span class="exc-name">Too-Broad Query<span class="ko">검색 범위 과다</span></span></div>
+        <div class="exc-row"><span class="lbl">Trigger</span><span class="val">결과가 임계치(예: 1,000건) 초과.</span></div>
+        <div class="exc-row"><span class="lbl">Action</span><span class="val">상위 N건만 표시 + 패싯으로 좁히기 안내.</span></div>
+        <div class="exc-msg">결과가 너무 많습니다 — 필터로 좁혀 주세요</div>
+      </div>
+      <div class="exc-card info">
+        <div class="exc-hdr"><span class="exc-code">EXC-03</span><span class="exc-name">Permission-Filtered<span class="ko">권한 필터</span></span></div>
+        <div class="exc-row"><span class="lbl">Trigger</span><span class="val">사용자 권한 외 모듈·항목 포함 질의.</span></div>
+        <div class="exc-row"><span class="lbl">Action</span><span class="val">해당 항목 자동 제외(BR-AUD-04). 노출 안 함.</span></div>
+        <div class="exc-msg">권한 범위 내 결과만 표시됩니다</div>
+      </div>
+      <div class="exc-card warn">
+        <div class="exc-hdr"><span class="exc-code">EXC-04</span><span class="exc-name">Stale Index<span class="ko">인덱스 지연</span></span></div>
+        <div class="exc-row"><span class="lbl">Trigger</span><span class="val">최근 변경분이 인덱스 미반영.</span></div>
+        <div class="exc-row"><span class="lbl">Action</span><span class="val">"최신화 N분 전" 배지 + [새로고침] 제공.</span></div>
+        <div class="exc-msg">인덱스 동기화 지연 — 최신화 필요</div>
+      </div>
+      <div class="exc-card info">
+        <div class="exc-hdr"><span class="exc-code">EXC-05</span><span class="exc-name">Large Export<span class="ko">대량 내보내기</span></span></div>
+        <div class="exc-row"><span class="lbl">Trigger</span><span class="val">Excel 출력 건수가 즉시 한도 초과.</span></div>
+        <div class="exc-row"><span class="lbl">Action</span><span class="val">백그라운드 작업 전환 · 완료 시 알림/다운로드.</span></div>
+        <div class="exc-msg">대량 출력 — 백그라운드 처리 후 알림</div>
+      </div>
+      <div class="exc-card">
+        <div class="exc-hdr"><span class="exc-code">EXC-06</span><span class="exc-name">Special Characters<span class="ko">특수문자 입력</span></span></div>
+        <div class="exc-row"><span class="lbl">Trigger</span><span class="val">검색어에 제어·이스케이프 특수문자.</span></div>
+        <div class="exc-row"><span class="lbl">Action</span><span class="val">안전 이스케이프 후 검색. 인젝션 차단.</span></div>
+        <div class="exc-msg">특수문자는 자동 처리되어 검색됩니다</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. LINKED -->
+  <section class="sec" id="s6">
+    <div class="sec-hdr"><div class="sec-num">06</div><div class="sec-title-wrap"><div class="sec-title-en">Linked Screens</div><div class="sec-title-ko">연계 화면</div></div><div class="sec-line"></div></div>
+    <div class="lnk-wrap">
+      <div class="lnk-row">
+        <div class="lnk-node cur"><div class="lnk-id">AUD-02</div><div class="lnk-name">Integrated Search</div><div class="lnk-ko">현재 화면</div></div>
+      </div>
+      <div class="lnk-row" style="margin-top:14px;">
+        <a class="lnk-node down" href="VOL05_AUD01_Traceability_Explorer.html"><div class="lnk-id">AUD-01</div><div class="lnk-name">Traceability</div><div class="lnk-ko">역추적 진입</div></a>
+        <a class="lnk-node down" href="VOL05_AUD03_Report_Generator.html"><div class="lnk-id">AUD-03</div><div class="lnk-name">Report Gen</div><div class="lnk-ko">리포트 생성</div></a>
+        <a class="lnk-node down" href="VOL02_DOC_Document_Management.html"><div class="lnk-id">DOC</div><div class="lnk-name">Document</div><div class="lnk-ko">증빙 원본 열람</div></a>
+        <a class="lnk-node down" href="VOL04_ORG_Origin_Management.html"><div class="lnk-id">ORG</div><div class="lnk-name">Origin</div><div class="lnk-ko">원산지 원본 열람</div></a>
+        <a class="lnk-node down" href="VOL03_LBL_Label_Management.html"><div class="lnk-id">LBL</div><div class="lnk-name">Label</div><div class="lnk-ko">라벨 원본 열람</div></a>
+      </div>
+      <div style="text-align:center;font-size:10px;color:var(--sub);margin-top:14px;">진입점: 전역 검색 · 하위: 역추적·리포트 + 각 모듈 원본 화면(DOC/ORG/LBL)으로 드릴다운</div>
+    </div>
+  </section>
+
+  <!-- 7. BUSINESS RULES -->
+  <section class="sec" id="s7">
+    <div class="sec-hdr"><div class="sec-num">07</div><div class="sec-title-wrap"><div class="sec-title-en">Business Rules</div><div class="sec-title-ko">업무 규칙</div></div><div class="sec-line"></div></div>
+    <table class="br-mini">
+      <thead><tr><th style="width:96px;">ID</th><th>Rule · 규칙</th><th style="width:80px;">Action</th></tr></thead>
+      <tbody>
+        <tr><td class="br-id">BR-AUD-04</td><td><div class="br-en">Access logged &amp; permission-scoped — every search, view, and export is logged (who / when / query); results are filtered to the user's RBAC scope.</div><div class="br-ko">모든 검색·열람·내보내기 로그 기록(누가/언제/무엇). 결과는 사용자 권한(RBAC) 범위로 필터.</div></td><td class="br-act"><span class="aut">자동</span></td></tr>
+        <tr><td class="br-id">BR-AUD-01</td><td><div class="br-en">Source-of-truth linkage — every result row points to its live source record; search never shows stale copies, only references to current SoT.</div><div class="br-ko">모든 결과 행은 실시간 원본(SoT)을 가리킴. 사본·스냅샷이 아닌 현행 원본 참조만 표시.</div></td><td class="br-act"><span class="blk">차단</span></td></tr>
+        <tr><td class="br-id">BR-AUD-05</td><td><div class="br-en">Gaps surfaced — missing or expired evidence (no certificate, expired COO) is flagged in results so auditors see compliance gaps, not just hits.</div><div class="br-ko">누락·만료 증적(증빙 없음, COO 만료 등)을 결과에 표시 — 단순 검색결과가 아닌 컴플라이언스 공백까지 노출.</div></td><td class="br-act"><span class="aut">자동</span></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  </div>
+  <div class="page-footer">
+    <span class="pf-l">UOCM · USMCA Origin Compliance Management System</span>
+    <span class="pf-r">VOL.5 · AUD-02 · Integrated Search · L3 Spec</span>
+  </div>
+</div>
+</div>
+</body>
+</html>

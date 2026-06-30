@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>UOCM · VOL.6 · INT · Integration</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;600;700&family=Bebas+Neue&display=swap');
+:root{
+  --brand:#059669;--brand-dk:#047857;
+  --ink:#0a1422;--ink2:#101d2e;--ink3:#1c2c40;
+  --surface:#fff;--bg:#f4f7fa;--border:#d3dce6;--text:#1e2a38;--sub:#5b6b7d;
+  --doc:#6366f1;--lbl:#7c3aed;--org:#0891b2;--aud:#dc2626;--int:#6366f1;--sys:#64748b;--md:#d97706;
+  --mod:#6366f1;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);font-size:13px;line-height:1.6;}
+
+.uo-nav{position:sticky;top:0;z-index:9999;background:#fff;border-bottom:1px solid #e5eaf0;box-shadow:0 1px 4px rgba(15,39,71,.06);}
+.uo-nav-inner{display:flex;align-items:stretch;overflow-x:auto;scrollbar-width:none;}
+.uo-nav-inner::-webkit-scrollbar{display:none;}
+.nav-home{display:flex;align-items:center;gap:8px;padding:0 16px;background:rgba(5,150,105,.08);border-right:1px solid #e5eaf0;text-decoration:none;flex-shrink:0;min-height:42px;}
+.nav-home-logo{font-family:'Bebas Neue',sans-serif;font-size:17px;color:#059669;letter-spacing:2px;}
+.nav-home-sub{font-size:9px;color:#94a3b8;}
+.nav-vol{display:flex;align-items:center;gap:5px;padding:0 12px;text-decoration:none;font-size:10px;font-weight:700;color:#5b6b7d;border-bottom:2px solid transparent;white-space:nowrap;min-height:42px;transition:color .12s;}
+.nav-vol:hover{color:#0f2747;background:#f6f8fa;}
+.nav-vol.active{color:#0f2747;border-bottom-color:#059669;}
+.nav-vol .nv-code{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;}
+
+.page-wrap{display:flex;}
+.sidebar{width:236px;min-width:236px;background:#f6f8fa;position:sticky;top:42px;height:calc(100vh - 42px);overflow-y:auto;scrollbar-width:thin;border-right:1px solid #e5eaf0;}
+.sb-head{padding:16px 14px 12px;border-bottom:1px solid #e5eaf0;}
+.sb-vol{font-family:'JetBrains Mono',monospace;font-size:9px;color:#047857;letter-spacing:2px;margin-bottom:4px;}
+.sb-mod-en{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1px;color:#6366f1;}
+.sb-mod-ko{font-size:10px;color:#94a3b8;}
+.sb-section{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#94a3b8;padding:12px 14px 4px;}
+.sb-link{display:flex;align-items:center;gap:7px;padding:6px 14px;text-decoration:none;color:#5b6b7d;font-size:11px;border-left:2px solid transparent;transition:all .12s;}
+.sb-link:hover{color:#0f2747;background:#eef2f7;}
+.sb-link.on{color:#0f2747;border-left-color:#6366f1;background:rgba(99,102,241,.08);}
+.sb-link .sl-id{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;width:44px;flex-shrink:0;color:#6366f1;}
+.sb-link .sl-en{font-size:10px;font-weight:600;}
+.sb-link .sl-ko{font-size:9px;color:#94a3b8;margin-top:1px;}
+.sb-l3{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:3px;background:rgba(5,150,105,.1);color:#047857;font-size:11px;text-decoration:none;margin-left:auto;transition:all .15s;flex-shrink:0;border:1px solid rgba(5,150,105,.3);}
+.sb-l3:hover{background:#059669;color:#fff;border-color:#059669;transform:scale(1.15);}
+.sb-sep{height:1px;background:#e5eaf0;margin:5px 0;}
+
+.main{flex:1;min-width:0;}
+
+.mod-hdr{padding:36px 48px 24px;position:relative;overflow:hidden;background:linear-gradient(135deg,#eef0fe,#ffffff);border-bottom:1px solid #e5eaf0;}
+.mod-hdr-inner{position:relative;z-index:1;}
+.mod-eyebrow{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;margin-bottom:10px;opacity:.9;color:#6366f1;}
+.mod-title-en{font-family:'Bebas Neue',sans-serif;font-size:48px;line-height:.95;letter-spacing:2px;color:#6366f1;margin-bottom:4px;}
+.mod-title-ko{font-size:14px;font-weight:300;color:#5b6b7d;letter-spacing:3px;margin-bottom:16px;}
+.mod-desc-bi{display:grid;grid-template-columns:1fr 1fr;gap:14px;max-width:900px;margin-bottom:14px;}
+.mdb-en{font-size:11px;color:#5b6b7d;line-height:1.85;border-left:2px solid #cbd5e1;padding-left:12px;}
+.mdb-ko{font-size:11px;color:#94a3b8;line-height:1.85;border-left:2px solid #e5eaf0;padding-left:12px;}
+.mod-meta-strip{display:grid;grid-template-columns:repeat(6,1fr);gap:0;border:1px solid #d3d7f7;border-radius:6px;overflow:hidden;margin:14px 0 16px;max-width:900px;background:#fff;}
+.mms-item{padding:10px 14px;border-right:1px solid #e5eaf0;}
+.mms-item:last-child{border-right:none;}
+.mms-l{font-size:8px;color:#6366f1;text-transform:uppercase;letter-spacing:1.2px;font-family:'JetBrains Mono',monospace;}
+.mms-v{font-size:13px;font-weight:800;color:#0f2747;margin-top:3px;letter-spacing:.3px;}
+.mms-v.warn{color:#a16207;}
+.l3-hint{display:inline-block;font-size:10px;color:#047857;font-weight:600;letter-spacing:1px;padding:5px 12px;background:rgba(5,150,105,.08);border:1px dashed rgba(5,150,105,.4);border-radius:3px;margin-bottom:8px;}
+.screen-pills{display:flex;gap:5px;flex-wrap:wrap;margin-top:10px;}
+.sp{display:flex;align-items:center;gap:5px;padding:5px 11px;border-radius:3px;background:#f6f8fa;border:1px solid #d3dce6;font-size:9px;color:#5b6b7d;text-decoration:none;transition:all .15s;}
+.sp:hover{background:rgba(99,102,241,.1);border-color:rgba(99,102,241,.4);color:#0f2747;}
+.sp-id{font-family:'JetBrains Mono',monospace;font-weight:700;color:#047857;}
+
+.content{padding:0 48px 48px;}
+.sec-div{display:flex;align-items:center;gap:12px;margin:28px 0 16px;}
+.sd-line{flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--border) 20%,var(--border) 80%,transparent);}
+.sd-lbl{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:var(--doc);letter-spacing:2px;white-space:nowrap;padding:4px 10px;background:#eef2ff;border:1px solid #c7d2fe;border-radius:3px;}
+
+.flow-card{background:#fff;border:1px solid #e5eaf0;color:#1e2a38;border-radius:10px;padding:20px 22px;margin-bottom:18px;box-shadow:0 1px 4px rgba(15,39,71,.05);}
+.flow-card-h{font-family:'JetBrains Mono',monospace;font-size:10px;color:#6366f1;letter-spacing:2px;text-transform:uppercase;margin-bottom:14px;}
+.flow-track{margin-bottom:14px;}
+.flow-track-lbl{font-size:10px;color:#5b6b7d;letter-spacing:1px;font-family:'JetBrains Mono',monospace;margin-bottom:8px;text-transform:uppercase;}
+.flow-row{display:flex;align-items:center;gap:0;flex-wrap:wrap;}
+.flow-node{display:flex;flex-direction:column;align-items:center;gap:3px;background:rgba(99,102,241,.07);border:1px solid #c7d2fe;border-radius:8px;padding:10px 12px;min-width:96px;text-align:center;transition:all .15s;text-decoration:none;color:#1e2a38;}
+.flow-node:hover{background:rgba(99,102,241,.14);border-color:#6366f1;transform:translateY(-2px);box-shadow:0 6px 16px rgba(99,102,241,.2);}
+.flow-node.ext{background:#f6f8fa;border-color:#cbd5e1;border-style:dashed;}
+.flow-node.alert{background:#fef2f2;border-color:#fca5a5;}
+.fn-id{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;color:#6366f1;letter-spacing:.5px;}
+.flow-node.ext .fn-id{color:#94a3b8;}
+.flow-node.alert .fn-id{color:#dc2626;}
+.fn-name{font-size:11px;font-weight:700;color:#0f2747;}
+.fn-ko{font-size:9px;color:#5b6b7d;}
+.fn-tag{font-size:8px;font-family:'JetBrains Mono',monospace;color:#94a3b8;margin-top:1px;}
+.flow-arr{font-size:18px;color:#a5b4fc;padding:0 4px;font-weight:700;}
+
+.mod-kpi{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:18px;}
+.kpi-card{background:#fff;border:1px solid var(--border);border-top:3px solid var(--doc);border-radius:0 0 6px 6px;padding:14px 16px;}
+.kpi-l{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--sub);letter-spacing:1px;text-transform:uppercase;}
+.kpi-v{font-family:'Bebas Neue',sans-serif;font-size:34px;color:var(--text);line-height:1;margin-top:5px;letter-spacing:.5px;}
+.kpi-v.ok{color:#16a34a;}.kpi-v.warn{color:#a16207;}.kpi-v.alert{color:#dc2626;}.kpi-v.doc{color:var(--doc);}
+.kpi-s{font-size:10px;color:var(--sub);margin-top:3px;}
+
+.screen-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:18px;box-shadow:0 1px 3px rgba(0,0,0,.04);}
+.sc-hdr{padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:14px;border-bottom:1px solid #c7d2fe;background:linear-gradient(135deg,#eef0fe,#e0e7ff);}
+.sc-hdr-l{display:flex;align-items:center;gap:14px;flex:1;min-width:0;}
+.sc-icon{font-size:42px;line-height:1;flex-shrink:0;filter:drop-shadow(0 2px 4px rgba(0,0,0,.3));}
+.sc-title-wrap{flex:1;min-width:0;}
+.sc-id{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;color:#6366f1;letter-spacing:.5px;}
+.sc-title-en{font-size:16px;font-weight:800;color:#0f2747;letter-spacing:-.3px;margin-top:2px;}
+.sc-title-ko{font-size:10px;color:#5b6b7d;margin-top:2px;}
+.sc-tags{display:flex;flex-direction:column;align-items:flex-end;gap:4px;}
+.tag{font-size:9px;font-weight:700;padding:2px 9px;border-radius:3px;white-space:nowrap;}
+.t-web{background:rgba(99,102,241,.2);color:#a5b4fc;border:1px solid rgba(99,102,241,.35);}
+.t-portal{background:rgba(13,184,122,.2);color:#5dffc4;border:1px solid rgba(13,184,122,.3);}
+.t-p1{background:rgba(16,185,129,.18);color:#6ee7b7;border:1px solid rgba(16,185,129,.32);}
+.t-core{background:rgba(212,160,23,.2);color:#fbbf24;border:1px solid rgba(212,160,23,.35);}
+.sc-l3-btn{display:inline-flex;align-items:center;gap:5px;padding:8px 14px;background:linear-gradient(135deg,#10b981,#059669);color:#03241a;font-size:11px;font-weight:800;border-radius:5px;text-decoration:none;letter-spacing:.5px;text-transform:uppercase;border:1px solid #059669;box-shadow:0 2px 6px rgba(16,185,129,.3);transition:all .15s;white-space:nowrap;}
+.sc-l3-btn:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(16,185,129,.5);background:linear-gradient(135deg,#34d399,#10b981);}
+.sc-body{padding:16px 18px;}
+.headline{display:flex;align-items:center;gap:10px;padding:11px 14px;background:linear-gradient(135deg,#eef2ff,#e0e7ff);border:1px solid #c7d2fe;border-left:3px solid var(--doc);border-radius:0 5px 5px 0;margin-bottom:14px;}
+.headline-ico{font-size:18px;color:var(--doc);}
+.headline-t{font-size:12px;color:#3730a3;font-weight:700;line-height:1.55;}
+.headline-t .ko{display:block;color:#6366f1;font-weight:400;font-size:11px;margin-top:1px;}
+.qf-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px;}
+.qf{background:#fafbfd;border:1px solid var(--border);border-radius:5px;padding:9px 11px;}
+.qf-l{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--sub);letter-spacing:.7px;text-transform:uppercase;}
+.qf-v{font-size:11px;color:var(--text);font-weight:700;margin-top:3px;line-height:1.4;}
+.desc-bi{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;background:#eef2ff;border:1px solid var(--border);border-left:3px solid var(--doc);border-radius:0 6px 6px 0;padding:11px 14px;}
+.db-lbl{font-size:8px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;opacity:.55;}
+.db-en{font-size:11px;color:#3730a3;line-height:1.75;}
+.db-ko{font-size:11px;color:var(--sub);line-height:1.75;}
+.feat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:8px;margin-bottom:12px;}
+.feat-item{background:#fff;border:1px solid var(--border);border-top:2px solid var(--doc);border-radius:0 0 5px 5px;padding:10px 12px;}
+.feat-ico{font-size:16px;line-height:1;margin-bottom:5px;}
+.feat-t{font-size:11px;font-weight:800;color:var(--text);margin-bottom:2px;}
+.feat-d{font-size:10px;color:var(--sub);line-height:1.55;}
+.feat-d .ko{color:#94a3b8;font-size:9px;display:block;margin-top:1px;}
+.br-chips{display:flex;gap:5px;flex-wrap:wrap;padding-top:10px;border-top:1px dashed var(--border);}
+.br-chip{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;padding:3px 8px;border-radius:3px;background:#e0e7ff;color:#3730a3;border:1px solid #a5b4fc;text-decoration:none;letter-spacing:.3px;}
+.br-chip.crit{background:#fee2e2;color:#991b1b;border-color:#fca5a5;}
+.br-chip-lbl{font-size:9px;color:var(--sub);font-family:'JetBrains Mono',monospace;letter-spacing:.5px;margin-right:4px;align-self:center;}
+
+.ref-tbl{width:100%;border-collapse:collapse;font-size:11px;background:#fff;border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-bottom:18px;}
+.ref-tbl th{background:#f0f3f7;color:var(--text);padding:8px 12px;text-align:left;font-size:10px;font-weight:700;border-bottom:1px solid var(--border);}
+.ref-tbl td{padding:8px 12px;border-bottom:1px solid var(--border);}
+.ref-tbl tr:last-child td{border-bottom:none;}
+.ref-tbl tr:nth-child(even) td{background:#fafbfd;}
+.ref-tbl .code{font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--doc);font-size:11px;}
+.pill{display:inline-block;font-size:9px;font-weight:700;padding:2px 8px;border-radius:8px;}
+.p-ok{background:#dcfce7;color:#166534;}.p-w{background:#fef9c3;color:#92400e;}.p-e{background:#fee2e2;color:#991b1b;}.p-i{background:#e0e7ff;color:#3730a3;}.p-n{background:#f1f5f9;color:#475569;}
+
+.br-wrap{margin-bottom:16px;}
+.br-tbl{width:100%;border-collapse:collapse;font-size:10px;}
+.br-tbl th{background:var(--text);color:#fff;padding:7px 10px;text-align:left;border:1px solid rgba(255,255,255,.08);font-size:9px;}
+.br-tbl td{padding:7px 10px;border:1px solid var(--border);vertical-align:top;line-height:1.6;}
+.br-tbl tr:nth-child(even) td{background:#fafbfd;}
+.br-id-c{font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--brand-dk);white-space:nowrap;}
+.b{display:inline-block;font-size:9px;font-weight:700;padding:2px 7px;border-radius:8px;}
+.b-blk{background:#fee2e2;color:#991b1b;}.b-alt{background:#fef9c3;color:#92400e;}.b-aut{background:#e0e7ff;color:#3730a3;}
+
+.page-footer{padding:14px 48px;border-top:1px solid #e5eaf0;display:flex;align-items:center;justify-content:space-between;background:#f6f8fa;margin-top:20px;}
+.pf-l{font-size:10px;color:#94a3b8;font-family:'JetBrains Mono',monospace;}
+.pf-r{font-family:'JetBrains Mono',monospace;font-size:10px;color:#047857;}
+@media(max-width:1024px){.mod-desc-bi{grid-template-columns:1fr;}.mod-meta-strip{grid-template-columns:repeat(3,1fr);}.mod-kpi{grid-template-columns:repeat(2,1fr);}.qf-grid{grid-template-columns:repeat(2,1fr);}.desc-bi{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<nav class="uo-nav"><div class="uo-nav-inner">
+  <a href="index.html" class="nav-home"><span class="nav-home-logo">UOCM</span><span class="nav-home-sub">◀ Index</span></a>
+  <a href="VOL01_Overview.html" class="nav-vol"><span class="nv-code" style="color:#10b981;">OV</span><span>Overview</span></a>
+  <a href="VOL02_DOC_Document_Management.html" class="nav-vol"><span class="nv-code" style="color:#2563eb;">DOC</span><span>Document</span></a>
+  <a href="VOL03_LBL_Label_Management.html" class="nav-vol"><span class="nv-code" style="color:#7c3aed;">LBL</span><span>Label</span></a>
+  <a href="VOL04_ORG_Origin_Management.html" class="nav-vol"><span class="nv-code" style="color:#0891b2;">ORG</span><span>Origin</span></a>
+  <a href="VOL05_AUD_Audit_Support.html" class="nav-vol"><span class="nv-code" style="color:#dc2626;">AUD</span><span>Audit</span></a>
+  <a href="VOL06_INT_Integration.html" class="nav-vol active"><span class="nv-code" style="color:#6366f1;">INT</span><span>Integration</span></a>
+  <a href="VOL07_SYS_System.html" class="nav-vol"><span class="nv-code" style="color:#64748b;">SYS</span><span>System</span></a>
+  <a href="VOL08_MD_Master_Data.html" class="nav-vol"><span class="nv-code" style="color:#d97706;">MD</span><span>Master Data</span></a>
+</div></nav>
+<div class="page-wrap">
+<nav class="sidebar">
+  <div class="sb-head">
+    <div class="sb-vol">VOL.6 · INT MODULE</div>
+    <div class="sb-mod-en">INTEGRATION</div>
+    <div class="sb-mod-ko">시스템 연계</div>
+  </div>
+  <div class="sb-section">Overview · 개요</div>
+  <a class="sb-link" href="#flow"><span class="sl-id">FLOW</span><div><div class="sl-en">Process Flow</div><div class="sl-ko">연계 흐름</div></div></a>
+  <a class="sb-link" href="#kpi"><span class="sl-id">KPI</span><div><div class="sl-en">Module KPI</div><div class="sl-ko">핵심 지표</div></div></a>
+  <div class="sb-section">Connector · 연계</div>
+  <a class="sb-link on" href="#int01"><span class="sl-id">INT-01</span><div><div class="sl-en">ERP / SAP Connector</div><div class="sl-ko">SAP·ERP 연계</div></div><a class="sb-l3" href="VOL06_INT01_ERP_Connector.html" title="L3 상세 설계서" onclick="event.stopPropagation();">📋</a></a>
+  <div class="sb-section">Sync · 동기화</div>
+  <a class="sb-link" href="#int02"><span class="sl-id">INT-02</span><div><div class="sl-en">BOM Sync</div><div class="sl-ko">BOM 동기화</div></div><a class="sb-l3" href="VOL06_INT02_BOM_Sync.html" title="L3 상세 설계서" onclick="event.stopPropagation();">📋</a></a>
+  <a class="sb-link" href="#int03"><span class="sl-id">INT-03</span><div><div class="sl-en">Supplier Master Sync</div><div class="sl-ko">공급사 마스터 동기화</div></div><a class="sb-l3" href="VOL06_INT03_Supplier_Master_Sync.html" title="L3 상세 설계서" onclick="event.stopPropagation();">📋</a></a>
+  <div class="sb-section">Integrity · 정합성</div>
+  <a class="sb-link" href="#int04"><span class="sl-id">INT-04</span><div><div class="sl-en">Data Integrity Monitor</div><div class="sl-ko">데이터 정합성 검증</div></div><a class="sb-l3" href="VOL06_INT04_Integrity_Monitor.html" title="L3 상세 설계서" onclick="event.stopPropagation();">📋</a></a>
+  <div class="sb-sep"></div>
+  <div class="sb-section">Reference · 참조</div>
+  <a class="sb-link" href="#ref-endpoints"><span class="sl-id">EP</span><div><div class="sl-en">Integration Endpoints</div><div class="sl-ko">연계 엔드포인트</div></div></a>
+  <a class="sb-link" href="#ref-sched"><span class="sl-id">SCHED</span><div><div class="sl-en">Sync Schedules</div><div class="sl-ko">동기화 스케줄</div></div></a>
+  <a class="sb-link" href="#br-int"><span class="sl-id">BR</span><div><div class="sl-en">Business Rules</div><div class="sl-ko">업무 규칙</div></div></a>
+</nav>
+<div class="main">
+  <div class="mod-hdr">
+    <div class="mod-hdr-inner">
+      <div class="mod-eyebrow">VOL.6 · INT · Integration · 시스템 연계</div>
+      <div class="mod-title-en">INTEGRATION</div>
+      <div class="mod-title-ko">시스템 연계 — SAP/ERP 연계 · BOM·공급사 마스터 동기화 · 데이터 정합성 검증 · 멀티-FTA 확장 기반</div>
+      <div class="mod-desc-bi">
+        <div class="mdb-en">The Phase 4 enterprise/automation layer. Connects <strong>SAP/ERP</strong> and SCM systems to the UOCM platform, synchronizes <strong>BOM</strong> and <strong>Supplier Master</strong> data, validates data integrity before it propagates downstream, and provides the foundation for multi-FTA expansion. Once standard data is in place via automated sync, this layer powers ORG (BOM rollup, RVC calculation) and keeps MD master data continuously aligned with the system of record.</div>
+        <div class="mdb-ko">Phase 4 전사/자동화 계층. <strong>SAP/ERP</strong>·SCM 시스템을 UOCM 플랫폼과 연계하여 <strong>BOM</strong>·<strong>공급사 마스터</strong> 데이터를 동기화하고, 다운스트림 반영 전 데이터 정합성을 검증하며, 멀티-FTA 확장 기반을 제공합니다. 자동 동기화로 표준 데이터가 갖춰지면 이 계층이 ORG(BOM 롤업, RVC 계산)를 구동하고 MD 마스터 데이터를 원천 시스템과 지속 정합 상태로 유지합니다.</div>
+      </div>
+      <div class="mod-meta-strip">
+        <div class="mms-item"><div class="mms-l">Screens</div><div class="mms-v">4</div></div>
+        <div class="mms-item"><div class="mms-l">L3 Done</div><div class="mms-v">4 / 4</div></div>
+        <div class="mms-item"><div class="mms-l">Sources</div><div class="mms-v">SAP · SCM</div></div>
+        <div class="mms-item"><div class="mms-l">Sync</div><div class="mms-v">배치/실시간</div></div>
+        <div class="mms-item"><div class="mms-l">Integrity</div><div class="mms-v warn">검증·격리</div></div>
+        <div class="mms-item"><div class="mms-l">Phase</div><div class="mms-v">P4 · 전사</div></div>
+      </div>
+      <div><span class="l3-hint">📋 각 화면 카드 / 사이드바 아이콘 클릭 시 L3 상세 설계서</span></div>
+      <div class="screen-pills">
+        <a class="sp" href="VOL06_INT01_ERP_Connector.html" title="L3 상세 · INT-01"><span class="sp-id">INT-01</span> ERP / SAP Connector <span style="opacity:.5;font-size:8px;">📋</span></a>
+        <a class="sp" href="VOL06_INT02_BOM_Sync.html" title="L3 상세 · INT-02"><span class="sp-id">INT-02</span> BOM Sync <span style="opacity:.5;font-size:8px;">📋</span></a>
+        <a class="sp" href="VOL06_INT03_Supplier_Master_Sync.html" title="L3 상세 · INT-03"><span class="sp-id">INT-03</span> Supplier Master Sync <span style="opacity:.5;font-size:8px;">📋</span></a>
+        <a class="sp" href="VOL06_INT04_Integrity_Monitor.html" title="L3 상세 · INT-04"><span class="sp-id">INT-04</span> Integrity Monitor <span style="opacity:.5;font-size:8px;">📋</span></a>
+      </div>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- PROCESS FLOW -->
+    <div class="sec-div" id="flow"><div class="sd-line"></div><div class="sd-lbl">▼ PROCESS FLOW · 연계 흐름</div><div class="sd-line"></div></div>
+    <div class="flow-card">
+      <div class="flow-card-h">▼ Integration Lifecycle · 연계 생애주기</div>
+      <div class="flow-track">
+        <div class="flow-track-lbl">🔌 CONNECT → SYNC → VALIDATE → APPLY · 연계·동기화·검증·반영</div>
+        <div class="flow-row">
+          <a class="flow-node ext"><span class="fn-id">SAP / ERP</span><span class="fn-name">원천 시스템</span><span class="fn-ko">BOM/공급사</span><span class="fn-tag">외부 소스</span></a>
+          <span class="flow-arr">→</span>
+          <a class="flow-node" href="#int01"><span class="fn-id">INT-01</span><span class="fn-name">ERP Connector</span><span class="fn-ko">SAP·ERP 연계</span><span class="fn-tag">배치/실시간</span></a>
+          <span class="flow-arr">→</span>
+          <a class="flow-node" href="#int02"><span class="fn-id">INT-02</span><span class="fn-name">BOM Sync</span><span class="fn-ko">BOM 동기화</span><span class="fn-tag">자재구성</span></a>
+          <span class="flow-arr">→</span>
+          <a class="flow-node" href="#int04"><span class="fn-id">INT-04</span><span class="fn-name">Integrity Mon</span><span class="fn-ko">정합성 검증</span><span class="fn-tag">격리/반영</span></a>
+          <span class="flow-arr">→</span>
+          <a class="flow-node ext"><span class="fn-id">ORG / MD</span><span class="fn-name">반영</span><span class="fn-ko">롤업·마스터</span><span class="fn-tag">다운스트림</span></a>
+        </div>
+      </div>
+      <div class="flow-track">
+        <div class="flow-track-lbl">🏢 SUPPLIER MASTER · 공급사 마스터 동기화</div>
+        <div class="flow-row">
+          <a class="flow-node ext"><span class="fn-id">SCM</span><span class="fn-name">공급망 시스템</span><span class="fn-ko">공급사/PO</span><span class="fn-tag">외부 소스</span></a>
+          <span class="flow-arr">→</span>
+          <a class="flow-node" href="#int01"><span class="fn-id">INT-01</span><span class="fn-name">ERP Connector</span><span class="fn-ko">연계 수집</span><span class="fn-tag">소스 연결</span></a>
+          <span class="flow-arr">→</span>
+          <a class="flow-node" href="#int03"><span class="fn-id">INT-03</span><span class="fn-name">Supplier Sync</span><span class="fn-ko">마스터 동기화</span><span class="fn-tag">소스 우선순위</span></a>
+          <span class="flow-arr">→</span>
+          <a class="flow-node" href="#int04"><span class="fn-id">INT-04</span><span class="fn-name">Integrity Mon</span><span class="fn-ko">정합성 검증</span><span class="fn-tag">충돌 해소</span></a>
+        </div>
+      </div>
+      <div class="flow-track">
+        <div class="flow-track-lbl">⚠ EXCEPTION · 예외 처리</div>
+        <div class="flow-row">
+          <a class="flow-node alert"><span class="fn-id">ERROR</span><span class="fn-name">정합성 오류</span><span class="fn-ko">격리·보류</span><span class="fn-tag">반영 차단</span></a>
+          <span class="flow-arr">→</span>
+          <a class="flow-node alert"><span class="fn-id">ROLLBACK</span><span class="fn-name">동기화 실패</span><span class="fn-ko">롤백·알림</span><span class="fn-tag">자동 복구</span></a>
+          <span class="flow-arr">→</span>
+          <a class="flow-node" href="#int04"><span class="fn-id">INT-04</span><span class="fn-name">재검증</span><span class="fn-ko">로그·재처리</span><span class="fn-tag">감사 보존</span></a>
+        </div>
+      </div>
+      <div style="display:flex;gap:14px;margin-top:14px;font-size:9px;color:#5b6b7d;font-family:'JetBrains Mono',monospace;letter-spacing:.5px;">
+        <span><span style="display:inline-block;width:10px;height:10px;background:rgba(99,102,241,.2);border:1px solid #a5b4fc;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>INT 화면</span>
+        <span><span style="display:inline-block;width:10px;height:10px;background:rgba(220,38,38,.2);border:1px solid #fca5a5;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>예외/오류</span>
+        <span><span style="display:inline-block;width:10px;height:10px;background:#f6f8fa;border:1px dashed #cbd5e1;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>외부/타 모듈</span>
+      </div>
+    </div>
+
+    <!-- KPI -->
+    <div class="sec-div" id="kpi"><div class="sd-line"></div><div class="sd-lbl">▼ MODULE KPI · 핵심 지표</div><div class="sd-line"></div></div>
+    <div class="mod-kpi">
+      <div class="kpi-card"><div class="kpi-l">Sync Jobs Today</div><div class="kpi-v doc">—</div><div class="kpi-s">금일 동기화 작업</div></div>
+      <div class="kpi-card"><div class="kpi-l">Last Sync</div><div class="kpi-v ok">—</div><div class="kpi-s">최종 동기화 시각</div></div>
+      <div class="kpi-card"><div class="kpi-l">Integrity Errors</div><div class="kpi-v warn">—</div><div class="kpi-s">정합성 오류 건수</div></div>
+      <div class="kpi-card"><div class="kpi-l">Records Synced</div><div class="kpi-v doc">—</div><div class="kpi-s">동기화 레코드 수</div></div>
+      <div class="kpi-card"><div class="kpi-l">Sources</div><div class="kpi-v ok">SAP<span style="font-size:14px;color:var(--sub);"> / SCM</span></div><div class="kpi-s">연계 소스</div></div>
+    </div>
+
+    <!-- SCREENS -->
+    <div class="sec-div"><div class="sd-line"></div><div class="sd-lbl">▼ 4 SCREENS · 화면 설계</div><div class="sd-line"></div></div>
+
+    <!-- INT-01 -->
+    <div class="screen-card" id="int01">
+      <div class="sc-hdr">
+        <div class="sc-hdr-l">
+          <div class="sc-icon">🔌</div>
+          <div class="sc-title-wrap">
+            <div class="sc-id">INT-01</div>
+            <div class="sc-title-en">ERP / SAP Connector</div>
+            <div class="sc-title-ko">SAP·ERP 연계 — 원천 시스템 연결·인증·스케줄 구성</div>
+          </div>
+        </div>
+        <div class="sc-tags"><span class="tag t-web">🖥 Web PC</span><span class="tag t-p1">Config</span></div>
+        <a class="sc-l3-btn" href="VOL06_INT01_ERP_Connector.html" title="View L3 detailed spec">📋 L3 Detail →</a>
+      </div>
+      <div class="sc-body">
+        <div class="headline">
+          <span class="headline-ico">👀</span>
+          <div class="headline-t">What you'll see: 연계 소스(SAP/SCM) 목록 + 연결·인증 설정 + 엔드포인트별 방식(배치/실시간) + 스케줄 구성<span class="ko">원천 시스템과의 연결을 한 화면에서 등록·테스트·모니터링</span></div>
+        </div>
+        <div class="qf-grid">
+          <div class="qf"><div class="qf-l">📥 INPUT</div><div class="qf-v">연결 정보·인증·엔드포인트</div></div>
+          <div class="qf"><div class="qf-l">📤 OUTPUT</div><div class="qf-v">활성 연계 채널</div></div>
+          <div class="qf"><div class="qf-l">⚠ WATCH</div><div class="qf-v">연결 실패·인증 만료</div></div>
+          <div class="qf"><div class="qf-l">🎨 UI</div><div class="qf-v">Web Config + Test Console</div></div>
+        </div>
+        <div class="desc-bi">
+          <div><div class="db-lbl">EN · Description</div><div class="db-en">Central connector hub for SAP/ERP and SCM sources. Configure connection endpoints, authentication, and per-endpoint mode (batch vs. real-time). Built-in connection test and schedule setup. Establishes the channels that INT-02/INT-03 consume and feeds run status to the integrity monitor.</div></div>
+          <div><div class="db-lbl">KO · 설명</div><div class="db-ko">SAP/ERP·SCM 소스의 중앙 연계 허브. 연결 엔드포인트·인증·엔드포인트별 방식(배치/실시간)을 구성. 연결 테스트·스케줄 설정 내장. INT-02/INT-03이 사용하는 채널을 구축하고 실행 상태를 정합성 모니터로 전달.</div></div>
+        </div>
+        <div class="feat-grid">
+          <div class="feat-item"><div class="feat-ico">🔗</div><div class="feat-t">Source Endpoints</div><div class="feat-d">SAP BOM·Supplier, SCM PO 연결.<span class="ko">다중 소스</span></div></div>
+          <div class="feat-item"><div class="feat-ico">🔐</div><div class="feat-t">Auth & Security</div><div class="feat-d">자격증명·토큰 관리.<span class="ko">민감정보 마스킹</span></div></div>
+          <div class="feat-item"><div class="feat-ico">⏱</div><div class="feat-t">Mode & Schedule</div><div class="feat-d">배치/실시간 + 일·시간별.<span class="ko">스케줄 구성</span></div></div>
+          <div class="feat-item"><div class="feat-ico">🧪</div><div class="feat-t">Connection Test</div><div class="feat-d">연결·핸드셰이크 검증.<span class="ko">사전 점검</span></div></div>
+        </div>
+        <div class="br-chips">
+          <span class="br-chip-lbl">관련 BR ▸</span>
+          <a class="br-chip crit" href="#br-int">BR-INT-01</a>
+          <a class="br-chip" href="#br-int">BR-INT-04</a>
+          <a class="br-chip" href="#br-int">BR-INT-06</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- INT-02 -->
+    <div class="screen-card" id="int02">
+      <div class="sc-hdr">
+        <div class="sc-hdr-l">
+          <div class="sc-icon">🧬</div>
+          <div class="sc-title-wrap">
+            <div class="sc-id">INT-02</div>
+            <div class="sc-title-en">BOM Sync</div>
+            <div class="sc-title-ko">BOM 동기화 — SAP 자재구성 → ORG 롤업 기반</div>
+          </div>
+        </div>
+        <div class="sc-tags"><span class="tag t-web">🖥 Web PC</span><span class="tag t-p1">Phase 4</span></div>
+        <a class="sc-l3-btn" href="VOL06_INT02_BOM_Sync.html" title="View L3 detailed spec">📋 L3 Detail →</a>
+      </div>
+      <div class="sc-body">
+        <div class="headline">
+          <span class="headline-ico">👀</span>
+          <div class="headline-t">What you'll see: BOM 동기화 작업 현황 + 신규/변경/삭제 항목 비교 + 적용 결과 + 오류 내역<span class="ko">SAP 자재구성을 UOCM BOM으로 자동 반영 — ORG RVC 계산 토대</span></div>
+        </div>
+        <div class="desc-bi">
+          <div><div class="db-lbl">EN · Description</div><div class="db-en">Synchronizes BOM (bill of materials) structures from SAP into the UOCM platform. Detects added/changed/removed components, stages a diff for review, and applies validated changes. This is the data foundation that powers ORG's BOM rollup and RVC calculation once standard data is in place.</div></div>
+          <div><div class="db-lbl">KO · 설명</div><div class="db-ko">SAP의 BOM(자재명세서) 구성을 UOCM 플랫폼으로 동기화. 추가/변경/삭제 부품을 감지하고 검토용 차이(diff)를 준비, 검증된 변경만 반영. 표준 데이터가 갖춰지면 ORG의 BOM 롤업·RVC 계산을 구동하는 데이터 토대.</div></div>
+        </div>
+        <div class="br-chips"><span class="br-chip-lbl">관련 BR ▸</span><a class="br-chip crit" href="#br-int">BR-INT-01</a><a class="br-chip" href="#br-int">BR-INT-02</a><a class="br-chip" href="#br-int">BR-INT-05</a></div>
+      </div>
+    </div>
+
+    <!-- INT-03 -->
+    <div class="screen-card" id="int03">
+      <div class="sc-hdr">
+        <div class="sc-hdr-l">
+          <div class="sc-icon">🏢</div>
+          <div class="sc-title-wrap">
+            <div class="sc-id">INT-03</div>
+            <div class="sc-title-en">Supplier Master Sync</div>
+            <div class="sc-title-ko">공급사 마스터 동기화 — 소스 우선순위·충돌 해소</div>
+          </div>
+        </div>
+        <div class="sc-tags"><span class="tag t-web">🖥 Web PC</span><span class="tag t-p1">Phase 4</span></div>
+        <a class="sc-l3-btn" href="VOL06_INT03_Supplier_Master_Sync.html" title="View L3 detailed spec">📋 L3 Detail →</a>
+      </div>
+      <div class="sc-body">
+        <div class="headline">
+          <span class="headline-ico">👀</span>
+          <div class="headline-t">What you'll see: 공급사 마스터 동기화 현황 + 소스 충돌 항목 + 우선순위 규칙 적용 + 반영 결과<span class="ko">SAP/SCM 공급사 마스터를 단일 정합 마스터로 통합</span></div>
+        </div>
+        <div class="desc-bi">
+          <div><div class="db-lbl">EN · Description</div><div class="db-en">Synchronizes Supplier Master records from SAP/SCM into the unified UOCM master. When the same supplier differs across sources, source-priority rules resolve the conflict deterministically. Keeps MD supplier master continuously aligned with the system of record and flags unresolved conflicts for review.</div></div>
+          <div><div class="db-lbl">KO · 설명</div><div class="db-ko">SAP/SCM의 공급사 마스터를 통합 UOCM 마스터로 동기화. 동일 공급사가 소스 간 상이할 경우 소스 우선순위 규칙으로 충돌을 결정적으로 해소. MD 공급사 마스터를 원천 시스템과 지속 정합 상태로 유지하고 미해소 충돌은 검토 대상으로 표시.</div></div>
+        </div>
+        <div class="br-chips"><span class="br-chip-lbl">관련 BR ▸</span><a class="br-chip" href="#br-int">BR-INT-03</a><a class="br-chip" href="#br-int">BR-INT-06</a></div>
+      </div>
+    </div>
+
+    <!-- INT-04 -->
+    <div class="screen-card" id="int04">
+      <div class="sc-hdr">
+        <div class="sc-hdr-l">
+          <div class="sc-icon">🛡️</div>
+          <div class="sc-title-wrap">
+            <div class="sc-id">INT-04 · ⚙ CORE</div>
+            <div class="sc-title-en">Data Integrity Monitor</div>
+            <div class="sc-title-ko">데이터 정합성 검증 — 오류 격리·반영 보류 핵심 화면</div>
+          </div>
+        </div>
+        <div class="sc-tags"><span class="tag t-web">🖥 Web PC</span><span class="tag t-core">⚙ Core</span></div>
+        <a class="sc-l3-btn" href="VOL06_INT04_Integrity_Monitor.html" title="View L3 detailed spec">📋 L3 Detail →</a>
+      </div>
+      <div class="sc-body">
+        <div class="headline">
+          <span class="headline-ico">👀</span>
+          <div class="headline-t">What you'll see: 정합성 검증 대시보드 + 오류 격리 큐 + 스키마 변경 경고 + 연계 로그·재처리<span class="ko">잘못된 데이터가 ORG/MD로 흘러가기 전 차단하는 게이트키퍼</span></div>
+        </div>
+        <div class="desc-bi">
+          <div><div class="db-lbl">EN · Description</div><div class="db-en">The gatekeeper screen. Validates every synced record before it propagates to ORG/MD; integrity errors are quarantined and held from downstream application (block). Detects source schema changes and warns operators, preserves a full integration log for audit, and supports re-validation/re-processing of held records.</div></div>
+          <div><div class="db-lbl">KO · 설명</div><div class="db-ko">게이트키퍼 화면. 동기화된 모든 레코드를 ORG/MD 반영 전 검증; 정합성 오류는 격리되어 다운스트림 반영이 보류(차단)됩니다. 소스 스키마 변경을 감지·경고하고, 감사용 전체 연계 로그를 보존하며, 보류 레코드의 재검증·재처리를 지원.</div></div>
+        </div>
+        <div class="br-chips"><span class="br-chip-lbl">관련 BR ▸</span><a class="br-chip crit" href="#br-int">BR-INT-02</a><a class="br-chip" href="#br-int">BR-INT-04</a><a class="br-chip" href="#br-int">BR-INT-05</a></div>
+      </div>
+    </div>
+
+    <!-- REFERENCE: Integration Endpoints -->
+    <div class="sec-div" id="ref-endpoints"><div class="sd-line"></div><div class="sd-lbl">▼ INTEGRATION ENDPOINTS · 연계 엔드포인트</div><div class="sd-line"></div></div>
+    <table class="ref-tbl">
+      <thead><tr><th style="width:120px;">Source</th><th style="width:200px;">Endpoint · 엔드포인트</th><th>Description · 설명</th><th style="width:110px;">방식 · Mode</th></tr></thead>
+      <tbody>
+        <tr><td class="code">SAP</td><td><b>SAP BOM</b> · 자재명세서</td><td>SAP 자재구성(BOM) 추출. ORG BOM 롤업·RVC 계산 기반 데이터.</td><td><span class="pill p-i">배치</span></td></tr>
+        <tr><td class="code">SAP</td><td><b>SAP Supplier</b> · 공급사 마스터</td><td>SAP 공급사 마스터 레코드. 공급사 코드·명·국가·상태.</td><td><span class="pill p-i">배치</span></td></tr>
+        <tr><td class="code">SCM</td><td><b>SCM PO</b> · 발주/공급망</td><td>SCM 발주(PO)·공급망 데이터. 실시간 공급사 거래 반영.</td><td><span class="pill p-ok">실시간</span></td></tr>
+      </tbody>
+    </table>
+
+    <!-- REFERENCE: Sync Schedules -->
+    <div class="sec-div" id="ref-sched"><div class="sd-line"></div><div class="sd-lbl">▼ SYNC SCHEDULES · 동기화 스케줄</div><div class="sd-line"></div></div>
+    <table class="ref-tbl">
+      <thead><tr><th style="width:140px;">Job · 작업</th><th style="width:130px;">Source</th><th style="width:150px;">Frequency · 주기</th><th>Note · 비고</th></tr></thead>
+      <tbody>
+        <tr><td><b>BOM Full Sync</b><br>BOM 전체 동기화</td><td class="code">SAP BOM</td><td><span class="pill p-i">일 1회 (야간)</span></td><td>매일 02:00 전체 BOM 재동기화. 차이만 반영.</td></tr>
+        <tr><td><b>Supplier Sync</b><br>공급사 동기화</td><td class="code">SAP Supplier</td><td><span class="pill p-i">일 1회 (야간)</span></td><td>매일 02:30 공급사 마스터 동기화. 소스 우선순위 적용.</td></tr>
+        <tr><td><b>PO Stream</b><br>발주 스트림</td><td class="code">SCM PO</td><td><span class="pill p-ok">시간별 / 실시간</span></td><td>매시간 또는 이벤트 기반 실시간 수집.</td></tr>
+        <tr><td><b>Integrity Scan</b><br>정합성 스캔</td><td class="code">전체</td><td><span class="pill p-w">동기화 후 즉시</span></td><td>각 동기화 완료 직후 자동 정합성 검증 실행.</td></tr>
+      </tbody>
+    </table>
+
+    <!-- BUSINESS RULES -->
+    <div class="sec-div" id="br-int"><div class="sd-line"></div><div class="sd-lbl">▼ BUSINESS RULES · 업무 규칙</div><div class="sd-line"></div></div>
+    <div class="br-wrap">
+      <table class="br-tbl">
+        <thead><tr><th style="width:90px;">ID</th><th style="width:30%;">Rule · 규칙</th><th>Detail · 상세</th><th style="width:80px;">Action</th></tr></thead>
+        <tbody>
+          <tr><td class="br-id-c">BR-INT-01</td><td><b>Sync Failure Rollback</b><br><span style="color:var(--sub);font-size:10px;">동기화 실패 시 롤백·알림</span></td><td>동기화 작업 실패 시 부분 반영을 롤백하여 일관성 보장, 담당자에게 자동 알림. 데이터 절반 반영 방지.</td><td><span class="b b-aut">자동</span></td></tr>
+          <tr><td class="br-id-c">BR-INT-02</td><td><b>Integrity Quarantine</b><br><span style="color:var(--sub);font-size:10px;">정합성 오류 격리·반영 보류</span></td><td>정합성 검증 실패 레코드는 격리 큐로 이동, ORG/MD 다운스트림 반영 차단. 해소 후에만 반영.</td><td><span class="b b-blk">차단</span></td></tr>
+          <tr><td class="br-id-c">BR-INT-03</td><td><b>Source Priority Resolution</b><br><span style="color:var(--sub);font-size:10px;">마스터 충돌 시 소스 우선순위</span></td><td>마스터 충돌 시 사전 정의된 소스 우선순위 규칙으로 해소(예: SAP > SCM). 미해소 충돌은 검토 대상 표시.</td><td><span class="b b-alt">검증</span></td></tr>
+          <tr><td class="br-id-c">BR-INT-04</td><td><b>Integration Log Retention</b><br><span style="color:var(--sub);font-size:10px;">연계 로그 보존</span></td><td>모든 동기화·검증·반영 이벤트 로그 기록(소스·시각·건수·결과). 감사 대응용 보존.</td><td><span class="b b-aut">자동</span></td></tr>
+          <tr><td class="br-id-c">BR-INT-05</td><td><b>Schema Change Detection</b><br><span style="color:var(--sub);font-size:10px;">스키마 변경 감지·경고</span></td><td>소스 시스템 스키마 변경 감지 시 동기화 전 경고. 미검증 매핑으로 인한 데이터 오염 방지.</td><td><span class="b b-alt">검증</span></td></tr>
+          <tr><td class="br-id-c">BR-INT-06</td><td><b>Sensitive Data Masking</b><br><span style="color:var(--sub);font-size:10px;">민감정보 마스킹</span></td><td>자격증명·개인정보 등 민감 필드는 로그·화면에서 마스킹. 연계 시에만 보안 채널로 전송.</td><td><span class="b b-alt">검증</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+  <div class="page-footer">
+    <span class="pf-l">UOCM · USMCA Origin Compliance Management System</span>
+    <span class="pf-r">VOL.6 · INT · Integration · L2 Hub</span>
+  </div>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>UOCM · VOL.6 · INT-04 · Data Integrity Monitor · 상세 설계서</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;600;700&family=Bebas+Neue&display=swap');
+:root{
+  --brand:#059669;--brand-dk:#047857;
+  --ink:#0a1422;--ink2:#101d2e;--ink3:#1c2c40;
+  --surface:#fff;--bg:#f4f7fa;--border:#d3dce6;--text:#1e2a38;--sub:#5b6b7d;
+  --doc:#6366f1;--doc-dk:#4f46e5;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);font-size:13px;line-height:1.6;}
+
+/* NAV */
+.uo-nav{position:sticky;top:0;z-index:9999;background:#fff;border-bottom:1px solid #e5eaf0;box-shadow:0 1px 4px rgba(15,39,71,.06);}
+.uo-nav-inner{display:flex;align-items:stretch;overflow-x:auto;scrollbar-width:none;}
+.uo-nav-inner::-webkit-scrollbar{display:none;}
+.nav-home{display:flex;align-items:center;gap:8px;padding:0 16px;background:rgba(5,150,105,.08);border-right:1px solid #e5eaf0;text-decoration:none;flex-shrink:0;min-height:42px;}
+.nav-home-logo{font-family:'Bebas Neue',sans-serif;font-size:17px;color:var(--brand);letter-spacing:2px;}
+.nav-home-sub{font-size:9px;color:#94a3b8;}
+.nav-vol{display:flex;align-items:center;gap:5px;padding:0 12px;text-decoration:none;font-size:10px;font-weight:700;color:#5b6b7d;border-bottom:2px solid transparent;white-space:nowrap;min-height:42px;transition:color .12s;}
+.nav-vol:hover{color:#0f2747;background:#f6f8fa;}
+.nav-vol.active{color:#0f2747;border-bottom-color:#059669;}
+.nav-vol .nv-code{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;}
+
+/* BREADCRUMB */
+.l3-crumb{background:#f6f8fa;border-bottom:1px solid #e5eaf0;padding:7px 24px;display:flex;align-items:center;gap:8px;font-size:10px;color:#5b6b7d;font-family:'JetBrains Mono',monospace;letter-spacing:.5px;}
+.l3-crumb a{color:#5b6b7d;text-decoration:none;transition:color .12s;}
+.l3-crumb a:hover{color:#0f2747;}
+.l3-crumb .arr{color:#cbd5e1;}
+.l3-crumb .current{color:#047857;font-weight:700;}
+.l3-crumb .lvl{font-size:8px;padding:1px 6px;border:1px solid #d3dce6;border-radius:2px;color:#94a3b8;margin-right:4px;}
+
+/* LAYOUT */
+.page-wrap{display:flex;}
+.sidebar{width:240px;min-width:240px;background:#f6f8fa;position:sticky;top:69px;height:calc(100vh - 69px);overflow-y:auto;scrollbar-width:thin;border-right:1px solid #e5eaf0;}
+.sb-head{padding:16px 14px 12px;border-bottom:1px solid #e5eaf0;}
+.sb-vol{font-family:'JetBrains Mono',monospace;font-size:9px;color:#047857;letter-spacing:2px;margin-bottom:4px;}
+.sb-mod-en{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1px;color:#0f2747;}
+.sb-mod-ko{font-size:10px;color:#94a3b8;}
+.sb-section{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#94a3b8;padding:14px 14px 6px;}
+.sb-link{display:flex;align-items:center;gap:7px;padding:6px 14px;text-decoration:none;color:#5b6b7d;font-size:11px;border-left:2px solid transparent;transition:all .12s;}
+.sb-link:hover{color:#0f2747;background:#eef2f7;}
+.sb-link.on{color:#0f2747;border-left-color:#059669;background:rgba(5,150,105,.08);}
+.sb-link .sl-id{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;width:44px;flex-shrink:0;color:#6366f1;}
+.sb-link.on .sl-id{color:#047857;}
+.sb-link .sl-en{font-size:10px;font-weight:600;}
+.sb-link .sl-ko{font-size:9px;color:#94a3b8;margin-top:1px;}
+.sb-toc{padding:6px 14px 14px;border-top:1px solid #e5eaf0;margin-top:6px;}
+.sb-toc-title{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#047857;margin-bottom:6px;}
+.sb-toc a{display:block;padding:4px 8px;border-radius:3px;font-size:10px;color:#5b6b7d;text-decoration:none;transition:all .12s;}
+.sb-toc a:hover{color:#0f2747;background:#eef2f7;}
+.sb-toc a .num{font-family:'JetBrains Mono',monospace;color:#059669;font-size:9px;margin-right:6px;}
+
+.main{flex:1;min-width:0;}
+
+/* SCREEN HEADER */
+.scr-hdr{padding:32px 48px 26px;background:linear-gradient(135deg,#eef0fe,#ffffff);position:relative;overflow:hidden;border-bottom:1px solid #e5eaf0;}
+.scr-hdr::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(99,102,241,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(99,102,241,.05) 1px,transparent 1px);background-size:32px 32px;pointer-events:none;}
+.scr-hdr::after{content:'';position:absolute;top:-40%;right:-10%;width:380px;height:380px;background:radial-gradient(circle,rgba(99,102,241,.12),transparent 70%);pointer-events:none;}
+.scr-hdr-inner{position:relative;z-index:1;}
+.scr-eyebrow{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#6366f1;margin-bottom:12px;display:flex;align-items:center;gap:10px;}
+.scr-eyebrow .dot{width:5px;height:5px;background:#818cf8;border-radius:50%;box-shadow:0 0 8px #818cf8;}
+.scr-id-block{display:flex;align-items:flex-end;gap:18px;margin-bottom:14px;}
+.scr-id{font-family:'Bebas Neue',sans-serif;font-size:54px;letter-spacing:2px;color:#6366f1;line-height:.9;text-shadow:0 0 22px rgba(99,102,241,.25);}
+.scr-title-en{font-family:'Bebas Neue',sans-serif;font-size:46px;letter-spacing:1.5px;color:#0f2747;line-height:.95;}
+.scr-title-ko{font-size:13px;color:#5b6b7d;letter-spacing:3px;}
+.scr-meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px;}
+.meta-chip{display:flex;align-items:center;gap:6px;padding:5px 11px;background:#f6f8fa;border:1px solid #d3dce6;border-radius:3px;font-size:10px;color:#1e2a38;}
+.meta-chip .mc-lbl{font-family:'JetBrains Mono',monospace;font-size:8px;color:#94a3b8;letter-spacing:1px;text-transform:uppercase;}
+.meta-chip .mc-val{font-weight:700;}
+.meta-chip.web{border-color:rgba(99,102,241,.3);color:#6366f1;}
+.meta-chip.phase{border-color:rgba(16,185,129,.3);color:#047857;}
+.meta-chip.role{border-color:rgba(129,140,248,.3);color:#6366f1;}
+
+.content{padding:0 48px 60px;}
+.sec{margin-top:36px;}
+.sec-hdr{display:flex;align-items:center;gap:14px;margin-bottom:16px;}
+.sec-num{font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--doc);letter-spacing:1px;line-height:1;min-width:42px;}
+.sec-title-wrap{flex:1;}
+.sec-title-en{font-size:18px;font-weight:800;color:var(--text);letter-spacing:-.3px;}
+.sec-title-ko{font-size:11px;color:var(--sub);margin-top:1px;}
+.sec-line{flex:1;height:1px;background:linear-gradient(90deg,var(--doc),transparent);max-width:200px;}
+
+/* OVERVIEW */
+.ov-grid{display:grid;grid-template-columns:1.6fr 1fr;gap:14px;}
+.ov-desc{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--doc);border-radius:0 6px 6px 0;padding:16px 18px;}
+.ov-desc-en{font-size:12px;color:var(--text);line-height:1.85;margin-bottom:10px;}
+.ov-desc-ko{font-size:11px;color:var(--sub);line-height:1.85;padding-top:10px;border-top:1px dashed var(--border);}
+.ov-meta{background:var(--surface);border:1px solid var(--border);border-radius:6px;overflow:hidden;}
+.ov-meta-row{display:flex;border-bottom:1px solid var(--border);font-size:11px;}
+.ov-meta-row:last-child{border-bottom:none;}
+.ov-meta-k{flex:0 0 110px;background:#f6f8fa;padding:8px 12px;font-weight:700;color:var(--sub);font-size:10px;letter-spacing:.5px;text-transform:uppercase;border-right:1px solid var(--border);}
+.ov-meta-v{flex:1;padding:8px 12px;color:var(--text);}
+.ov-meta-v .ko{font-size:10px;color:var(--sub);margin-left:6px;}
+.ov-meta-v code{font-family:'JetBrains Mono',monospace;font-size:10px;background:#f0f3f7;padding:1px 6px;border-radius:3px;color:var(--doc);}
+
+/* MOCKUP */
+.mock-wrap{background:#eef1f5;border:1px solid var(--border);border-radius:8px;padding:14px;}
+.mock-lbl{font-size:9px;font-weight:700;color:var(--sub);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.mock-lbl::before{content:'';width:6px;height:6px;background:var(--doc);border-radius:50%;}
+.mock-win{background:#fff;border:1px solid #c8d0db;border-radius:6px;overflow:hidden;box-shadow:0 4px 14px rgba(0,0,0,.08);}
+.mock-tbar{background:var(--text);color:#fff;padding:8px 14px;display:flex;align-items:center;gap:8px;font-size:11px;font-weight:700;}
+.mock-tbar .dots{display:flex;gap:5px;}
+.mock-tbar .dots span{width:9px;height:9px;border-radius:50%;display:block;background:rgba(255,255,255,.25);}
+.mock-tbar .bc{margin-left:auto;font-size:9px;color:rgba(255,255,255,.4);font-family:'JetBrains Mono',monospace;}
+.mock-toolbar{background:#f6f8fa;border-bottom:1px solid var(--border);padding:8px 14px;display:flex;gap:7px;align-items:center;flex-wrap:wrap;}
+.mock-toolbar select,.mock-toolbar input{padding:4px 9px;border:1px solid var(--border);border-radius:3px;font-size:11px;background:#fff;color:var(--text);}
+.mbtn{padding:5px 12px;border-radius:4px;font-size:11px;font-weight:700;border:1px solid transparent;cursor:pointer;display:inline-flex;align-items:center;gap:5px;}
+.mbtn-pri{background:var(--doc);color:#fff;border-color:var(--doc);}
+.mbtn-sec{background:#fff;color:var(--text);border-color:var(--border);}
+.mbtn-ghost{background:transparent;color:var(--sub);border-color:var(--border);}
+.mock-body{padding:14px;}
+
+.kpi-strip{display:flex;gap:0;border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-bottom:14px;}
+.kc{flex:1;padding:10px 13px;border-right:1px solid var(--border);background:#fafbfc;}
+.kc:last-child{border-right:none;}
+.kv{font-size:22px;font-weight:900;font-family:'JetBrains Mono',monospace;line-height:1;}
+.kl{font-size:9px;color:var(--sub);margin-top:3px;}
+
+.tbl{width:100%;border-collapse:collapse;font-size:11px;}
+.tbl th{background:#f0f3f7;padding:7px 9px;font-weight:700;border:1px solid var(--border);text-align:left;font-size:10px;color:var(--text);}
+.tbl th .th-ko{font-weight:400;color:var(--sub);font-size:9px;display:block;}
+.tbl td{padding:6px 9px;border:1px solid var(--border);vertical-align:middle;}
+.tbl .rok td{background:#f0fdf4;}
+.tbl .rw td{background:#fffbeb;}
+.tbl .rd td{background:#fef2f2;}
+.tbl tr:hover td{filter:brightness(.98);}
+.tbl .mono{font-family:'JetBrains Mono',monospace;font-size:10px;}
+.b{display:inline-block;font-size:9px;font-weight:700;padding:2px 7px;border-radius:8px;}
+.b-ok{background:#dcfce7;color:#166534;}.b-w{background:#fef9c3;color:#92400e;}.b-e{background:#fee2e2;color:#991b1b;}.b-i{background:#e0e7ff;color:#3730a3;}.b-n{background:#f1f5f9;color:#475569;}
+
+/* DRAWER FORM MOCK */
+.drawer{background:#fff;border:1px solid var(--border);border-radius:6px;overflow:hidden;box-shadow:0 6px 24px rgba(0,0,0,.1);}
+.drawer-h{background:linear-gradient(135deg,#0e2148,#4f46e5);color:#fff;padding:11px 16px;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:space-between;}
+.drawer-h .x{opacity:.6;}
+.drawer-b{padding:16px;}
+.fld{display:flex;flex-direction:column;gap:4px;}
+.fld-l{font-size:10px;font-weight:700;color:var(--sub);}
+.fld-l .req{color:#dc2626;}
+.fld-in{border:1px solid var(--border);border-radius:4px;padding:7px 10px;font-size:11px;color:var(--text);background:#fff;}
+.fld-in.ph{color:#9aa7b5;}
+.drawer-f{border-top:1px solid var(--border);padding:12px 16px;display:flex;justify-content:flex-end;gap:8px;background:#f6f8fa;}
+
+/* COMPONENT SPEC */
+.cs-tbl{width:100%;border-collapse:collapse;font-size:11px;background:var(--surface);border:1px solid var(--border);border-radius:6px;overflow:hidden;}
+.cs-tbl th{background:#eef0fe;color:#4f46e5;padding:9px 10px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;border-bottom:1px solid #c7d2fe;}
+.cs-tbl th .th-ko{display:block;color:#818cf8;font-weight:400;font-size:9px;letter-spacing:0;text-transform:none;margin-top:1px;}
+.cs-tbl td{padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:top;}
+.cs-tbl tr:last-child td{border-bottom:none;}
+.cs-tbl tr:hover td{background:#f9fafb;}
+.cs-tbl .c-id{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;color:var(--doc);}
+.cs-tbl .c-name{font-weight:700;color:var(--text);}
+.cs-tbl .c-name .ko{font-size:10px;font-weight:400;color:var(--sub);display:block;margin-top:1px;}
+.cs-tbl .c-type{font-family:'JetBrains Mono',monospace;font-size:10px;color:#7c3aed;background:#f5f3ff;padding:2px 6px;border-radius:3px;display:inline-block;}
+.cs-tbl .c-req.y{color:#dc2626;font-weight:700;font-family:'JetBrains Mono',monospace;font-size:9px;}
+.cs-tbl .c-req.n{color:var(--sub);font-family:'JetBrains Mono',monospace;font-size:9px;}
+.cs-tbl .c-validation{font-size:10px;color:var(--text);line-height:1.6;}
+.cs-tbl .c-validation code{font-family:'JetBrains Mono',monospace;font-size:9px;background:#fff7ed;color:#9a3412;padding:1px 5px;border-radius:2px;}
+
+/* EVENT FLOW */
+.ef-wrap{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:18px 20px;}
+.ef-step{display:grid;grid-template-columns:46px 1fr;gap:14px;padding:10px 0;position:relative;}
+.ef-step:not(:last-child)::before{content:'';position:absolute;left:23px;top:42px;bottom:-10px;width:2px;background:linear-gradient(180deg,var(--doc),rgba(99,102,241,.15));}
+.ef-num{width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,var(--doc),#4f46e5);color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;box-shadow:0 4px 12px rgba(99,102,241,.25);position:relative;z-index:1;}
+.ef-step.terminal .ef-num{background:linear-gradient(135deg,#059669,#047857);box-shadow:0 4px 12px rgba(5,150,105,.25);}
+.ef-step.error .ef-num{background:linear-gradient(135deg,#dc2626,#991b1b);box-shadow:0 4px 12px rgba(220,38,38,.25);}
+.ef-trig{display:flex;align-items:center;gap:6px;margin-bottom:4px;}
+.ef-trig-tag{font-family:'JetBrains Mono',monospace;font-size:8px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:2px 7px;border-radius:2px;}
+.ef-trig-tag.user{background:#e0e7ff;color:#3730a3;}
+.ef-trig-tag.system{background:#f3e8ff;color:#7c3aed;}
+.ef-trig-tag.scheduled{background:#fef3c7;color:#92400e;}
+.ef-trig-name{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:var(--text);}
+.ef-action{font-size:12px;color:var(--text);line-height:1.7;margin-bottom:3px;}
+.ef-action-ko{font-size:11px;color:var(--sub);line-height:1.7;}
+.ef-result{margin-top:6px;padding:7px 10px;background:#f6f8fa;border-left:2px solid var(--doc);border-radius:0 3px 3px 0;font-size:10px;color:var(--text);}
+.ef-result .er-lbl{font-family:'JetBrains Mono',monospace;font-size:8px;font-weight:700;color:var(--doc);letter-spacing:1px;margin-right:6px;}
+.ef-result code{font-family:'JetBrains Mono',monospace;font-size:10px;background:#fff;padding:1px 5px;border-radius:2px;border:1px solid var(--border);color:#7c3aed;}
+.ef-step.error .ef-result{border-left-color:#dc2626;background:#fef2f2;}
+.ef-step.error .ef-result .er-lbl{color:#dc2626;}
+.ef-step.terminal .ef-result{border-left-color:#059669;background:#f0fdf4;}
+.ef-step.terminal .ef-result .er-lbl{color:#059669;}
+
+/* EXCEPTION */
+.exc-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;}
+.exc-card{background:var(--surface);border:1px solid var(--border);border-top:3px solid #dc2626;border-radius:0 0 6px 6px;padding:13px 15px;}
+.exc-card.warn{border-top-color:#f59e0b;}
+.exc-card.info{border-top-color:#6366f1;}
+.exc-hdr{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.exc-code{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;color:#dc2626;background:#fef2f2;padding:2px 8px;border-radius:3px;}
+.exc-card.warn .exc-code{color:#92400e;background:#fef3c7;}
+.exc-card.info .exc-code{color:#3730a3;background:#e0e7ff;}
+.exc-name{font-size:12px;font-weight:700;color:var(--text);flex:1;}
+.exc-name .ko{font-size:10px;font-weight:400;color:var(--sub);display:block;}
+.exc-row{display:grid;grid-template-columns:64px 1fr;gap:8px;padding:5px 0;border-top:1px dashed var(--border);font-size:10px;}
+.exc-row:first-of-type{border-top:none;}
+.exc-row .lbl{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;color:var(--sub);letter-spacing:.5px;text-transform:uppercase;padding-top:2px;}
+.exc-row .val{color:var(--text);line-height:1.6;}
+.exc-row .val code{font-family:'JetBrains Mono',monospace;font-size:9px;background:#f0f3f7;padding:1px 5px;border-radius:2px;color:#7c3aed;}
+.exc-msg{margin-top:8px;padding:7px 10px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:10px;text-align:center;background:#fef2f2;border:1px solid #fecaca;color:#991b1b;}
+.exc-card.warn .exc-msg{background:#fffbeb;border-color:#fde68a;color:#92400e;}
+.exc-card.info .exc-msg{background:#eef0fe;border-color:#c7d2fe;color:#3730a3;}
+
+/* LINKAGE */
+.lnk-wrap{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:20px 24px;}
+.lnk-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:center;}
+.lnk-node{padding:12px 16px;border-radius:6px;text-align:center;min-width:128px;border:2px solid;text-decoration:none;}
+.lnk-node.up{background:#f0fdf4;border-color:#22c55e;}
+.lnk-node.cur{background:linear-gradient(135deg,#0e2148,#4f46e5);border-color:#818cf8;color:#fff;box-shadow:0 4px 16px rgba(99,102,241,.25);}
+.lnk-node.down{background:#fef3c7;border-color:#f59e0b;}
+.lnk-id{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;letter-spacing:.5px;margin-bottom:3px;}
+.lnk-node.up .lnk-id{color:#15803d;}
+.lnk-node.cur .lnk-id{color:#a5b4fc;}
+.lnk-node.down .lnk-id{color:#92400e;}
+.lnk-name{font-size:11px;font-weight:700;color:var(--text);}
+.lnk-node.cur .lnk-name{color:#fff;}
+.lnk-ko{font-size:9px;opacity:.7;margin-top:2px;}
+.lnk-arr{font-size:20px;color:var(--sub);font-weight:700;}
+
+/* BR MINI */
+.br-mini{width:100%;border-collapse:collapse;font-size:11px;background:var(--surface);border:1px solid var(--border);border-radius:6px;overflow:hidden;}
+.br-mini th{background:#eef0fe;color:#3730a3;padding:8px 10px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;border-bottom:1px solid #c7d2fe;}
+.br-mini td{padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:top;}
+.br-mini tr:last-child td{border-bottom:none;}
+.br-mini .br-id{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;color:var(--brand-dk);white-space:nowrap;}
+.br-mini .br-en{font-size:11px;color:var(--text);line-height:1.6;}
+.br-mini .br-ko{font-size:10px;color:var(--sub);line-height:1.6;margin-top:3px;}
+.br-mini .br-act{text-align:center;}
+.br-mini .br-act span{display:inline-block;font-size:9px;font-weight:700;padding:2px 7px;border-radius:3px;}
+.br-mini .br-act .blk{background:#fee2e2;color:#991b1b;}
+.br-mini .br-act .alt{background:#fef9c3;color:#92400e;}
+.br-mini .br-act .aut{background:#e0e7ff;color:#3730a3;}
+
+.page-footer{padding:24px 48px;border-top:1px solid #e5eaf0;background:#f6f8fa;color:#94a3b8;display:flex;justify-content:space-between;align-items:center;font-size:10px;}
+.page-footer .pf-l{font-family:'JetBrains Mono',monospace;letter-spacing:.5px;}
+.page-footer .pf-r{color:#047857;font-family:'JetBrains Mono',monospace;}
+
+@media(max-width:1100px){.ov-grid{grid-template-columns:1fr;}.exc-grid{grid-template-columns:1fr;}.scr-id-block{flex-direction:column;align-items:flex-start;gap:6px;}.scr-id{font-size:42px;}.scr-title-en{font-size:32px;}}
+</style>
+</head>
+<body>
+<nav class="uo-nav"><div class="uo-nav-inner">
+  <a href="index.html" class="nav-home"><span class="nav-home-logo">UOCM</span><span class="nav-home-sub">Index</span></a>
+  <a href="VOL01_Overview.html" class="nav-vol"><span class="nv-code" style="color:#10b981;">OV</span><span>Overview</span></a>
+  <a href="VOL02_DOC_Document_Management.html" class="nav-vol"><span class="nv-code" style="color:#2563eb;">DOC</span><span>Document</span></a>
+  <a href="VOL03_LBL_Label_Management.html" class="nav-vol"><span class="nv-code" style="color:#7c3aed;">LBL</span><span>Label</span></a>
+  <a href="VOL04_ORG_Origin_Management.html" class="nav-vol"><span class="nv-code" style="color:#0891b2;">ORG</span><span>Origin</span></a>
+  <a href="VOL05_AUD_Audit_Support.html" class="nav-vol"><span class="nv-code" style="color:#dc2626;">AUD</span><span>Audit</span></a>
+  <a href="VOL06_INT_Integration.html" class="nav-vol active"><span class="nv-code" style="color:#6366f1;">INT</span><span>Integration</span></a>
+  <a href="VOL07_SYS_System.html" class="nav-vol"><span class="nv-code" style="color:#64748b;">SYS</span><span>System</span></a>
+  <a href="VOL08_MD_Master_Data.html" class="nav-vol"><span class="nv-code" style="color:#d97706;">MD</span><span>Master Data</span></a>
+</div></nav>
+
+<div class="l3-crumb">
+  <span class="lvl">L1</span><a href="index.html">UOCM Index</a>
+  <span class="arr">▸</span>
+  <span class="lvl">L2</span><a href="VOL06_INT_Integration.html">VOL.6 · INT Integration</a>
+  <span class="arr">▸</span>
+  <span class="lvl">L3</span><span class="current">INT-04 · Data Integrity Monitor</span>
+</div>
+
+<div class="page-wrap">
+<nav class="sidebar">
+  <div class="sb-head">
+    <div class="sb-vol">VOL.6 · INT MODULE</div>
+    <div class="sb-mod-en">INTEGRATION</div>
+    <div class="sb-mod-ko">시스템 연계·정합성</div>
+  </div>
+  <div class="sb-section">L3 Screens · 화면 상세</div>
+  <a class="sb-link" href="VOL06_INT01_Connector_Hub.html"><span class="sl-id">INT-01</span><div><div class="sl-en">Connector Hub</div><div class="sl-ko">연계 커넥터</div></div></a>
+  <a class="sb-link" href="VOL06_INT02_Sync_Scheduler.html"><span class="sl-id">INT-02</span><div><div class="sl-en">Sync Scheduler</div><div class="sl-ko">동기화 스케줄러</div></div></a>
+  <a class="sb-link" href="VOL06_INT03_Sync_Monitor.html"><span class="sl-id">INT-03</span><div><div class="sl-en">Sync Monitor</div><div class="sl-ko">동기화 모니터</div></div></a>
+  <a class="sb-link on" href="VOL06_INT04_Integrity_Monitor.html"><span class="sl-id">INT-04</span><div><div class="sl-en">Integrity Monitor</div><div class="sl-ko">정합성 검증</div></div></a>
+  <div class="sb-toc">
+    <div class="sb-toc-title">On this page</div>
+    <a href="#s1"><span class="num">01</span>Overview</a>
+    <a href="#s2"><span class="num">02</span>Screen Mockup</a>
+    <a href="#s3"><span class="num">03</span>UI Components</a>
+    <a href="#s4"><span class="num">04</span>Event &amp; Action Flow</a>
+    <a href="#s5"><span class="num">05</span>Exception Handling</a>
+    <a href="#s6"><span class="num">06</span>Linked Screens</a>
+    <a href="#s7"><span class="num">07</span>Business Rules</a>
+  </div>
+</nav>
+
+<div class="main">
+  <div class="scr-hdr">
+    <div class="scr-hdr-inner">
+      <div class="scr-eyebrow"><span class="dot"></span>VOL.6 · INT-04 · ⚙ CORE · 전사 데이터 정합성 검증</div>
+      <div class="scr-id-block">
+        <div class="scr-id">INT-04</div>
+        <div><div class="scr-title-en">Data Integrity Monitor</div></div>
+      </div>
+      <div class="scr-title-ko">데 이 터 정 합 성 검 증</div>
+      <div class="scr-meta">
+        <div class="meta-chip web"><span class="mc-lbl">Device</span><span class="mc-val">🖥 Web PC</span></div>
+        <div class="meta-chip phase"><span class="mc-lbl">Phase</span><span class="mc-val">4 · 전사 (Core)</span></div>
+        <div class="meta-chip role"><span class="mc-lbl">Role</span><span class="mc-val">IT / Compliance (INT.View)</span></div>
+        <div class="meta-chip"><span class="mc-lbl">Freq</span><span class="mc-val">상시 모니터링</span></div>
+        <div class="meta-chip"><span class="mc-lbl">URL</span><span class="mc-val" style="font-family:'JetBrains Mono',monospace;">/int/integrity</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="content">
+
+  <!-- 1. OVERVIEW -->
+  <section class="sec" id="s1">
+    <div class="sec-hdr"><div class="sec-num">01</div><div class="sec-title-wrap"><div class="sec-title-en">Overview</div><div class="sec-title-ko">화면 개요</div></div><div class="sec-line"></div></div>
+    <div class="ov-grid">
+      <div class="ov-desc">
+        <div class="ov-desc-en">The <strong>Data Integrity Monitor</strong> continuously validates cross-system data integrity — detecting <strong>parts without BOM, BOM nodes without origin, certificates referencing unknown suppliers, orphan records, and sync drift</strong> across the integrated landscape (ERP / PLM / supplier portal). Each rule runs on a schedule; violations are isolated and surfaced as <strong>actionable issues (BR-INT-02)</strong> rather than allowed to silently corrupt downstream origin determination. A KPI strip summarizes total / critical / warning / resolved issues, a rules-and-issues grid lets users drill into each violation, and the issue-detail panel lists every affected record with a suggested fix and a jump-to-source link. This screen is the safety gate that keeps bad data from poisoning ORG, MD, and AUD.</div>
+        <div class="ov-desc-ko"><strong>데이터 정합성 검증</strong> 화면은 연계된 시스템(ERP·PLM·공급사 포털) 전반의 교차 정합성을 상시 검증합니다. <strong>BOM 미연계 부품, 원산지 없는 BOM 노드, 미등록 공급사를 참조하는 증빙, 고아 레코드, 동기화 드리프트</strong> 등을 탐지하며, 위반은 격리되어 <strong>실행 가능한 이슈(BR-INT-02)</strong>로 표면화됩니다 — 잘못된 데이터가 하류 원산지 판정을 오염시키지 못하도록 차단합니다. KPI 스트립(총 이슈·치명·경고·해결됨), 규칙·이슈 그리드, 이슈 상세 패널(영향 레코드·권장 조치·원본 이동)으로 구성됩니다.</div>
+      </div>
+      <div class="ov-meta">
+        <div class="ov-meta-row"><div class="ov-meta-k">Screen ID</div><div class="ov-meta-v"><code>INT-04</code></div></div>
+        <div class="ov-meta-row"><div class="ov-meta-k">Entry</div><div class="ov-meta-v">INT 메뉴 · 동기화 모니터 경보 <span class="ko">INT-03 라우팅</span></div></div>
+        <div class="ov-meta-row"><div class="ov-meta-k">Layout</div><div class="ov-meta-v">KPI + Grid + Detail Panel <span class="ko">스트립+그리드+상세</span></div></div>
+        <div class="ov-meta-row"><div class="ov-meta-k">Trigger</div><div class="ov-meta-v">Scheduled checks <span class="ko">예약 검사 + 동기화 후</span></div></div>
+        <div class="ov-meta-row"><div class="ov-meta-k">Tables</div><div class="ov-meta-v"><code>int_integrity_rule</code>, <code>int_integrity_issue</code></div></div>
+        <div class="ov-meta-row"><div class="ov-meta-k">RBAC</div><div class="ov-meta-v"><code>INT.View</code> / <code>INT.Resolve</code></div></div>
+        <div class="ov-meta-row"><div class="ov-meta-k">Export</div><div class="ov-meta-v">Excel · 이슈 목록 (감사용)</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. SCREEN MOCKUP -->
+  <section class="sec" id="s2">
+    <div class="sec-hdr"><div class="sec-num">02</div><div class="sec-title-wrap"><div class="sec-title-en">Screen Mockup</div><div class="sec-title-ko">화면 목업 — Web 정합성 모니터 + 이슈 상세</div></div><div class="sec-line"></div></div>
+
+    <div class="mock-wrap">
+      <div class="mock-lbl">INT-04 · Integrity Monitor · Rules &amp; Issues</div>
+      <div class="mock-win">
+        <div class="mock-tbar"><span class="dots"><span></span><span></span><span></span></span> UOCM — Integrity Monitor <span class="bc">/int/integrity</span></div>
+        <div class="mock-toolbar">
+          <select><option>심각도 · All Severity</option></select>
+          <select><option>대상 시스템 · All Sources</option></select>
+          <select><option>상태 · Open</option></select>
+          <input placeholder="🔍 규칙·대상 검색" style="min-width:170px;">
+          <span style="flex:1;"></span>
+          <button class="mbtn mbtn-ghost">⤓ Excel</button>
+          <button class="mbtn mbtn-sec">↻ 재검사</button>
+        </div>
+        <div class="mock-body">
+          <div class="kpi-strip">
+            <div class="kc"><div class="kv" style="color:#6366f1;">37</div><div class="kl">총 이슈 · Total Issues</div></div>
+            <div class="kc"><div class="kv" style="color:#dc2626;">4</div><div class="kl">치명 · Critical</div></div>
+            <div class="kc"><div class="kv" style="color:#a16207;">19</div><div class="kl">경고 · Warning</div></div>
+            <div class="kc"><div class="kv" style="color:#16a34a;">214</div><div class="kl">해결됨 · Resolved (30d)</div></div>
+          </div>
+          <table class="tbl">
+            <thead><tr>
+              <th>Rule<span class="th-ko">규칙</span></th>
+              <th style="width:74px;">Severity<span class="th-ko">심각도</span></th>
+              <th>Target<span class="th-ko">대상</span></th>
+              <th style="width:120px;">Detected<span class="th-ko">발견시각</span></th>
+              <th style="width:74px;">Status<span class="th-ko">상태</span></th>
+              <th style="width:118px;">Action</th>
+            </tr></thead>
+            <tbody>
+              <tr class="rd"><td>BOM 미연계 부품<span style="display:block;font-size:9px;color:var(--sub);">Parts without BOM</span></td><td><span class="b b-e">치명</span></td><td>BOM 미연계 부품 <strong>12건</strong></td><td class="mono">06-30 02:14</td><td><span class="b b-w">Open</span></td><td><button class="mbtn mbtn-ghost" style="padding:3px 8px;">상세</button><button class="mbtn mbtn-pri" style="padding:3px 8px;">해결</button></td></tr>
+              <tr class="rd"><td>원산지 없는 BOM 노드<span style="display:block;font-size:9px;color:var(--sub);">BOM node w/o origin</span></td><td><span class="b b-e">치명</span></td><td>원산지 미지정 노드 <strong>5건</strong></td><td class="mono">06-30 02:14</td><td><span class="b b-w">Open</span></td><td><button class="mbtn mbtn-ghost" style="padding:3px 8px;">상세</button><button class="mbtn mbtn-pri" style="padding:3px 8px;">해결</button></td></tr>
+              <tr class="rw"><td>미등록 공급사 참조 증빙<span style="display:block;font-size:9px;color:var(--sub);">Cert → unknown supplier</span></td><td><span class="b b-w">경고</span></td><td>증빙 <strong>3건</strong> · 공급사 미존재</td><td class="mono">06-30 02:14</td><td><span class="b b-w">Open</span></td><td><button class="mbtn mbtn-ghost" style="padding:3px 8px;">상세</button><button class="mbtn mbtn-pri" style="padding:3px 8px;">해결</button></td></tr>
+              <tr class="rw"><td>고아 레코드<span style="display:block;font-size:9px;color:var(--sub);">Orphan records</span></td><td><span class="b b-w">경고</span></td><td>참조 끊김 <strong>8건</strong></td><td class="mono">06-30 02:14</td><td><span class="b b-w">Open</span></td><td><button class="mbtn mbtn-ghost" style="padding:3px 8px;">상세</button><button class="mbtn mbtn-pri" style="padding:3px 8px;">해결</button></td></tr>
+              <tr class="rw"><td>동기화 드리프트<span style="display:block;font-size:9px;color:var(--sub);">Sync drift (ERP↔UOCM)</span></td><td><span class="b b-w">경고</span></td><td>값 불일치 <strong>9건</strong></td><td class="mono">06-30 01:50</td><td><span class="b b-i">조사중</span></td><td><button class="mbtn mbtn-ghost" style="padding:3px 8px;">상세</button><button class="mbtn mbtn-pri" style="padding:3px 8px;">해결</button></td></tr>
+              <tr class="rok"><td>중복 부품코드<span style="display:block;font-size:9px;color:var(--sub);">Duplicate part code</span></td><td><span class="b b-n">정보</span></td><td>중복 <strong>0건</strong></td><td class="mono">06-30 02:14</td><td><span class="b b-ok">정상</span></td><td><button class="mbtn mbtn-ghost" style="padding:3px 8px;">상세</button></td></tr>
+            </tbody>
+          </table>
+          <div style="margin-top:8px;font-size:9px;color:var(--sub);">빨강=치명(하류 차단, BR-INT-02) · 노랑=경고 · 회색=정보/정상 · 행 클릭 → 이슈 상세 패널</div>
+
+          <!-- ISSUE DETAIL PANEL -->
+          <div class="drawer" style="margin-top:14px;">
+            <div class="drawer-h"><span>⚠ 이슈 상세 · BOM 미연계 부품 (치명 · 12건)</span><span class="x">✕</span></div>
+            <div class="drawer-b">
+              <div class="fld" style="margin-bottom:12px;">
+                <span class="fld-l">규칙 · Rule</span>
+                <span class="fld-in"><code style="font-family:'JetBrains Mono',monospace;">RULE-INT-012</code> · 부품 마스터에 존재하나 어떤 BOM에도 연결되지 않은 부품 탐지</span>
+              </div>
+              <div class="fld" style="margin-bottom:12px;">
+                <span class="fld-l">영향 레코드 · Affected Records (12)</span>
+                <div style="border:1px solid var(--border);border-radius:4px;overflow:hidden;">
+                  <table class="tbl" style="font-size:10px;">
+                    <thead><tr><th style="width:120px;">Part Code</th><th>Name</th><th style="width:90px;">Source</th><th style="width:100px;">Jump</th></tr></thead>
+                    <tbody>
+                      <tr><td class="mono">BOLT-M8-44</td><td>육각볼트 M8×44</td><td>ERP</td><td><a href="VOL08_MD_Master_Data.html" style="color:var(--doc);font-size:10px;">→ MD 원본</a></td></tr>
+                      <tr><td class="mono">SEAL-NBR-07</td><td>NBR 씰 07</td><td>PLM</td><td><a href="VOL08_MD_Master_Data.html" style="color:var(--doc);font-size:10px;">→ MD 원본</a></td></tr>
+                      <tr><td class="mono">CONN-PA66-19</td><td>커넥터 PA66 19</td><td>ERP</td><td><a href="VOL08_MD_Master_Data.html" style="color:var(--doc);font-size:10px;">→ MD 원본</a></td></tr>
+                    </tbody>
+                  </table>
+                  <div style="padding:6px 9px;font-size:9px;color:var(--sub);background:#fafbfc;">… 외 9건 (전체 보기)</div>
+                </div>
+              </div>
+              <div class="fld" style="margin-bottom:4px;">
+                <span class="fld-l">권장 조치 · Suggested Fix</span>
+                <span class="fld-in" style="background:#eef0fe;border-color:#c7d2fe;color:#3730a3;">해당 부품을 BOM(BOP)에 연결하거나, 사용 중단 부품이면 MD에서 비활성 처리하십시오. 미해결 시 ORG 원산지 판정에서 제외됩니다.</span>
+              </div>
+            </div>
+            <div class="drawer-f">
+              <button class="mbtn mbtn-sec">사유 입력 후 무시</button>
+              <button class="mbtn mbtn-ghost" style="border-color:var(--border);">↻ 수정 후 재검사</button>
+              <button class="mbtn mbtn-pri">해결 처리 →</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. UI COMPONENTS -->
+  <section class="sec" id="s3">
+    <div class="sec-hdr"><div class="sec-num">03</div><div class="sec-title-wrap"><div class="sec-title-en">UI Component Specification</div><div class="sec-title-ko">UI 컴포넌트 명세</div></div><div class="sec-line"></div></div>
+    <table class="cs-tbl">
+      <thead><tr><th style="width:84px;">ID</th><th style="width:180px;">Component <span class="th-ko">컴포넌트</span></th><th style="width:120px;">Type</th><th style="width:50px;">Req</th><th>Validation / Behavior <span class="th-ko">검증·동작</span></th></tr></thead>
+      <tbody>
+        <tr><td class="c-id">CMP-01</td><td class="c-name">KPI Strip<span class="ko">요약 지표</span></td><td><span class="c-type">KPI×4</span></td><td class="c-req n">N</td><td class="c-validation">총 이슈 · 치명 · 경고 · 해결됨(30일). 마지막 검사 시각 표기. 치명>0 시 빨강 강조.</td></tr>
+        <tr><td class="c-id">CMP-02</td><td class="c-name">Rule List<span class="ko">규칙 목록</span></td><td><span class="c-type">TABLE</span></td><td class="c-req y">Y</td><td class="c-validation"><code>int_integrity_rule</code> 정의 규칙 + 최근 실행 결과. 정상 규칙은 회색 표시.</td></tr>
+        <tr><td class="c-id">CMP-03</td><td class="c-name">Issue Grid<span class="ko">이슈 그리드</span></td><td><span class="c-type">TABLE</span></td><td class="c-req y">Y</td><td class="c-validation">위반별 행. 대상 건수(예: BOM 미연계 12건)·발견시각·상태. 행 클릭 → 상세 패널.</td></tr>
+        <tr><td class="c-id">CMP-04</td><td class="c-name">Severity Badge<span class="ko">심각도 배지</span></td><td><span class="c-type">BADGE</span></td><td class="c-req y">Y</td><td class="c-validation">치명(빨강)/경고(노랑)/정보(회색). 분류 규칙은 BR-INT-02 기준. 필터 연동.</td></tr>
+        <tr><td class="c-id">CMP-05</td><td class="c-name">Issue Detail Panel<span class="ko">이슈 상세</span></td><td><span class="c-type">DRAWER</span></td><td class="c-req y">Y</td><td class="c-validation">규칙 설명 · 영향 레코드 목록 · 권장 조치 · 원본 이동 링크. 치명 이슈는 하류 차단 배너 표시.</td></tr>
+        <tr><td class="c-id">CMP-06</td><td class="c-name">[Resolve] / [Ignore]<span class="ko">해결·무시</span></td><td><span class="c-type">BUTTON×2</span></td><td class="c-req y">Y</td><td class="c-validation"><code>INT.Resolve</code> 권한 필요. 해결=상태 종료, 무시=사유 필수 입력(거짓양성 처리, BR-INT-04 로그).</td></tr>
+        <tr><td class="c-id">CMP-07</td><td class="c-name">Drill to Source<span class="ko">원본 이동</span></td><td><span class="c-type">LINK</span></td><td class="c-req n">N</td><td class="c-validation">레코드별 원본 화면(MD/ORG/DOC)으로 딥링크. 수정 후 [재검사]로 위반 재평가.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- 4. EVENT FLOW -->
+  <section class="sec" id="s4">
+    <div class="sec-hdr"><div class="sec-num">04</div><div class="sec-title-wrap"><div class="sec-title-en">Event &amp; Action Flow</div><div class="sec-title-ko">이벤트 · 액션 흐름</div></div><div class="sec-line"></div></div>
+    <div class="ef-wrap">
+      <div class="ef-step">
+        <div class="ef-num">1</div>
+        <div>
+          <div class="ef-trig"><span class="ef-trig-tag scheduled">SCHEDULED</span><span class="ef-trig-name">Run integrity checks</span></div>
+          <div class="ef-action">예약 스케줄(또는 동기화 완료 후) 시스템이 <code>int_integrity_rule</code> 규칙 집합을 일괄 실행.</div>
+          <div class="ef-action-ko">각 규칙이 교차 시스템 데이터를 스캔.</div>
+          <div class="ef-result"><span class="er-lbl">RESULT</span>Rules executed · 규칙 실행 완료</div>
+        </div>
+      </div>
+      <div class="ef-step">
+        <div class="ef-num">2</div>
+        <div>
+          <div class="ef-trig"><span class="ef-trig-tag system">SYSTEM</span><span class="ef-trig-name">Detect violations</span></div>
+          <div class="ef-action">정합성 위반 탐지 — BOM 미연계 부품, 원산지 없는 노드, 미등록 공급사 참조, 고아 레코드, 동기화 드리프트.</div>
+          <div class="ef-action-ko">위반은 격리되어 영향 레코드와 함께 기록.</div>
+          <div class="ef-result"><span class="er-lbl">RESULT</span>Violations isolated · <code>int_integrity_issue</code> insert</div>
+        </div>
+      </div>
+      <div class="ef-step">
+        <div class="ef-num">3</div>
+        <div>
+          <div class="ef-trig"><span class="ef-trig-tag system">SYSTEM</span><span class="ef-trig-name">Classify severity</span></div>
+          <div class="ef-action">규칙별 심각도 분류(치명/경고/정보). 치명 이슈는 하류 원산지 판정 차단 플래그 설정(BR-INT-02).</div>
+          <div class="ef-action-ko">전 과정 감사 로그 기록(BR-INT-04).</div>
+          <div class="ef-result"><span class="er-lbl">RESULT</span>Severity tagged · 차단 플래그 설정</div>
+        </div>
+      </div>
+      <div class="ef-step">
+        <div class="ef-num">4</div>
+        <div>
+          <div class="ef-trig"><span class="ef-trig-tag user">USER</span><span class="ef-trig-name">Open issue → review records</span></div>
+          <div class="ef-action">사용자가 이슈 상세 열람. 영향 레코드 목록·권장 조치 확인 후 원본 화면으로 이동(Drill to Source).</div>
+          <div class="ef-action-ko">거짓양성이면 사유 입력 후 무시 처리(→ EXC-02).</div>
+          <div class="ef-result"><span class="er-lbl">RESULT</span>Issue surfaced as actionable · 조치 가능</div>
+        </div>
+      </div>
+      <div class="ef-step terminal">
+        <div class="ef-num">✓</div>
+        <div>
+          <div class="ef-trig"><span class="ef-trig-tag user">USER</span><span class="ef-trig-name">Fix at source → Re-check → Resolve</span></div>
+          <div class="ef-action">원본에서 데이터 수정 후 [재검사] 실행. 위반 소멸 시 상태 <code>Resolved</code> 전환, 차단 플래그 해제.</div>
+          <div class="ef-action-ko">정합성 회복 → ORG/MD/AUD가 클린 데이터 사용.</div>
+          <div class="ef-result"><span class="er-lbl">DONE</span>Integrity restored · 하류 정상화</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. EXCEPTION -->
+  <section class="sec" id="s5">
+    <div class="sec-hdr"><div class="sec-num">05</div><div class="sec-title-wrap"><div class="sec-title-en">Exception Handling</div><div class="sec-title-ko">예외 처리</div></div><div class="sec-line"></div></div>
+    <div class="exc-grid">
+      <div class="exc-card">
+        <div class="exc-hdr"><span class="exc-code">EXC-01</span><span class="exc-name">Critical Blocks Downstream<span class="ko">치명 오류 하류 차단</span></span></div>
+        <div class="exc-row"><span class="lbl">Trigger</span><span class="val">치명 정합성 위반 존재 (BR-INT-02).</span></div>
+        <div class="exc-row"><span class="lbl">Action</span><span class="val">해당 데이터 영역의 ORG 원산지 판정 차단. 차단 배너 + 미해결 카운트 표시.</span></div>
+        <div class="exc-msg">치명 정합성 오류 — 하류 판정이 차단되었습니다</div>
+      </div>
+      <div class="exc-card warn">
+        <div class="exc-hdr"><span class="exc-code">EXC-02</span><span class="exc-name">False Positive Ignore<span class="ko">거짓양성 무시</span></span></div>
+        <div class="exc-row"><span class="lbl">Trigger</span><span class="val">실제 문제가 아닌 위반으로 판단.</span></div>
+        <div class="exc-row"><span class="lbl">Action</span><span class="val">[무시]는 사유 필수 입력. 무시 이력 로그 기록(BR-INT-04).</span></div>
+        <div class="exc-msg">무시 사유를 입력해야 처리됩니다</div>
+      </div>
+      <div class="exc-card warn">
+        <div class="exc-hdr"><span class="exc-code">EXC-03</span><span class="exc-name">Rule Misconfiguration<span class="ko">규칙 오설정</span></span></div>
+        <div class="exc-row"><span class="lbl">Trigger</span><span class="val">규칙 정의 오류로 대량 거짓양성 발생.</span></div>
+        <div class="exc-row"><span class="lbl">Action</span><span class="val">규칙 비활성화 안내. 관리자에게 재설정 요청 링크.</span></div>
+        <div class="exc-msg">규칙 설정 확인 필요 — 관리자에게 문의</div>
+      </div>
+      <div class="exc-card info">
+        <div class="exc-hdr"><span class="exc-code">EXC-04</span><span class="exc-name">Large Issue Set<span class="ko">대량 이슈</span></span></div>
+        <div class="exc-row"><span class="lbl">Trigger</span><span class="val">단일 규칙에서 수백 건 이상 위반 발생.</span></div>
+        <div class="exc-row"><span class="lbl">Action</span><span class="val">상세 목록 페이징 + 일괄 처리(Bulk Resolve) 제공.</span></div>
+        <div class="exc-msg">대량 이슈 — 일괄 처리 모드를 사용하세요</div>
+      </div>
+      <div class="exc-card info">
+        <div class="exc-hdr"><span class="exc-code">EXC-05</span><span class="exc-name">Re-check After Fix<span class="ko">수정 후 재검사</span></span></div>
+        <div class="exc-row"><span class="lbl">Trigger</span><span class="val">원본 수정 후 위반 잔존 여부 확인.</span></div>
+        <div class="exc-row"><span class="lbl">Action</span><span class="val">[재검사]로 해당 규칙만 즉시 재평가. 소멸 시 자동 해결.</span></div>
+        <div class="exc-msg">재검사 결과 위반 없음 — 해결 처리됨</div>
+      </div>
+      <div class="exc-card info">
+        <div class="exc-hdr"><span class="exc-code">EXC-06</span><span class="exc-name">No Permission<span class="ko">권한 없음</span></span></div>
+        <div class="exc-row"><span class="lbl">Trigger</span><span class="val"><code>INT.View</code>만 보유한 사용자.</span></div>
+        <div class="exc-row"><span class="lbl">Action</span><span class="val">[해결]·[무시] 비활성. 조회만 가능.</span></div>
+        <div class="exc-msg">해결 권한이 없습니다 (INT.Resolve 필요)</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. LINKED -->
+  <section class="sec" id="s6">
+    <div class="sec-hdr"><div class="sec-num">06</div><div class="sec-title-wrap"><div class="sec-title-en">Linked Screens</div><div class="sec-title-ko">연계 화면</div></div><div class="sec-line"></div></div>
+    <div class="lnk-wrap">
+      <div class="lnk-row">
+        <a class="lnk-node up" href="VOL06_INT02_Sync_Scheduler.html"><div class="lnk-id">INT-02</div><div class="lnk-name">Sync Scheduler</div><div class="lnk-ko">동기화 소스 ▸ 검사 촉발</div></a>
+        <a class="lnk-node up" href="VOL06_INT03_Sync_Monitor.html"><div class="lnk-id">INT-03</div><div class="lnk-name">Sync Monitor</div><div class="lnk-ko">동기화 경보 ▸ 진입</div></a>
+        <span class="lnk-arr">→</span>
+        <div class="lnk-node cur"><div class="lnk-id">INT-04</div><div class="lnk-name">Integrity Monitor</div><div class="lnk-ko">현재 화면</div></div>
+      </div>
+      <div class="lnk-row" style="margin-top:14px;">
+        <a class="lnk-node down" href="VOL04_ORG_Origin_Management.html"><div class="lnk-id">ORG</div><div class="lnk-name">Origin Mgmt</div><div class="lnk-ko">클린 데이터 사용</div></a>
+        <a class="lnk-node down" href="VOL08_MD_Master_Data.html"><div class="lnk-id">MD</div><div class="lnk-name">Master Data</div><div class="lnk-ko">원본 수정 이동</div></a>
+        <a class="lnk-node down" href="VOL05_AUD_Audit_Support.html"><div class="lnk-id">AUD</div><div class="lnk-name">Audit Support</div><div class="lnk-ko">정합성 이력 참조</div></a>
+      </div>
+      <div style="text-align:center;font-size:10px;color:var(--sub);margin-top:14px;">상위: 동기화 소스·경보에서 검사 촉발 · 하위: 클린 데이터로 ORG 판정, MD 원본 수정, AUD 이력 반영</div>
+    </div>
+  </section>
+
+  <!-- 7. BUSINESS RULES -->
+  <section class="sec" id="s7">
+    <div class="sec-hdr"><div class="sec-num">07</div><div class="sec-title-wrap"><div class="sec-title-en">Business Rules</div><div class="sec-title-ko">업무 규칙</div></div><div class="sec-line"></div></div>
+    <table class="br-mini">
+      <thead><tr><th style="width:96px;">ID</th><th>Rule · 규칙</th><th style="width:80px;">Action</th></tr></thead>
+      <tbody>
+        <tr><td class="br-id">BR-INT-02</td><td><div class="br-en">Isolate errors — integrity violations are isolated and surfaced as actionable issues; critical errors block downstream origin determination until resolved, preventing bad data from corrupting results.</div><div class="br-ko">정합성 오류는 격리·이슈화. 치명 오류는 해결 전까지 하류 원산지 판정을 차단하여 잘못된 데이터의 오염을 방지.</div></td><td class="br-act"><span class="blk">차단</span></td></tr>
+        <tr><td class="br-id">BR-INT-04</td><td><div class="br-en">Audit logging — every check run, violation, severity change, resolve, and ignore-with-reason is logged (who / when / what) for audit retention.</div><div class="br-ko">검사 실행·위반·심각도 변경·해결·사유무시를 전수 로그 기록(누가/언제/무엇, 감사 보존).</div></td><td class="br-act"><span class="aut">자동</span></td></tr>
+        <tr><td class="br-id">BR-INT-05</td><td><div class="br-en">Schema change detection — when an integrated source's schema changes, affected rules are flagged and re-validated to catch new drift or broken mappings.</div><div class="br-ko">연계 소스 스키마 변경 감지 시 영향 규칙을 표시·재검증하여 신규 드리프트·매핑 오류를 포착.</div></td><td class="br-act"><span class="aut">자동</span></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  </div>
+  <div class="page-footer">
+    <span class="pf-l">UOCM · USMCA Origin Compliance Management System</span>
+    <span class="pf-r">VOL.6 · INT-04 · Data Integrity Monitor · L3 Spec</span>
+  </div>
+</div>
+</div>
+</body>
+</html>
