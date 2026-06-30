@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>UOCM · VOL.4 · ORG-03 · Change History · 상세 설계서</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;600;700&family=Bebas+Neue&display=swap');
+:root{
+  --brand:#059669;--brand-dk:#047857;
+  --ink:#0a1422;--ink2:#101d2e;--ink3:#1c2c40;
+  --surface:#fff;--bg:#f4f7fa;--border:#d3dce6;--text:#1e2a38;--sub:#5b6b7d;
+  --doc:#0891b2;--doc-dk:#0e7490;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);font-size:13px;line-height:1.6;}
+
+/* NAV */
+.uo-nav{position:sticky;top:0;z-index:9999;background:#fff;border-bottom:1px solid #e5eaf0;box-shadow:0 1px 4px rgba(15,39,71,.06);}
+.uo-nav-inner{display:flex;align-items:stretch;overflow-x:auto;scrollbar-width:none;}
+.uo-nav-inner::-webkit-scrollbar{display:none;}
+.nav-home{display:flex;align-items:center;gap:8px;padding:0 16px;background:rgba(5,150,105,.08);border-right:1px solid #e5eaf0;text-decoration:none;flex-shrink:0;min-height:42px;}
+.nav-home-logo{font-family:'Bebas Neue',sans-serif;font-size:17px;color:var(--brand);letter-spacing:2px;}
+.nav-home-sub{font-size:9px;color:#94a3b8;}
+.nav-vol{display:flex;align-items:center;gap:5px;padding:0 12px;text-decoration:none;font-size:10px;font-weight:700;color:#5b6b7d;border-bottom:2px solid transparent;white-space:nowrap;min-height:42px;transition:color .12s;}
+.nav-vol:hover{color:#0f2747;background:#f6f8fa;}
+.nav-vol.active{color:#0f2747;border-bottom-color:#059669;}
+.nav-vol .nv-code{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;}
+
+/* BREADCRUMB */
+.l3-crumb{background:#f6f8fa;border-bottom:1px solid #e5eaf0;padding:7px 24px;display:flex;align-items:center;gap:8px;font-size:10px;color:#5b6b7d;font-family:'JetBrains Mono',monospace;letter-spacing:.5px;}
+.l3-crumb a{color:#5b6b7d;text-decoration:none;transition:color .12s;}
+.l3-crumb a:hover{color:#0f2747;}
+.l3-crumb .arr{color:#cbd5e1;}
+.l3-crumb .current{color:#047857;font-weight:700;}
+.l3-crumb .lvl{font-size:8px;padding:1px 6px;border:1px solid #d3dce6;border-radius:2px;color:#94a3b8;margin-right:4px;}
+
+/* LAYOUT */
+.page-wrap{display:flex;}
+.sidebar{width:240px;min-width:240px;background:#f6f8fa;position:sticky;top:69px;height:calc(100vh - 69px);overflow-y:auto;scrollbar-width:thin;border-right:1px solid #e5eaf0;}
+.sb-head{padding:16px 14px 12px;border-bottom:1px solid #e5eaf0;}
+.sb-vol{font-family:'JetBrains Mono',monospace;font-size:9px;color:#047857;letter-spacing:2px;margin-bottom:4px;}
+.sb-mod-en{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1px;color:#0f2747;}
+.sb-mod-ko{font-size:10px;color:#94a3b8;}
+.sb-section{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#94a3b8;padding:14px 14px 6px;}
+.sb-link{display:flex;align-items:center;gap:7px;padding:6px 14px;text-decoration:none;color:#5b6b7d;font-size:11px;border-left:2px solid transparent;transition:all .12s;}
+.sb-link:hover{color:#0f2747;background:#eef2f7;}
+.sb-link.on{color:#0f2747;border-left-color:#059669;background:rgba(5,150,105,.08);}
+.sb-link .sl-id{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;width:44px;flex-shrink:0;color:#0891b2;}
+.sb-link.on .sl-id{color:#047857;}
+.sb-link .sl-en{font-size:10px;font-weight:600;}
+.sb-link .sl-ko{font-size:9px;color:#94a3b8;margin-top:1px;}
+.sb-toc{padding:6px 14px 14px;border-top:1px solid #e5eaf0;margin-top:6px;}
+.sb-toc-title{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#047857;margin-bottom:6px;}
+.sb-toc a{display:block;padding:4px 8px;border-radius:3px;font-size:10px;color:#5b6b7d;text-decoration:none;transition:all .12s;}
+.sb-toc a:hover{color:#0f2747;background:#eef2f7;}
+.sb-toc a .num{font-family:'JetBrains Mono',monospace;color:#059669;font-size:9px;margin-right:6px;}
+
+.main{flex:1;min-width:0;}
+
+/* SCREEN HEADER */
+.scr-hdr{padding:32px 48px 26px;background:linear-gradient(135deg,#e6fbff,#ffffff);position:relative;overflow:hidden;border-bottom:1px solid #e5eaf0;}
+.scr-hdr::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(8,145,178,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(8,145,178,.05) 1px,transparent 1px);background-size:32px 32px;pointer-events:none;}
+.scr-hdr::after{content:'';position:absolute;top:-40%;right:-10%;width:380px;height:380px;background:radial-gradient(circle,rgba(8,145,178,.12),transparent 70%);pointer-events:none;}
+.scr-hdr-inner{position:relative;z-index:1;}
+.scr-eyebrow{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#0891b2;margin-bottom:12px;display:flex;align-items:center;gap:10px;}
+.scr-eyebrow .dot{width:5px;height:5px;background:#22d3ee;border-radius:50%;box-shadow:0 0 8px #22d3ee;}
+.scr-id-block{display:flex;align-items:flex-end;gap:18px;margin-bottom:14px;}
+.scr-id{font-family:'Bebas Neue',sans-serif;font-size:54px;letter-spacing:2px;color:#0891b2;line-height:.9;text-shadow:0 0 22px rgba(8,145,178,.25);}
+.scr-title-en{font-family:'Bebas Neue',sans-serif;font-size:46px;letter-spacing:1.5px;color:#0f2747;line-height:.95;}
+.scr-title-ko{font-size:13px;color:#5b6b7d;letter-spacing:3px;}
+.scr-meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px;}
+.meta-chip{display:flex;align-items:center;gap:6px;padding:5px 11px;background:#f6f8fa;border:1px solid #d3dce6;border-radius:3px;font-size:10px;color:#1e2a38;}
+.meta-chip .mc-lbl{font-family:'JetBrains Mono',monospace;font-size:8px;color:#94a3b8;letter-spacing:1px;text-transform:uppercase;}
+.meta-chip .mc-val{font-weight:700;}
+.meta-chip.web{border-color:rgba(8,145,178,.3);color:#0891b2;}
+.meta-chip.phase{border-color:rgba(16,185,129,.3);color:#047857;}
+.meta-chip.role{border-color:rgba(34,211,238,.3);color:#0891b2;}
+
+.content{padding:0 48px 60px;}
+.sec{margin-top:36px;}
+.sec-hdr{display:flex;align-items:center;gap:14px;margin-bottom:16px;}
+.sec-num{font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--doc);letter-spacing:1px;line-height:1;min-width:42px;}
+.sec-title-wrap{flex:1;}
+.sec-title-en{font-size:18px;font-weight:800;color:var(--text);letter-spacing:-.3px;}
+.sec-title-ko{font-size:11px;color:var(--sub);margin-top:1px;}
+.sec-line{flex:1;height:1px;background:linear-gradient(90deg,var(--doc),transparent);max-width:200px;}
+
+/* OVERVIEW */
+.ov-grid{display:grid;grid-template-columns:1.6fr 1fr;gap:14px;}
+.ov-desc{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--doc);border-radius:0 6px 6px 0;padding:16px 18px;}
+.ov-desc-en{font-size:12px;color:var(--text);line-height:1.85;margin-bottom:10px;}
+.ov-desc-ko{font-size:11px;color:var(--sub);line-height:1.85;padding-top:10px;border-top:1px dashed var(--border);}
+.ov-meta{background:var(--surface);border:1px solid var(--border);border-radius:6px;overflow:hidden;}
+.ov-meta-row{display:flex;border-bottom:1px solid var(--border);font-size:11px;}
+.ov-meta-row:last-child{border-bottom:none;}
+.ov-meta-k{flex:0 0 110px;background:#f6f8fa;padding:8px 12px;font-weight:700;color:var(--sub);font-size:10px;letter-spacing:.5px;text-transform:uppercase;border-right:1px solid var(--border);}
+.ov-meta-v{flex:1;padding:8px 12px;color:var(--text);}
+.ov-meta-v .ko{font-size:10px;color:var(--sub);margin-left:6px;}
+.ov-meta-v code{font-family:'JetBrains Mono',monospace;font-size:10px;background:#f0f3f7;padding:1px 6px;border-radius:3px;color:var(--doc);}
+
+/* MOCKUP */
+.mock-wrap{background:#eef1f5;border:1px solid var(--border);border-radius:8px;padding:14px;}
+.mock-lbl{font-size:9px;font-weight:700;color:var(--sub);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.mock-lbl::before{content:'';width:6px;height:6px;background:var(--doc);border-radius:50%;}
+.mock-win{background:#fff;border:1px solid #c8d0db;border-radius:6px;overflow:hidden;box-shadow:0 4px 14px rgba(0,0,0,.08);}
+.mock-tbar{background:var(--text);color:#fff;padding:8px 14px;display:flex;align-items:center;gap:8px;font-size:11px;font-weight:700;}
+.mock-tbar .dots{display:flex;gap:5px;}
+.mock-tbar .dots span{width:9px;height:9px;border-radius:50%;display:block;background:rgba(255,255,255,.25);}
+.mock-tbar .bc{margin-left:auto;font-size:9px;color:rgba(255,255,255,.4);font-family:'JetBrains Mono',monospace;}
+.mock-toolbar{background:#f6f8fa;border-bottom:1px solid var(--border);padding:8px 14px;display:flex;gap:7px;align-items:center;flex-wrap:wrap;}
+.mock-toolbar select,.mock-toolbar input{padding:4px 9px;border:1px solid var(--border);border-radius:3px;font-size:11px;background:#fff;color:var(--text);}
+.mbtn{padding:5px 12px;border-radius:4px;font-size:11px;font-weight:700;border:1px solid transparent;cursor:pointer;display:inline-flex;align-items:center;gap:5px;}
+.mbtn-pri{background:var(--doc);color:#fff;border-color:var(--doc);}
+.mbtn-sec{background:#fff;color:var(--text);border-color:var(--border);}
+.mbtn-ghost{background:transparent;color:var(--sub);border-color:var(--border);}
+.mock-body{padding:14px;}
+
+.mock-split{display:grid;grid-template-columns:1.55fr 1fr;gap:14px;align-items:start;}
+
+.kpi-strip{display:flex;gap:0;border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-bottom:14px;}
+.kc{flex:1;padding:10px 13px;border-right:1px solid var(--border);background:#fafbfc;}
+.kc:last-child{border-right:none;}
+.kv{font-size:22px;font-weight:900;font-family:'JetBrains Mono',monospace;line-height:1;}
+.kl{font-size:9px;color:var(--sub);margin-top:3px;}
+
+.tbl{width:100%;border-collapse:collapse;font-size:11px;}
+.tbl th{background:#f0f3f7;padding:7px 9px;font-weight:700;border:1px solid var(--border);text-align:left;font-size:10px;color:var(--text);}
+.tbl th .th-ko{font-weight:400;color:var(--sub);font-size:9px;display:block;}
+.tbl td{padding:6px 9px;border:1px solid var(--border);vertical-align:middle;}
+.tbl .rok td{background:#f0fdf4;}
+.tbl .rw td{background:#fffbeb;}
+.tbl .rd td{background:#fef2f2;}
+.tbl tr:hover td{filter:brightness(.98);}
+.tbl .mono{font-family:'JetBrains Mono',monospace;font-size:10px;}
+.tbl .sel td{background:#ecfeff;box-shadow:inset 2px 0 0 var(--doc);}
+.b{display:inline-block;font-size:9px;font-weight:700;padding:2px 7px;border-radius:8px;}
+.b-ok{background:#dcfce7;color:#166534;}.b-w{background:#fef9c3;color:#92400e;}.b-e{background:#fee2e2;color:#991b1b;}.b-i{background:#cffafe;color:#155e75;}.b-n{background:#f1f5f9;color:#475569;}
+.diff-from{font-weight:700;color:#991b1b;}
+.diff-to{font-weight:700;color:#166534;}
+.diff-arr{color:var(--sub);font-weight:700;margin:0 4px;}
+
+/* DIFF SIDE NOTE */
+.diff-note{background:#fff;border:1px solid var(--border);border-radius:6px;overflow:hidden;box-shadow:0 4px 14px rgba(0,0,0,.06);}
+.diff-note-h{background:linear-gradient(135deg,#0e2148,#0e7490);color:#fff;padding:10px 14px;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:space-between;}
+.diff-note-h .dn-sub{font-size:9px;opacity:.7;font-family:'JetBrains Mono',monospace;}
+.diff-note-b{padding:12px 14px;}
+.dn-row{display:grid;grid-template-columns:74px 1fr;gap:8px;padding:5px 0;border-top:1px dashed var(--border);font-size:10px;}
+.dn-row:first-child{border-top:none;}
+.dn-row .dn-k{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;color:var(--sub);letter-spacing:.5px;text-transform:uppercase;padding-top:2px;}
+.dn-row .dn-v{color:var(--text);line-height:1.6;}
+.dn-ba{margin-top:10px;border:1px solid var(--border);border-radius:5px;overflow:hidden;}
+.dn-ba-row{display:flex;font-size:11px;}
+.dn-ba-row+.dn-ba-row{border-top:1px solid var(--border);}
+.dn-ba-lbl{flex:0 0 56px;padding:8px 10px;font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;display:flex;align-items:center;}
+.dn-ba-row.before .dn-ba-lbl{background:#fef2f2;color:#991b1b;}
+.dn-ba-row.after .dn-ba-lbl{background:#f0fdf4;color:#166534;}
+.dn-ba-val{flex:1;padding:8px 10px;font-weight:700;}
+.dn-ba-row.before .dn-ba-val{background:#fff5f5;color:#991b1b;text-decoration:line-through;text-decoration-color:#fca5a5;}
+.dn-ba-row.after .dn-ba-val{background:#f6fef9;color:#166534;}
+.dn-evi{margin-top:10px;padding:8px 10px;background:#ecfeff;border:1px solid #a5f3fc;border-radius:5px;font-size:10px;color:#155e75;display:flex;align-items:center;gap:6px;}
+.dn-evi a{color:#0e7490;font-weight:700;text-decoration:none;}
+.dn-immut{margin-top:8px;font-size:9px;color:var(--sub);text-align:center;font-family:'JetBrains Mono',monospace;}
+
+/* COMPONENT SPEC */
+.cs-tbl{width:100%;border-collapse:collapse;font-size:11px;background:var(--surface);border:1px solid var(--border);border-radius:6px;overflow:hidden;}
+.cs-tbl th{background:#e6fbff;color:#0e7490;padding:9px 10px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;border-bottom:1px solid #a5f3fc;}
+.cs-tbl th .th-ko{display:block;color:#5cb8cc;font-weight:400;font-size:9px;letter-spacing:0;text-transform:none;margin-top:1px;}
+.cs-tbl td{padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:top;}
+.cs-tbl tr:last-child td{border-bottom:none;}
+.cs-tbl tr:hover td{background:#f9fafb;}
+.cs-tbl .c-id{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;color:var(--doc);}
+.cs-tbl .c-name{font-weight:700;color:var(--text);}
+.cs-tbl .c-name .ko{font-size:10px;font-weight:400;color:var(--sub);display:block;margin-top:1px;}
+.cs-tbl .c-type{font-family:'JetBrains Mono',monospace;font-size:10px;color:#7c3aed;background:#f5f3ff;padding:2px 6px;border-radius:3px;display:inline-block;}
+.cs-tbl .c-req.y{color:#dc2626;font-weight:700;font-family:'JetBrains Mono',monospace;font-size:9px;}
+.cs-tbl .c-req.n{color:var(--sub);font-family:'JetBrains Mono',monospace;font-size:9px;}
+.cs-tbl .c-validation{font-size:10px;color:var(--text);line-height:1.6;}
+.cs-tbl .c-validation code{font-family:'JetBrains Mono',monospace;font-size:9px;background:#fff7ed;color:#9a3412;padding:1px 5px;border-radius:2px;}
+
+/* EVENT FLOW */
+.ef-wrap{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:18px 20px;}
+.ef-step{display:grid;grid-template-columns:46px 1fr;gap:14px;padding:10px 0;position:relative;}
+.ef-step:not(:last-child)::before{content:'';position:absolute;left:23px;top:42px;bottom:-10px;width:2px;background:linear-gradient(180deg,var(--doc),rgba(8,145,178,.15));}
+.ef-num{width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,var(--doc),#0e7490);color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;box-shadow:0 4px 12px rgba(8,145,178,.25);position:relative;z-index:1;}
+.ef-step.terminal .ef-num{background:linear-gradient(135deg,#059669,#047857);box-shadow:0 4px 12px rgba(5,150,105,.25);}
+.ef-step.error .ef-num{background:linear-gradient(135deg,#dc2626,#991b1b);box-shadow:0 4px 12px rgba(220,38,38,.25);}
+.ef-trig{display:flex;align-items:center;gap:6px;margin-bottom:4px;}
+.ef-trig-tag{font-family:'JetBrains Mono',monospace;font-size:8px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:2px 7px;border-radius:2px;}
+.ef-trig-tag.user{background:#cffafe;color:#155e75;}
+.ef-trig-tag.system{background:#f3e8ff;color:#7c3aed;}
+.ef-trig-tag.scheduled{background:#fef3c7;color:#92400e;}
+.ef-trig-name{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:var(--text);}
+.ef-action{font-size:12px;color:var(--text);line-height:1.7;margin-bottom:3px;}
+.ef-action-ko{font-size:11px;color:var(--sub);line-height:1.7;}
+.ef-result{margin-top:6px;padding:7px 10px;background:#f6f8fa;border-left:2px solid var(--doc);border-radius:0 3px 3px 0;font-size:10px;color:var(--text);}
+.ef-result .er-lbl{font-family:'JetBrains Mono',monospace;font-size:8px;font-weight:700;color:var(--doc);letter-spacing:1px;margin-right:6px;}
+.ef-result code{font-family:'JetBrains Mono',monospace;font-size:10px;background:#fff;padding:1px 5px;border-radius:2px;border:1px solid var(--border);color:#7c3aed;}
+.ef-step.error .ef-result{border-left-color:#dc2626;background:#fef2f2;}
+.ef-step.error .ef-result .er-lbl{color:#dc2626;}
+.ef-step.terminal .ef-result{border-left-color:#059669;background:#f0fdf4;}
+.ef-step.terminal .ef-result .er-lbl{color:#059669;}
+
+/* EXCEPTION */
+.exc-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;}
+.exc-card{background:var(--surface);border:1px solid var(--border);border-top:3px solid #dc2626;border-radius:0 0 6px 6px;padding:13px 15px;}
+.exc-card.warn{border-top-color:#f59e0b;}
+.exc-card.info{border-top-color:#0891b2;}
+.exc-hdr{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.exc-code{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;color:#dc2626;background:#fef2f2;padding:2px 8px;border-radius:3px;}
+.exc-card.warn .exc-code{color:#92400e;background:#fef3c7;}
+.exc-card.info .exc-code{color:#155e75;background:#cffafe;}
+.exc-name{font-size:12px;font-weight:700;color:var(--text);flex:1;}
+.exc-name .ko{font-size:10px;font-weight:400;color:var(--sub);display:block;}
+.exc-row{display:grid;grid-template-columns:64px 1fr;gap:8px;padding:5px 0;border-top:1px dashed var(--border);font-size:10px;}
+.exc-row:first-of-type{border-top:none;}
+.exc-row .lbl{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;color:var(--sub);letter-spacing:.5px;text-transform:uppercase;padding-top:2px;}
+.exc-row .val{color:var(--text);line-height:1.6;}
+.exc-row .val code{font-family:'JetBrains Mono',monospace;font-size:9px;background:#f0f3f7;padding:1px 5px;border-radius:2px;color:#7c3aed;}
+.exc-msg{margin-top:8px;padding:7px 10px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:10px;text-align:center;background:#fef2f2;border:1px solid #fecaca;color:#991b1b;}
+.exc-card.warn .exc-msg{background:#fffbeb;border-color:#fde68a;color:#92400e;}
+.exc-card.info .exc-msg{background:#ecfeff;border-color:#a5f3fc;color:#155e75;}
+
+/* LINKAGE */
+.lnk-wrap{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:20px 24px;}
+.lnk-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:center;}
+.lnk-node{padding:12px 16px;border-radius:6px;text-align:center;min-width:128px;border:2px solid;text-decoration:none;}
+.lnk-node.up{background:#f0fdf4;border-color:#22c55e;}
+.lnk-node.cur{background:linear-gradient(135deg,#0e2148,#0e7490);border-color:#22d3ee;color:#fff;box-shadow:0 4px 16px rgba(8,145,178,.25);}
+.lnk-node.down{background:#fef3c7;border-color:#f59e0b;}
+.lnk-id{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;letter-spacing:.5px;margin-bottom:3px;}
+.lnk-node.up .lnk-id{color:#15803d;}
+.lnk-node.cur .lnk-id{color:#67e8f9;}
+.lnk-node.down .lnk-id{color:#92400e;}
+.lnk-name{font-size:11px;font-weight:700;color:var(--text);}
+.lnk-node.cur .lnk-name{color:#fff;}
+.lnk-ko{font-size:9px;opacity:.7;margin-top:2px;}
+.lnk-arr{font-size:20px;color:var(--sub);font-weight:700;}
+
+/* BR MINI */
+.br-mini{width:100%;border-collapse:collapse;font-size:11px;background:var(--surface);border:1px solid var(--border);border-radius:6px;overflow:hidden;}
+.br-mini th{background:#ecfeff;color:#155e75;padding:8px 10px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;border-bottom:1px solid #a5f3fc;}
+.br-mini td{padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:top;}
+.br-mini tr:last-child td{border-bottom:none;}
+.br-mini .br-id{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;color:var(--brand-dk);white-space:nowrap;}
+.br-mini .br-en{font-size:11px;color:var(--text);line-height:1.6;}
+.br-mini .br-ko{font-size:10px;color:var(--sub);line-height:1.6;margin-top:3px;}
+.br-mini .br-act{text-align:center;}
+.br-mini .br-act span{display:inline-block;font-size:9px;font-weight:700;padding:2px 7px;border-radius:3px;}
+.br-mini .br-act .blk{background:#fee2e2;color:#991b1b;}
+.br-mini .br-act .alt{background:#fef9c3;color:#92400e;}
+.br-mini .br-act .aut{background:#cffafe;color:#155e75;}
+
+.page-footer{padding:24px 48px;border-top:1px solid #e5eaf0;background:#f6f8fa;color:#94a3b8;display:flex;justify-content:space-between;align-items:center;font-size:10px;}
+.page-footer .pf-l{font-family:'JetBrains Mono',monospace;letter-spacing:.5px;}
+.page-footer .pf-r{color:#047857;font-family:'JetBrains Mono',monospace;}
+
+@media(max-width:1100px){.ov-grid{grid-template-columns:1fr;}.exc-grid{grid-template-columns:1fr;}.mock-split{grid-template-columns:1fr;}.scr-id-block{flex-direction:column;align-items:flex-start;gap:6px;}.scr-id{font-size:42px;}.scr-title-en{font-size:32px;}}
+</style>
+</head>
+<body>
+<nav class="uo-nav"><div class="uo-nav-inner">
+  <a href="index.html" class="nav-home"><span class="nav-home-logo">UOCM</span><span class="nav-home-sub">Index</span></a>
+  <a href="VOL01_Overview.html" class="nav-vol"><span class="nv-code" style="color:#10b981;">OV</span><span>Overview</span></a>
+  <a href="VOL02_DOC_Document_Management.html" class="nav-vol"><span class="nv-code" style="color:#2563eb;">DOC</span><span>Document</span></a>
+  <a href="VOL03_LBL_Label_Management.html" class="nav-vol"><span class="nv-code" style="color:#7c3aed;">LBL</span><span>Label</span></a>
+  <a href="VOL04_ORG_Origin_Management.html" class="nav-vol active"><span class="nv-code" style="color:#0891b2;">ORG</span><span>Origin</span></a>
+  <a href="VOL05_AUD_Audit_Support.html" class="nav-vol"><span class="nv-code" style="color:#dc2626;">AUD</span><span>Audit</span></a>
+  <a href="VOL06_INT_Integration.html" class="nav-vol"><span class="nv-code" style="color:#6366f1;">INT</span><span>Integration</span></a>
+  <a href="VOL07_SYS_System.html" class="nav-vol"><span class="nv-code" style="color:#64748b;">SYS</span><span>System</span></a>
+  <a href="VOL08_MD_Master_Data.html" class="nav-vol"><span class="nv-code" style="color:#d97706;">MD</span><span>Master Data</span></a>
+</div></nav>
+
+<div class="l3-crumb">
+  <span class="lvl">L1</span><a href="index.html">UOCM Index</a>
+  <span class="arr">▸</span>
+  <span class="lvl">L2</span><a href="VOL04_ORG_Origin_Management.html">VOL.4 · ORG Origin</a>
+  <span class="arr">▸</span>
+  <span class="lvl">L3</span><span class="current">ORG-03 · Change History</span>
+</div>
+
+<div class="page-wrap">
+<nav class="sidebar">
+  <div class="sb-head">
+    <div class="sb-vol">VOL.4 · ORG MODULE</div>
+    <div class="sb-mod-en">ORIGIN</div>
+    <div class="sb-mod-ko">원산지 관리</div>
+  </div>
+  <div class="sb-section">L3 Screens · 화면 상세</div>
+  <a class="sb-link" href="VOL04_ORG01_Origin_Determination.html"><span class="sl-id">ORG-01</span><div><div class="sl-en">Origin Determination</div><div class="sl-ko">원산지 판정·관리</div></div></a>
+  <a class="sb-link" href="VOL04_ORG02_Part_Origin_Master.html"><span class="sl-id">ORG-02</span><div><div class="sl-en">Part Origin Master</div><div class="sl-ko">품목 원산지 마스터</div></div></a>
+  <a class="sb-link on" href="VOL04_ORG03_Change_History.html"><span class="sl-id">ORG-03</span><div><div class="sl-en">Change History</div><div class="sl-ko">원산지 변경 이력</div></div></a>
+  <a class="sb-link" href="VOL04_ORG04_RVC_Calculator.html"><span class="sl-id">ORG-04</span><div><div class="sl-en">RVC Calculator</div><div class="sl-ko">역내가치비율 계산</div></div></a>
+  <a class="sb-link" href="VOL04_ORG05_Origin_Dashboard.html"><span class="sl-id">ORG-05</span><div><div class="sl-en">Origin Dashboard</div><div class="sl-ko">원산지 대시보드</div></div></a>
+  <div class="sb-toc">
+    <div class="sb-toc-title">On this page</div>
+    <a href="#s1"><span class="num">01</span>Overview</a>
+    <a href="#s2"><span class="num">02</span>Screen Mockup</a>
+    <a href="#s3"><span class="num">03</span>UI Components</a>
+    <a href="#s4"><span class="num">04</span>Event &amp; Action Flow</a>
+    <a href="#s5"><span class="num">05</span>Exception Handling</a>
+    <a href="#s6"><span class="num">06</span>Linked Screens</a>
+    <a href="#s7"><span class="num">07</span>Business Rules</a>
+  </div>
+</nav>
+
+<div class="main">
+  <div class="scr-hdr">
+    <div class="scr-hdr-inner">
+      <div class="scr-eyebrow"><span class="dot"></span>VOL.4 · ORG · Origin Management · 원산지 변경 이력</div>
+      <div class="scr-id-block">
+        <div class="scr-id">ORG-03</div>
+        <div><div class="scr-title-en">Origin Change History</div></div>
+      </div>
+      <div class="scr-title-ko">원 산 지 변 경 이 력</div>
+      <div class="scr-meta">
+        <div class="meta-chip web"><span class="mc-lbl">Device</span><span class="mc-val">🖥 Web PC</span></div>
+        <div class="meta-chip phase"><span class="mc-lbl">Phase</span><span class="mc-val">3 · 전사</span></div>
+        <div class="meta-chip role"><span class="mc-lbl">Role</span><span class="mc-val">Compliance / Auditor (ORG.View)</span></div>
+        <div class="meta-chip"><span class="mc-lbl">Freq</span><span class="mc-val">상시 · 감사 시</span></div>
+        <div class="meta-chip"><span class="mc-lbl">URL</span><span class="mc-val" style="font-family:'JetBrains Mono',monospace;">/org/changes</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="content">
+
+  <!-- 1. OVERVIEW -->
+  <section class="sec" id="s1">
+    <div class="sec-hdr"><div class="sec-num">01</div><div class="sec-title-wrap"><div class="sec-title-en">Overview</div><div class="sec-title-ko">화면 개요</div></div><div class="sec-line"></div></div>
+    <div class="ov-grid">
+      <div class="ov-desc">
+        <div class="ov-desc-en">The <strong>Origin Change History</strong> is an <strong>immutable audit log</strong> of every origin change made anywhere in the system — capturing <em>who · when · before → after · reason</em> for each edit (BR-ORG-02). Whenever a part's determined origin changes in ORG-01, the system writes a permanent record here that <strong>cannot be edited or deleted</strong>. Each change references the new supporting evidence (certificate / affidavit) that justified it (BR-ORG-01), so an auditor can trace any value back to its source document. This screen satisfies CBP and OEM auditability requirements and <strong>feeds the AUD module</strong> as the primary change-trail source. Compliance and Audit staff filter by part, period, changer, or country, inspect a before/after diff for any row, and export the trail for an audit response.</div>
+        <div class="ov-desc-ko"><strong>원산지 변경 이력</strong>은 시스템 전체에서 발생한 모든 원산지 변경의 <strong>불변(immutable) 감사 로그</strong>입니다. 각 변경의 <em>누가·언제·이전→이후·사유</em>를 기록합니다(BR-ORG-02). ORG-01에서 품목 원산지가 변경될 때마다 <strong>수정·삭제 불가</strong>한 영구 레코드가 이곳에 기록됩니다. 각 변경은 그 근거가 된 신규 증빙(인증서·진술서)을 참조하므로(BR-ORG-01), 감사자는 어떤 값이든 원천 문서까지 역추적할 수 있습니다. CBP·OEM의 감사 추적성 요건을 충족하며 <strong>AUD 모듈에 변경 추적 원천</strong>으로 공급됩니다. 컴플라이언스·감사 담당자는 품목·기간·변경자·국가로 조회하고, 행별 전/후 차이를 확인하며, 감사 대응용으로 내보냅니다.</div>
+      </div>
+      <div class="ov-meta">
+        <div class="ov-meta-row"><div class="ov-meta-k">Screen ID</div><div class="ov-meta-v"><code>ORG-03</code></div></div>
+        <div class="ov-meta-row"><div class="ov-meta-k">Entry</div><div class="ov-meta-v">ORG 메뉴 · ORG-02 드릴 <span class="ko">품목별 이력</span></div></div>
+        <div class="ov-meta-row"><div class="ov-meta-k">Layout</div><div class="ov-meta-v">Filter + Log Grid + Diff <span class="ko">로그·차이</span></div></div>
+        <div class="ov-meta-row"><div class="ov-meta-k">Nature</div><div class="ov-meta-v">Read-only · 불변 로그</div></div>
+        <div class="ov-meta-row"><div class="ov-meta-k">Tables</div><div class="ov-meta-v"><code>org_origin_change</code>, <code>org_part_origin</code>, <code>doc_certificate</code></div></div>
+        <div class="ov-meta-row"><div class="ov-meta-k">RBAC</div><div class="ov-meta-v"><code>ORG.View</code></div></div>
+        <div class="ov-meta-row"><div class="ov-meta-k">Export</div><div class="ov-meta-v">Excel / PDF · 감사 추적용</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. SCREEN MOCKUP -->
+  <section class="sec" id="s2">
+    <div class="sec-hdr"><div class="sec-num">02</div><div class="sec-title-wrap"><div class="sec-title-en">Screen Mockup</div><div class="sec-title-ko">화면 목업 — Web 변경 로그 + 전/후 차이</div></div><div class="sec-line"></div></div>
+
+    <div class="mock-wrap">
+      <div class="mock-lbl">ORG-03 · Origin Change History · Change Log</div>
+      <div class="mock-win">
+        <div class="mock-tbar"><span class="dots"><span></span><span></span><span></span></span> UOCM — Origin Change History <span class="bc">/org/changes</span></div>
+        <div class="mock-toolbar">
+          <select><option>품목 · All Parts</option></select>
+          <select><option>기간 · Last 90 days</option></select>
+          <select><option>변경자 · All Users</option></select>
+          <select><option>국가 · All Countries</option></select>
+          <input placeholder="🔍 품목코드 · 사유 검색" style="min-width:160px;">
+          <span style="flex:1;"></span>
+          <button class="mbtn mbtn-ghost">⤓ Export (Audit)</button>
+        </div>
+        <div class="mock-body">
+          <div class="kpi-strip">
+            <div class="kc"><div class="kv" style="color:#0891b2;">1,284</div><div class="kl">Total Changes · 전체</div></div>
+            <div class="kc"><div class="kv" style="color:#7c3aed;">37</div><div class="kl">Last 30d · 최근</div></div>
+            <div class="kc"><div class="kv" style="color:#a16207;">9</div><div class="kl">Country Flips · 국가변경</div></div>
+            <div class="kc"><div class="kv" style="color:#dc2626;">0</div><div class="kl">Editable · 수정가능</div></div>
+            <div class="kc"><div class="kv" style="color:#16a34a;">100%</div><div class="kl">Evidence Linked</div></div>
+          </div>
+          <div class="mock-split">
+            <table class="tbl">
+              <thead><tr>
+                <th style="width:104px;">When<span class="th-ko">일시</span></th>
+                <th>Part<span class="th-ko">품목</span></th>
+                <th style="width:70px;">Field<span class="th-ko">변경 항목</span></th>
+                <th>Before → After<span class="th-ko">이전값 → 이후값</span></th>
+                <th>Reason<span class="th-ko">사유</span></th>
+                <th style="width:74px;">By<span class="th-ko">변경자</span></th>
+              </tr></thead>
+              <tbody>
+                <tr class="sel"><td class="mono">06-28 14:22</td><td>BRK-STL-09</td><td>원산지국</td><td><span class="diff-from">🇨🇳 CN</span><span class="diff-arr">→</span><span class="diff-to">🇲🇽 MX</span></td><td>신규 COO 수취·생산이전</td><td>김민수</td></tr>
+                <tr><td class="mono">06-21 09:05</td><td>CONN-PA66-12</td><td>판정결과</td><td><span class="diff-from">Non-Orig</span><span class="diff-arr">→</span><span class="diff-to">USMCA</span></td><td>RVC 재계산 통과</td><td>이서연</td></tr>
+                <tr><td class="mono">06-18 16:40</td><td>FAB-GY-C03</td><td>원산지국</td><td><span class="diff-from">🇰🇷 KR</span><span class="diff-arr">→</span><span class="diff-to">🇺🇸 US</span></td><td>공급사 변경</td><td>박지훈</td></tr>
+                <tr><td class="mono">06-12 11:18</td><td>SEAL-EPDM-04</td><td>HTS</td><td><span class="diff-from">4016.93</span><span class="diff-arr">→</span><span class="diff-to">4016.99</span></td><td>분류 정정</td><td>김민수</td></tr>
+                <tr><td class="mono">06-04 10:33</td><td>BOLT-M8-22</td><td>판정방식</td><td><span class="diff-from">Tariff Shift</span><span class="diff-arr">→</span><span class="diff-to">RVC 62.5%</span></td><td>판정근거 재정의</td><td>이서연</td></tr>
+                <tr><td class="mono">05-29 15:50</td><td>HRN-MAIN-01</td><td>원산지국</td><td><span class="diff-from">🇲🇽 MX</span><span class="diff-arr">→</span><span class="diff-to">🇲🇽 MX</span></td><td>증빙 갱신(국가 동일)</td><td>박지훈</td></tr>
+              </tbody>
+            </table>
+
+            <div class="diff-note">
+              <div class="diff-note-h"><span>변경 상세 · Change Detail</span><span class="dn-sub">CHG-2026-0628-014</span></div>
+              <div class="diff-note-b">
+                <div class="dn-row"><span class="dn-k">Part</span><span class="dn-v"><strong>BRK-STL-09</strong> — Brake Bracket (Steel)</span></div>
+                <div class="dn-row"><span class="dn-k">When</span><span class="dn-v">2026-06-28 14:22 KST</span></div>
+                <div class="dn-row"><span class="dn-k">By</span><span class="dn-v">김민수 (Compliance) · ORG.Edit</span></div>
+                <div class="dn-row"><span class="dn-k">Field</span><span class="dn-v">원산지국 · Origin Country</span></div>
+                <div class="dn-ba">
+                  <div class="dn-ba-row before"><span class="dn-ba-lbl">Before</span><span class="dn-ba-val">🇨🇳 CN — China</span></div>
+                  <div class="dn-ba-row after"><span class="dn-ba-lbl">After</span><span class="dn-ba-val">🇲🇽 MX — Mexico</span></div>
+                </div>
+                <div class="dn-row" style="margin-top:8px;"><span class="dn-k">Reason</span><span class="dn-v">생산 라인이 멕시코 공장으로 이전됨. 신규 COO 증빙 수취 후 원산지 재지정.</span></div>
+                <div class="dn-evi">📎 근거 증빙 · Evidence: <a href="VOL02_DOC02_Certificate_Viewer.html">COO-25-1180 (Daesung Metal)</a></div>
+                <div class="dn-immut">🔒 IMMUTABLE — 수정·삭제 불가 · append-only</div>
+              </div>
+            </div>
+          </div>
+          <div style="margin-top:8px;font-size:9px;color:var(--sub);">행 클릭 → 우측 변경 상세(전/후 diff) · 빨강=이전값(취소선) · 녹색=이후값 · 모든 행 읽기 전용</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. UI COMPONENTS -->
+  <section class="sec" id="s3">
+    <div class="sec-hdr"><div class="sec-num">03</div><div class="sec-title-wrap"><div class="sec-title-en">UI Component Specification</div><div class="sec-title-ko">UI 컴포넌트 명세</div></div><div class="sec-line"></div></div>
+    <table class="cs-tbl">
+      <thead><tr><th style="width:84px;">ID</th><th style="width:170px;">Component <span class="th-ko">컴포넌트</span></th><th style="width:110px;">Type</th><th style="width:50px;">Req</th><th>Validation / Behavior <span class="th-ko">검증·동작</span></th></tr></thead>
+      <tbody>
+        <tr><td class="c-id">CMP-01</td><td class="c-name">Filter Bar<span class="ko">필터 바</span></td><td><span class="c-type">SELECT×4</span></td><td class="c-req n">N</td><td class="c-validation">품목·기간·변경자·국가 조합 필터. 기간 기본 90일. 선택 즉시 서버 사이드 재조회.</td></tr>
+        <tr><td class="c-id">CMP-02</td><td class="c-name">Change-Log Grid<span class="ko">변경 로그 그리드</span></td><td><span class="c-type">TABLE</span></td><td class="c-req y">Y</td><td class="c-validation">일시·품목·변경항목·이전→이후·사유·변경자 표시. 시간 역순 정렬. <strong>전 행 읽기 전용</strong>(편집 불가). 행 클릭 → 상세 패널.</td></tr>
+        <tr><td class="c-id">CMP-03</td><td class="c-name">Before/After Diff<span class="ko">전·후 차이</span></td><td><span class="c-type">PANEL</span></td><td class="c-req n">N</td><td class="c-validation">선택 행의 이전값(취소선·빨강) / 이후값(녹색)을 대비 표시. 변경자·일시·사유 함께 노출.</td></tr>
+        <tr><td class="c-id">CMP-04</td><td class="c-name">Reason<span class="ko">변경 사유</span></td><td><span class="c-type">TEXT(RO)</span></td><td class="c-req y">Y</td><td class="c-validation">변경 시점에 ORG-01에서 <code>필수</code> 입력된 사유(BR-ORG-02). 본 화면에서는 읽기 전용으로 표시.</td></tr>
+        <tr><td class="c-id">CMP-05</td><td class="c-name">Evidence Link<span class="ko">근거 증빙</span></td><td><span class="c-type">LINK</span></td><td class="c-req n">N</td><td class="c-validation">변경을 뒷받침한 증빙으로 딥링크(→ DOC-02). 증빙 없는 변경은 ⚠ 경고 아이콘 표시(BR-ORG-01).</td></tr>
+        <tr><td class="c-id">CMP-06</td><td class="c-name">[Export (Audit)]<span class="ko">감사 내보내기</span></td><td><span class="c-type">BUTTON</span></td><td class="c-req n">N</td><td class="c-validation">현재 필터 결과를 Excel/PDF로 출력(감사 응답용). 대량 시 비동기 처리(→ EXC-04). 다운로드 이력 로그.</td></tr>
+        <tr><td class="c-id">CMP-07</td><td class="c-name">Drill to Part<span class="ko">품목 드릴</span></td><td><span class="c-type">LINK</span></td><td class="c-req n">N</td><td class="c-validation">품목명 클릭 → ORG-02 품목 원산지 마스터 현재값. 단일 품목의 전체 이력으로 필터 고정.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- 4. EVENT FLOW -->
+  <section class="sec" id="s4">
+    <div class="sec-hdr"><div class="sec-num">04</div><div class="sec-title-wrap"><div class="sec-title-en">Event &amp; Action Flow</div><div class="sec-title-ko">이벤트 · 액션 흐름</div></div><div class="sec-line"></div></div>
+    <div class="ef-wrap">
+      <div class="ef-step">
+        <div class="ef-num">1</div>
+        <div>
+          <div class="ef-trig"><span class="ef-trig-tag system">SYSTEM</span><span class="ef-trig-name">Origin changed in ORG-01</span></div>
+          <div class="ef-action">사용자가 ORG-01에서 품목 원산지·판정결과 등을 변경하고 사유·근거 증빙을 입력 후 저장.</div>
+          <div class="ef-action-ko">사유 미입력 시 ORG-01 저장 자체가 차단됨(BR-ORG-02).</div>
+          <div class="ef-result"><span class="er-lbl">RESULT</span>Change committed in <code>org_part_origin</code></div>
+        </div>
+      </div>
+      <div class="ef-step">
+        <div class="ef-num">2</div>
+        <div>
+          <div class="ef-trig"><span class="ef-trig-tag system">SYSTEM</span><span class="ef-trig-name">Log change immutably</span></div>
+          <div class="ef-action">시스템이 <code>org_origin_change</code>에 <strong>append-only</strong> 레코드 기록 — 누가·언제·이전→이후·사유·근거증빙 ID.</div>
+          <div class="ef-action-ko">레코드는 생성 후 어떤 경로로도 수정·삭제 불가(불변).</div>
+          <div class="ef-result"><span class="er-lbl">RESULT</span>Immutable record written · 불변 이력 적재</div>
+        </div>
+      </div>
+      <div class="ef-step">
+        <div class="ef-num">3</div>
+        <div>
+          <div class="ef-trig"><span class="ef-trig-tag user">USER</span><span class="ef-trig-name">Search &amp; inspect here</span></div>
+          <div class="ef-action">감사·컴플라이언스 담당자가 ORG-03에서 품목·기간·변경자·국가로 조회하고 행 클릭으로 전/후 diff 확인.</div>
+          <div class="ef-action-ko">근거 증빙 링크로 DOC-02 원천 문서 즉시 확인.</div>
+          <div class="ef-result"><span class="er-lbl">RESULT</span>Change trail traced to evidence · 역추적 완료</div>
+        </div>
+      </div>
+      <div class="ef-step terminal">
+        <div class="ef-num">✓</div>
+        <div>
+          <div class="ef-trig"><span class="ef-trig-tag user">USER</span><span class="ef-trig-name">Export for audit</span></div>
+          <div class="ef-action">필터된 변경 이력을 Excel/PDF로 내보내 CBP·OEM 감사 응답 자료로 제출. AUD 모듈에서도 동일 데이터 참조.</div>
+          <div class="ef-action-ko">전 과정이 불변 로그로 보존되어 감사 추적성 충족.</div>
+          <div class="ef-result"><span class="er-lbl">DONE</span>Auditable change trail delivered · 감사 추적 완료</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. EXCEPTION -->
+  <section class="sec" id="s5">
+    <div class="sec-hdr"><div class="sec-num">05</div><div class="sec-title-wrap"><div class="sec-title-en">Exception Handling</div><div class="sec-title-ko">예외 처리</div></div><div class="sec-line"></div></div>
+    <div class="exc-grid">
+      <div class="exc-card">
+        <div class="exc-hdr"><span class="exc-code">EXC-01</span><span class="exc-name">Reason Required at Change<span class="ko">변경 사유 필수</span></span></div>
+        <div class="exc-row"><span class="lbl">Trigger</span><span class="val">ORG-01에서 원산지 변경 시 사유 미입력 (BR-ORG-02).</span></div>
+        <div class="exc-row"><span class="lbl">Action</span><span class="val">변경 저장 차단. 사유 입력 강제 → 미입력 시 이력 생성 안 됨.</span></div>
+        <div class="exc-msg">변경 사유는 필수입니다 · Reason is required</div>
+      </div>
+      <div class="exc-card">
+        <div class="exc-hdr"><span class="exc-code">EXC-02</span><span class="exc-name">Delete Prohibited<span class="ko">삭제 금지</span></span></div>
+        <div class="exc-row"><span class="lbl">Trigger</span><span class="val">사용자·관리자가 이력 레코드 삭제·수정 시도.</span></div>
+        <div class="exc-row"><span class="lbl">Action</span><span class="val">전면 차단. 불변(append-only) 정책. 시도 자체를 감사 로그에 기록.</span></div>
+        <div class="exc-msg">변경 이력은 삭제·수정할 수 없습니다 (Immutable)</div>
+      </div>
+      <div class="exc-card warn">
+        <div class="exc-hdr"><span class="exc-code">EXC-03</span><span class="exc-name">No Evidence on Change<span class="ko">근거 증빙 없음</span></span></div>
+        <div class="exc-row"><span class="lbl">Trigger</span><span class="val">원산지 변경에 근거 증빙이 연결되지 않음 (BR-ORG-01).</span></div>
+        <div class="exc-row"><span class="lbl">Action</span><span class="val">변경은 기록하되 ⚠ 경고 플래그. 감사 대상으로 표시·후속 보완 요청.</span></div>
+        <div class="exc-msg">근거 증빙이 없습니다 — 보완 권고</div>
+      </div>
+      <div class="exc-card info">
+        <div class="exc-hdr"><span class="exc-code">EXC-04</span><span class="exc-name">Large Export<span class="ko">대량 내보내기</span></span></div>
+        <div class="exc-row"><span class="lbl">Trigger</span><span class="val">내보내기 대상 행이 임계(예: 50,000) 초과.</span></div>
+        <div class="exc-row"><span class="lbl">Action</span><span class="val">비동기 생성 → 완료 시 알림·다운로드 링크. 기간 분할 안내.</span></div>
+        <div class="exc-msg">대량 데이터 — 백그라운드 생성 후 알림드립니다</div>
+      </div>
+      <div class="exc-card warn">
+        <div class="exc-hdr"><span class="exc-code">EXC-05</span><span class="exc-name">Concurrent Change Conflict<span class="ko">동시 변경 충돌</span></span></div>
+        <div class="exc-row"><span class="lbl">Trigger</span><span class="val">동일 품목을 두 사용자가 동시에 변경 (ORG-01 단계).</span></div>
+        <div class="exc-row"><span class="lbl">Action</span><span class="val">낙관적 잠금 — 후행 저장 거부·재조회 요청. 두 시도 모두 이력 추적.</span></div>
+        <div class="exc-msg">다른 사용자가 먼저 변경했습니다 — 새로고침 후 재시도</div>
+      </div>
+      <div class="exc-card info">
+        <div class="exc-hdr"><span class="exc-code">EXC-06</span><span class="exc-name">No Permission<span class="ko">권한 없음</span></span></div>
+        <div class="exc-row"><span class="lbl">Trigger</span><span class="val"><code>ORG.View</code> 미보유 사용자 접근.</span></div>
+        <div class="exc-row"><span class="lbl">Action</span><span class="val">화면 접근 차단. 권한 신청 안내. (편집 권한은 본 화면과 무관 — 읽기 전용)</span></div>
+        <div class="exc-msg">조회 권한이 없습니다 (ORG.View 필요)</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. LINKED -->
+  <section class="sec" id="s6">
+    <div class="sec-hdr"><div class="sec-num">06</div><div class="sec-title-wrap"><div class="sec-title-en">Linked Screens</div><div class="sec-title-ko">연계 화면</div></div><div class="sec-line"></div></div>
+    <div class="lnk-wrap">
+      <div class="lnk-row">
+        <a class="lnk-node up" href="VOL04_ORG01_Origin_Determination.html"><div class="lnk-id">ORG-01</div><div class="lnk-name">Origin Determination</div><div class="lnk-ko">변경 발생 ▸ 기록</div></a>
+        <span class="lnk-arr">→</span>
+        <div class="lnk-node cur"><div class="lnk-id">ORG-03</div><div class="lnk-name">Change History</div><div class="lnk-ko">현재 화면</div></div>
+        <span class="lnk-arr">→</span>
+        <a class="lnk-node down" href="VOL05_AUD_Audit_Support.html"><div class="lnk-id">AUD</div><div class="lnk-name">Audit Support</div><div class="lnk-ko">감사 추적</div></a>
+      </div>
+      <div class="lnk-row" style="margin-top:14px;">
+        <a class="lnk-node down" href="VOL02_DOC02_Certificate_Viewer.html"><div class="lnk-id">DOC-02</div><div class="lnk-name">Certificate Viewer</div><div class="lnk-ko">근거 증빙 열람</div></a>
+        <a class="lnk-node down" href="VOL04_ORG02_Part_Origin_Master.html"><div class="lnk-id">ORG-02</div><div class="lnk-name">Part Origin Master</div><div class="lnk-ko">품목 현재값 드릴</div></a>
+      </div>
+      <div style="text-align:center;font-size:10px;color:var(--sub);margin-top:14px;">상위: ORG-01 변경 발생 시 본 화면에 불변 기록 · 하위: AUD 감사 추적 · DOC 근거 증빙 · ORG-02 품목 현재값</div>
+    </div>
+  </section>
+
+  <!-- 7. BUSINESS RULES -->
+  <section class="sec" id="s7">
+    <div class="sec-hdr"><div class="sec-num">07</div><div class="sec-title-wrap"><div class="sec-title-en">Business Rules</div><div class="sec-title-ko">업무 규칙</div></div><div class="sec-line"></div></div>
+    <table class="br-mini">
+      <thead><tr><th style="width:96px;">ID</th><th>Rule · 규칙</th><th style="width:80px;">Action</th></tr></thead>
+      <tbody>
+        <tr><td class="br-id">BR-ORG-02</td><td><div class="br-en">Automatic immutable change log — every origin change auto-records who / when / before → after / reason; records are append-only and cannot be edited or deleted.</div><div class="br-ko">원산지 변경 시 누가·언제·이전→이후·사유를 자동 기록. append-only로 수정·삭제 불가.</div></td><td class="br-act"><span class="aut">자동</span></td></tr>
+        <tr><td class="br-id">BR-ORG-01</td><td><div class="br-en">Evidence on change — every origin change must reference the supporting evidence (certificate / affidavit) that justified it; missing evidence is flagged for audit follow-up.</div><div class="br-ko">모든 원산지 변경은 근거 증빙을 참조해야 함. 미연결 변경은 감사 보완 대상으로 표시.</div></td><td class="br-act"><span class="alt">경고</span></td></tr>
+        <tr><td class="br-id">BR-ORG-05</td><td><div class="br-en">Audit retention &amp; export — the change trail is retained for the regulatory retention period and is exportable (Excel / PDF) as the primary source for CBP / OEM audit response; feeds the AUD module.</div><div class="br-ko">변경 이력은 법정 보존기간 동안 보관되며, CBP·OEM 감사 응답의 1차 원천으로 내보내기(Excel/PDF) 가능. AUD 모듈에 공급.</div></td><td class="br-act"><span class="aut">자동</span></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  </div>
+  <div class="page-footer">
+    <span class="pf-l">UOCM · USMCA Origin Compliance Management System</span>
+    <span class="pf-r">VOL.4 · ORG-03 · Change History · L3 Spec</span>
+  </div>
+</div>
+</div>
+</body>
+</html>

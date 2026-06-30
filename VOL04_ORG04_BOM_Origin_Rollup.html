@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>UOCM · VOL.4 · ORG-04 · BOM Origin Rollup · 상세 설계서</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;600;700&family=Bebas+Neue&display=swap');
+:root{
+  --brand:#059669;--brand-dk:#047857;
+  --ink:#0a1422;--ink2:#101d2e;--ink3:#1c2c40;
+  --surface:#fff;--bg:#f4f7fa;--border:#d3dce6;--text:#1e2a38;--sub:#5b6b7d;
+  --doc:#0891b2;--doc-dk:#0e7490;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);font-size:13px;line-height:1.6;}
+
+/* NAV */
+.uo-nav{position:sticky;top:0;z-index:9999;background:#fff;border-bottom:1px solid #e5eaf0;box-shadow:0 1px 4px rgba(15,39,71,.06);}
+.uo-nav-inner{display:flex;align-items:stretch;overflow-x:auto;scrollbar-width:none;}
+.uo-nav-inner::-webkit-scrollbar{display:none;}
+.nav-home{display:flex;align-items:center;gap:8px;padding:0 16px;background:rgba(5,150,105,.08);border-right:1px solid #e5eaf0;text-decoration:none;flex-shrink:0;min-height:42px;}
+.nav-home-logo{font-family:'Bebas Neue',sans-serif;font-size:17px;color:var(--brand);letter-spacing:2px;}
+.nav-home-sub{font-size:9px;color:#94a3b8;}
+.nav-vol{display:flex;align-items:center;gap:5px;padding:0 12px;text-decoration:none;font-size:10px;font-weight:700;color:#5b6b7d;border-bottom:2px solid transparent;white-space:nowrap;min-height:42px;transition:color .12s;}
+.nav-vol:hover{color:#0f2747;background:#f6f8fa;}
+.nav-vol.active{color:#0f2747;border-bottom-color:#059669;}
+.nav-vol .nv-code{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;}
+
+/* BREADCRUMB */
+.l3-crumb{background:#f6f8fa;border-bottom:1px solid #e5eaf0;padding:7px 24px;display:flex;align-items:center;gap:8px;font-size:10px;color:#5b6b7d;font-family:'JetBrains Mono',monospace;letter-spacing:.5px;}
+.l3-crumb a{color:#5b6b7d;text-decoration:none;transition:color .12s;}
+.l3-crumb a:hover{color:#0f2747;}
+.l3-crumb .arr{color:#cbd5e1;}
+.l3-crumb .current{color:#047857;font-weight:700;}
+.l3-crumb .lvl{font-size:8px;padding:1px 6px;border:1px solid #d3dce6;border-radius:2px;color:#94a3b8;margin-right:4px;}
+
+/* LAYOUT */
+.page-wrap{display:flex;}
+.sidebar{width:240px;min-width:240px;background:#f6f8fa;position:sticky;top:69px;height:calc(100vh - 69px);overflow-y:auto;scrollbar-width:thin;border-right:1px solid #e5eaf0;}
+.sb-head{padding:16px 14px 12px;border-bottom:1px solid #e5eaf0;}
+.sb-vol{font-family:'JetBrains Mono',monospace;font-size:9px;color:#047857;letter-spacing:2px;margin-bottom:4px;}
+.sb-mod-en{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1px;color:#0f2747;}
+.sb-mod-ko{font-size:10px;color:#94a3b8;}
+.sb-section{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#94a3b8;padding:14px 14px 6px;}
+.sb-link{display:flex;align-items:center;gap:7px;padding:6px 14px;text-decoration:none;color:#5b6b7d;font-size:11px;border-left:2px solid transparent;transition:all .12s;}
+.sb-link:hover{color:#0f2747;background:#eef2f7;}
+.sb-link.on{color:#0f2747;border-left-color:#059669;background:rgba(5,150,105,.08);}
+.sb-link .sl-id{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;width:44px;flex-shrink:0;color:#0891b2;}
+.sb-link.on .sl-id{color:#047857;}
+.sb-link .sl-en{font-size:10px;font-weight:600;}
+.sb-link .sl-ko{font-size:9px;color:#94a3b8;margin-top:1px;}
+.sb-toc{padding:6px 14px 14px;border-top:1px solid #e5eaf0;margin-top:6px;}
+.sb-toc-title{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#047857;margin-bottom:6px;}
+.sb-toc a{display:block;padding:4px 8px;border-radius:3px;font-size:10px;color:#5b6b7d;text-decoration:none;transition:all .12s;}
+.sb-toc a:hover{color:#0f2747;background:#eef2f7;}
+.sb-toc a .num{font-family:'JetBrains Mono',monospace;color:#059669;font-size:9px;margin-right:6px;}
+
+.main{flex:1;min-width:0;}
+
+/* SCREEN HEADER */
+.scr-hdr{padding:32px 48px 26px;background:linear-gradient(135deg,#e6fbff,#ffffff);position:relative;overflow:hidden;border-bottom:1px solid #e5eaf0;}
+.scr-hdr::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(8,145,178,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(8,145,178,.05) 1px,transparent 1px);background-size:32px 32px;pointer-events:none;}
+.scr-hdr::after{content:'';position:absolute;top:-40%;right:-10%;width:380px;height:380px;background:radial-gradient(circle,rgba(8,145,178,.12),transparent 70%);pointer-events:none;}
+.scr-hdr-inner{position:relative;z-index:1;}
+.scr-eyebrow{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#0891b2;margin-bottom:12px;display:flex;align-items:center;gap:10px;}
+.scr-eyebrow .dot{width:5px;height:5px;background:#22d3ee;border-radius:50%;box-shadow:0 0 8px #22d3ee;}
+.scr-id-block{display:flex;align-items:flex-end;gap:18px;margin-bottom:14px;}
+.scr-id{font-family:'Bebas Neue',sans-serif;font-size:54px;letter-spacing:2px;color:#0891b2;line-height:.9;text-shadow:0 0 22px rgba(8,145,178,.25);}
+.scr-title-en{font-family:'Bebas Neue',sans-serif;font-size:46px;letter-spacing:1.5px;color:#0f2747;line-height:.95;}
+.scr-title-ko{font-size:13px;color:#5b6b7d;letter-spacing:3px;}
+.scr-meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px;}
+.meta-chip{display:flex;align-items:center;gap:6px;padding:5px 11px;background:#f6f8fa;border:1px solid #d3dce6;border-radius:3px;font-size:10px;color:#1e2a38;}
+.meta-chip .mc-lbl{font-family:'JetBrains Mono',monospace;font-size:8px;color:#94a3b8;letter-spacing:1px;text-transform:uppercase;}
+.meta-chip .mc-val{font-weight:700;}
+.meta-chip.web{border-color:rgba(8,145,178,.3);color:#0891b2;}
+.meta-chip.phase{border-color:rgba(16,185,129,.3);color:#047857;}
+.meta-chip.role{border-color:rgba(34,211,238,.3);color:#0891b2;}
+
+.content{padding:0 48px 60px;}
+.sec{margin-top:36px;}
+.sec-hdr{display:flex;align-items:center;gap:14px;margin-bottom:16px;}
+.sec-num{font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--doc);letter-spacing:1px;line-height:1;min-width:42px;}
+.sec-title-wrap{flex:1;}
+.sec-title-en{font-size:18px;font-weight:800;color:var(--text);letter-spacing:-.3px;}
+.sec-title-ko{font-size:11px;color:var(--sub);margin-top:1px;}
+.sec-line{flex:1;height:1px;background:linear-gradient(90deg,var(--doc),transparent);max-width:200px;}
+
+/* OVERVIEW */
+.ov-grid{display:grid;grid-template-columns:1.6fr 1fr;gap:14px;}
+.ov-desc{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--doc);border-radius:0 6px 6px 0;padding:16px 18px;}
+.ov-desc-en{font-size:12px;color:var(--text);line-height:1.85;margin-bottom:10px;}
+.ov-desc-ko{font-size:11px;color:var(--sub);line-height:1.85;padding-top:10px;border-top:1px dashed var(--border);}
+.ov-meta{background:var(--surface);border:1px solid var(--border);border-radius:6px;overflow:hidden;}
+.ov-meta-row{display:flex;border-bottom:1px solid var(--border);font-size:11px;}
+.ov-meta-row:last-child{border-bottom:none;}
+.ov-meta-k{flex:0 0 110px;background:#f6f8fa;padding:8px 12px;font-weight:700;color:var(--sub);font-size:10px;letter-spacing:.5px;text-transform:uppercase;border-right:1px solid var(--border);}
+.ov-meta-v{flex:1;padding:8px 12px;color:var(--text);}
+.ov-meta-v .ko{font-size:10px;color:var(--sub);margin-left:6px;}
+.ov-meta-v code{font-family:'JetBrains Mono',monospace;font-size:10px;background:#f0f3f7;padding:1px 6px;border-radius:3px;color:var(--doc);}
+
+/* MOCKUP */
+.mock-wrap{background:#eef1f5;border:1px solid var(--border);border-radius:8px;padding:14px;}
+.mock-lbl{font-size:9px;font-weight:700;color:var(--sub);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.mock-lbl::before{content:'';width:6px;height:6px;background:var(--doc);border-radius:50%;}
+.mock-win{background:#fff;border:1px solid #c8d0db;border-radius:6px;overflow:hidden;box-shadow:0 4px 14px rgba(0,0,0,.08);}
+.mock-tbar{background:var(--text);color:#fff;padding:8px 14px;display:flex;align-items:center;gap:8px;font-size:11px;font-weight:700;}
+.mock-tbar .dots{display:flex;gap:5px;}
+.mock-tbar .dots span{width:9px;height:9px;border-radius:50%;display:block;background:rgba(255,255,255,.25);}
+.mock-tbar .bc{margin-left:auto;font-size:9px;color:rgba(255,255,255,.4);font-family:'JetBrains Mono',monospace;}
+.mock-toolbar{background:#f6f8fa;border-bottom:1px solid var(--border);padding:8px 14px;display:flex;gap:7px;align-items:center;flex-wrap:wrap;}
+.mock-toolbar select,.mock-toolbar input{padding:4px 9px;border:1px solid var(--border);border-radius:3px;font-size:11px;background:#fff;color:var(--text);}
+.mbtn{padding:5px 12px;border-radius:4px;font-size:11px;font-weight:700;border:1px solid transparent;cursor:pointer;display:inline-flex;align-items:center;gap:5px;}
+.mbtn-pri{background:var(--doc);color:#fff;border-color:var(--doc);}
+.mbtn-sec{background:#fff;color:var(--text);border-color:var(--border);}
+.mbtn-ghost{background:transparent;color:var(--sub);border-color:var(--border);}
+.mock-body{padding:14px;}
+
+.kpi-strip{display:flex;gap:0;border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-bottom:14px;}
+.kc{flex:1;padding:10px 13px;border-right:1px solid var(--border);background:#fafbfc;}
+.kc:last-child{border-right:none;}
+.kv{font-size:22px;font-weight:900;font-family:'JetBrains Mono',monospace;line-height:1;}
+.kl{font-size:9px;color:var(--sub);margin-top:3px;}
+
+.tbl{width:100%;border-collapse:collapse;font-size:11px;}
+.tbl th{background:#f0f3f7;padding:7px 9px;font-weight:700;border:1px solid var(--border);text-align:left;font-size:10px;color:var(--text);}
+.tbl th .th-ko{font-weight:400;color:var(--sub);font-size:9px;display:block;}
+.tbl td{padding:6px 9px;border:1px solid var(--border);vertical-align:middle;}
+.tbl .rok td{background:#f0fdf4;}
+.tbl .rw td{background:#fffbeb;}
+.tbl .rd td{background:#fef2f2;}
+.tbl tr:hover td{filter:brightness(.98);}
+.tbl .mono{font-family:'JetBrains Mono',monospace;font-size:10px;}
+.b{display:inline-block;font-size:9px;font-weight:700;padding:2px 7px;border-radius:8px;}
+.b-ok{background:#dcfce7;color:#166534;}.b-w{background:#fef9c3;color:#92400e;}.b-e{background:#fee2e2;color:#991b1b;}.b-i{background:#cffafe;color:#155e75;}.b-n{background:#f1f5f9;color:#475569;}
+
+/* DRAWER FORM MOCK */
+.drawer{background:#fff;border:1px solid var(--border);border-radius:6px;overflow:hidden;box-shadow:0 6px 24px rgba(0,0,0,.1);}
+.drawer-h{background:linear-gradient(135deg,#0e2148,#0e7490);color:#fff;padding:11px 16px;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:space-between;}
+.drawer-h .x{opacity:.6;}
+.drawer-b{padding:16px;display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.fld{display:flex;flex-direction:column;gap:4px;}
+.fld.full{grid-column:1/3;}
+.fld-l{font-size:10px;font-weight:700;color:var(--sub);}
+.fld-l .req{color:#dc2626;}
+.fld-in{border:1px solid var(--border);border-radius:4px;padding:7px 10px;font-size:11px;color:var(--text);background:#fff;}
+.fld-in.ph{color:#9aa7b5;}
+.drop{grid-column:1/3;border:2px dashed #67e8f9;border-radius:8px;background:#ecfeff;padding:22px;text-align:center;color:#155e75;}
+.drop .di{font-size:30px;}
+.drawer-f{border-top:1px solid var(--border);padding:12px 16px;display:flex;justify-content:flex-end;gap:8px;background:#f6f8fa;}
+
+/* COMPONENT SPEC */
+.cs-tbl{width:100%;border-collapse:collapse;font-size:11px;background:var(--surface);border:1px solid var(--border);border-radius:6px;overflow:hidden;}
+.cs-tbl th{background:#ecfeff;color:#0e7490;padding:9px 10px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;border-bottom:1px solid #a5f3fc;}
+.cs-tbl th .th-ko{display:block;color:#67c5d6;font-weight:400;font-size:9px;letter-spacing:0;text-transform:none;margin-top:1px;}
+.cs-tbl td{padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:top;}
+.cs-tbl tr:last-child td{border-bottom:none;}
+.cs-tbl tr:hover td{background:#f9fafb;}
+.cs-tbl .c-id{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;color:var(--doc);}
+.cs-tbl .c-name{font-weight:700;color:var(--text);}
+.cs-tbl .c-name .ko{font-size:10px;font-weight:400;color:var(--sub);display:block;margin-top:1px;}
+.cs-tbl .c-type{font-family:'JetBrains Mono',monospace;font-size:10px;color:#7c3aed;background:#f5f3ff;padding:2px 6px;border-radius:3px;display:inline-block;}
+.cs-tbl .c-req.y{color:#dc2626;font-weight:700;font-family:'JetBrains Mono',monospace;font-size:9px;}
+.cs-tbl .c-req.n{color:var(--sub);font-family:'JetBrains Mono',monospace;font-size:9px;}
+.cs-tbl .c-validation{font-size:10px;color:var(--text);line-height:1.6;}
+.cs-tbl .c-validation code{font-family:'JetBrains Mono',monospace;font-size:9px;background:#fff7ed;color:#9a3412;padding:1px 5px;border-radius:2px;}
+
+/* EVENT FLOW */
+.ef-wrap{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:18px 20px;}
+.ef-step{display:grid;grid-template-columns:46px 1fr;gap:14px;padding:10px 0;position:relative;}
+.ef-step:not(:last-child)::before{content:'';position:absolute;left:23px;top:42px;bottom:-10px;width:2px;background:linear-gradient(180deg,var(--doc),rgba(8,145,178,.15));}
+.ef-num{width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,var(--doc),#0e7490);color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;box-shadow:0 4px 12px rgba(8,145,178,.25);position:relative;z-index:1;}
+.ef-step.terminal .ef-num{background:linear-gradient(135deg,#059669,#047857);box-shadow:0 4px 12px rgba(5,150,105,.25);}
+.ef-step.error .ef-num{background:linear-gradient(135deg,#dc2626,#991b1b);box-shadow:0 4px 12px rgba(220,38,38,.25);}
+.ef-trig{display:flex;align-items:center;gap:6px;margin-bottom:4px;}
+.ef-trig-tag{font-family:'JetBrains Mono',monospace;font-size:8px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:2px 7px;border-radius:2px;}
+.ef-trig-tag.user{background:#cffafe;color:#155e75;}
+.ef-trig-tag.system{background:#f3e8ff;color:#7c3aed;}
+.ef-trig-tag.scheduled{background:#fef3c7;color:#92400e;}
+.ef-trig-name{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:var(--text);}
+.ef-action{font-size:12px;color:var(--text);line-height:1.7;margin-bottom:3px;}
+.ef-action-ko{font-size:11px;color:var(--sub);line-height:1.7;}
+.ef-result{margin-top:6px;padding:7px 10px;background:#f6f8fa;border-left:2px solid var(--doc);border-radius:0 3px 3px 0;font-size:10px;color:var(--text);}
+.ef-result .er-lbl{font-family:'JetBrains Mono',monospace;font-size:8px;font-weight:700;color:var(--doc);letter-spacing:1px;margin-right:6px;}
+.ef-result code{font-family:'JetBrains Mono',monospace;font-size:10px;background:#fff;padding:1px 5px;border-radius:2px;border:1px solid var(--border);color:#7c3aed;}
+.ef-step.error .ef-result{border-left-color:#dc2626;background:#fef2f2;}
+.ef-step.error .ef-result .er-lbl{color:#dc2626;}
+.ef-step.terminal .ef-result{border-left-color:#059669;background:#f0fdf4;}
+.ef-step.terminal .ef-result .er-lbl{color:#059669;}
+
+/* EXCEPTION */
+.exc-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;}
+.exc-card{background:var(--surface);border:1px solid var(--border);border-top:3px solid #dc2626;border-radius:0 0 6px 6px;padding:13px 15px;}
+.exc-card.warn{border-top-color:#f59e0b;}
+.exc-card.info{border-top-color:#0891b2;}
+.exc-hdr{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.exc-code{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;color:#dc2626;background:#fef2f2;padding:2px 8px;border-radius:3px;}
+.exc-card.warn .exc-code{color:#92400e;background:#fef3c7;}
+.exc-card.info .exc-code{color:#155e75;background:#cffafe;}
+.exc-name{font-size:12px;font-weight:700;color:var(--text);flex:1;}
+.exc-name .ko{font-size:10px;font-weight:400;color:var(--sub);display:block;}
+.exc-row{display:grid;grid-template-columns:64px 1fr;gap:8px;padding:5px 0;border-top:1px dashed var(--border);font-size:10px;}
+.exc-row:first-of-type{border-top:none;}
+.exc-row .lbl{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;color:var(--sub);letter-spacing:.5px;text-transform:uppercase;padding-top:2px;}
+.exc-row .val{color:var(--text);line-height:1.6;}
+.exc-row .val code{font-family:'JetBrains Mono',monospace;font-size:9px;background:#f0f3f7;padding:1px 5px;border-radius:2px;color:#7c3aed;}
+.exc-msg{margin-top:8px;padding:7px 10px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:10px;text-align:center;background:#fef2f2;border:1px solid #fecaca;color:#991b1b;}
+.exc-card.warn .exc-msg{background:#fffbeb;border-color:#fde68a;color:#92400e;}
+.exc-card.info .exc-msg{background:#ecfeff;border-color:#a5f3fc;color:#155e75;}
+
+/* LINKAGE */
+.lnk-wrap{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:20px 24px;}
+.lnk-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:center;}
+.lnk-node{padding:12px 16px;border-radius:6px;text-align:center;min-width:128px;border:2px solid;text-decoration:none;}
+.lnk-node.up{background:#f0fdf4;border-color:#22c55e;}
+.lnk-node.cur{background:linear-gradient(135deg,#0e2148,#0e7490);border-color:#22d3ee;color:#fff;box-shadow:0 4px 16px rgba(8,145,178,.25);}
+.lnk-node.down{background:#fef3c7;border-color:#f59e0b;}
+.lnk-id{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;letter-spacing:.5px;margin-bottom:3px;}
+.lnk-node.up .lnk-id{color:#15803d;}
+.lnk-node.cur .lnk-id{color:#67e8f9;}
+.lnk-node.down .lnk-id{color:#92400e;}
+.lnk-name{font-size:11px;font-weight:700;color:var(--text);}
+.lnk-node.cur .lnk-name{color:#fff;}
+.lnk-ko{font-size:9px;opacity:.7;margin-top:2px;}
+.lnk-arr{font-size:20px;color:var(--sub);font-weight:700;}
+
+/* BR MINI */
+.br-mini{width:100%;border-collapse:collapse;font-size:11px;background:var(--surface);border:1px solid var(--border);border-radius:6px;overflow:hidden;}
+.br-mini th{background:#ecfeff;color:#155e75;padding:8px 10px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;border-bottom:1px solid #a5f3fc;}
+.br-mini td{padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:top;}
+.br-mini tr:last-child td{border-bottom:none;}
+.br-mini .br-id{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;color:var(--brand-dk);white-space:nowrap;}
+.br-mini .br-en{font-size:11px;color:var(--text);line-height:1.6;}
+.br-mini .br-ko{font-size:10px;color:var(--sub);line-height:1.6;margin-top:3px;}
+.br-mini .br-act{text-align:center;}
+.br-mini .br-act span{display:inline-block;font-size:9px;font-weight:700;padding:2px 7px;border-radius:3px;}
+.br-mini .br-act .blk{background:#fee2e2;color:#991b1b;}
+.br-mini .br-act .alt{background:#fef9c3;color:#92400e;}
+.br-mini .br-act .aut{background:#cffafe;color:#155e75;}
+
+.page-footer{padding:24px 48px;border-top:1px solid #e5eaf0;background:#f6f8fa;color:#94a3b8;display:flex;justify-content:space-between;align-items:center;font-size:10px;}
+.page-footer .pf-l{font-family:'JetBrains Mono',monospace;letter-spacing:.5px;}
+.page-footer .pf-r{color:#047857;font-family:'JetBrains Mono',monospace;}
+
+@media(max-width:1100px){.ov-grid{grid-template-columns:1fr;}.exc-grid{grid-template-columns:1fr;}.drawer-b{grid-template-columns:1fr;}.fld.full,.drop{grid-column:auto;}.scr-id-block{flex-direction:column;align-items:flex-start;gap:6px;}.scr-id{font-size:42px;}.scr-title-en{font-size:32px;}}
+</style>
+</head>
+<body>
+<nav class="uo-nav"><div class="uo-nav-inner">
+  <a href="index.html" class="nav-home"><span class="nav-home-logo">UOCM</span><span class="nav-home-sub">Index</span></a>
+  <a href="VOL01_Overview.html" class="nav-vol"><span class="nv-code" style="color:#10b981;">OV</span><span>Overview</span></a>
+  <a href="VOL02_DOC_Document_Management.html" class="nav-vol"><span class="nv-code" style="color:#2563eb;">DOC</span><span>Document</span></a>
+  <a href="VOL03_LBL_Label_Management.html" class="nav-vol"><span class="nv-code" style="color:#7c3aed;">LBL</span><span>Label</span></a>
+  <a href="VOL04_ORG_Origin_Management.html" class="nav-vol active"><span class="nv-code" style="color:#0891b2;">ORG</span><span>Origin</span></a>
+  <a href="VOL05_AUD_Audit_Support.html" class="nav-vol"><span class="nv-code" style="color:#dc2626;">AUD</span><span>Audit</span></a>
+  <a href="VOL06_INT_Integration.html" class="nav-vol"><span class="nv-code" style="color:#6366f1;">INT</span><span>Integration</span></a>
+  <a href="VOL07_SYS_System.html" class="nav-vol"><span class="nv-code" style="color:#64748b;">SYS</span><span>System</span></a>
+  <a href="VOL08_MD_Master_Data.html" class="nav-vol"><span class="nv-code" style="color:#d97706;">MD</span><span>Master Data</span></a>
+</div></nav>
+
+<div class="l3-crumb">
+  <span class="lvl">L1</span><a href="index.html">UOCM Index</a>
+  <span class="arr">▸</span>
+  <span class="lvl">L2</span><a href="VOL04_ORG_Origin_Management.html">VOL.4 · ORG Origin</a>
+  <span class="arr">▸</span>
+  <span class="lvl">L3</span><span class="current">ORG-04 · BOM Origin Rollup</span>
+</div>
+
+<div class="page-wrap">
+<nav class="sidebar">
+  <div class="sb-head">
+    <div class="sb-vol">VOL.4 · ORG MODULE</div>
+    <div class="sb-mod-en">ORIGIN</div>
+    <div class="sb-mod-ko">원산지 판정 관리</div>
+  </div>
+  <div class="sb-section">L3 Screens · 화면 상세</div>
+  <a class="sb-link" href="VOL04_ORG01_Part_Origin_Registry.html"><span class="sl-id">ORG-01</span><div><div class="sl-en">Part Origin Registry</div><div class="sl-ko">부품 원산지 등록</div></div></a>
+  <a class="sb-link" href="VOL04_ORG02_RVC_Calculator.html"><span class="sl-id">ORG-02</span><div><div class="sl-en">Origin Workbench</div><div class="sl-ko">원산지 작업대</div></div></a>
+  <a class="sb-link" href="VOL04_ORG03_Tariff_Shift_Check.html"><span class="sl-id">ORG-03</span><div><div class="sl-en">Tariff Shift Check</div><div class="sl-ko">세번변경 검증</div></div></a>
+  <a class="sb-link on" href="VOL04_ORG04_BOM_Origin_Rollup.html"><span class="sl-id">ORG-04</span><div><div class="sl-en">BOM Origin Rollup</div><div class="sl-ko">BOM 원산지 집계</div></div></a>
+  <a class="sb-link" href="VOL04_ORG05_RVC_Calculation.html"><span class="sl-id">ORG-05</span><div><div class="sl-en">RVC Calculation</div><div class="sl-ko">RVC 계산</div></div></a>
+  <div class="sb-toc">
+    <div class="sb-toc-title">On this page</div>
+    <a href="#s1"><span class="num">01</span>Overview</a>
+    <a href="#s2"><span class="num">02</span>Screen Mockup</a>
+    <a href="#s3"><span class="num">03</span>UI Components</a>
+    <a href="#s4"><span class="num">04</span>Event &amp; Action Flow</a>
+    <a href="#s5"><span class="num">05</span>Exception Handling</a>
+    <a href="#s6"><span class="num">06</span>Linked Screens</a>
+    <a href="#s7"><span class="num">07</span>Business Rules</a>
+  </div>
+</nav>
+
+<div class="main">
+  <div class="scr-hdr">
+    <div class="scr-hdr-inner">
+      <div class="scr-eyebrow"><span class="dot"></span>VOL.4 · ORG · Origin Management · BOM 원산지 집계·완제품 판정</div>
+      <div class="scr-id-block">
+        <div class="scr-id">ORG-04 · ⚙ CORE</div>
+        <div><div class="scr-title-en">BOM Origin Rollup</div></div>
+      </div>
+      <div class="scr-title-ko">B O M  원 산 지 집 계</div>
+      <div class="scr-meta">
+        <div class="meta-chip web"><span class="mc-lbl">Device</span><span class="mc-val">🖥 Web PC</span></div>
+        <div class="meta-chip phase"><span class="mc-lbl">Phase</span><span class="mc-val">3 · 전사 (Core)</span></div>
+        <div class="meta-chip role"><span class="mc-lbl">Role</span><span class="mc-val">Compliance / Trade (ORG.View)</span></div>
+        <div class="meta-chip"><span class="mc-lbl">Freq</span><span class="mc-val">완제품 판정 시</span></div>
+        <div class="meta-chip"><span class="mc-lbl">URL</span><span class="mc-val" style="font-family:'JetBrains Mono',monospace;">/org/bom-rollup</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="content">
+
+  <!-- 1. OVERVIEW -->
+  <section class="sec" id="s1">
+    <div class="sec-hdr"><div class="sec-num">01</div><div class="sec-title-wrap"><div class="sec-title-en">Overview</div><div class="sec-title-ko">화면 개요</div></div><div class="sec-line"></div></div>
+    <div class="ov-grid">
+      <div class="ov-desc">
+        <div class="ov-desc-en"><strong>BOM Origin Rollup</strong> rolls component origins <em>up the multi-level BOM</em> to determine the finished-good (FG) origin and to assemble the <strong>judgment basis (원산지 판정 근거)</strong> the program calls for. The screen pulls the structured BOM from <strong>INT (SAP)</strong>, joins each leaf component to its registered origin from <strong>ORG-01</strong>, and applies the determination rules (substantial transformation / tariff shift) node by node. The finished-good origin is the <strong>rollup result</strong> (BR-ORG-05). Any part lacking a registered origin or missing BOM linkage forces the whole result into <strong>"보류 / Pending"</strong> (BR-ORG-03) — the system never guesses. Every node, its origin flag, and the rule applied are captured as the auditable evidence trail (BR-ORG-01) feeding ORG-05 (RVC), the COO label (LBL), and the audit dossier (AUD).</div>
+        <div class="ov-desc-ko"><strong>BOM 원산지 집계</strong>는 부품 원산지를 <em>다단계 BOM을 따라 상향 집계</em>하여 완제품 원산지를 판정하고, 프로그램이 요구하는 <strong>원산지 판정 근거</strong>를 구성합니다. <strong>INT(SAP)</strong>에서 BOM 구조를 가져와 각 말단 부품을 <strong>ORG-01</strong>의 등록 원산지와 결합하고, 노드별로 판정 규칙(실질적 변형/세번변경)을 적용합니다. 완제품 원산지는 <strong>집계 결과</strong>입니다(BR-ORG-05). 원산지 미등록 또는 BOM 미연결 부품이 하나라도 있으면 결과는 <strong>"보류"</strong> 상태가 됩니다(BR-ORG-03) — 시스템은 추정하지 않습니다. 모든 노드·원산지 플래그·적용 규칙은 감사 가능한 근거(BR-ORG-01)로 기록되어 ORG-05(RVC)·COO 라벨(LBL)·감사 자료(AUD)로 연계됩니다.</div>
+      </div>
+      <div class="ov-meta">
+        <div class="ov-meta-row"><div class="ov-meta-k">Screen ID</div><div class="ov-meta-v"><code>ORG-04</code></div></div>
+        <div class="ov-meta-row"><div class="ov-meta-k">Entry</div><div class="ov-meta-v">ORG 메뉴 · 완제품 선택 <span class="ko">판정 요청 시</span></div></div>
+        <div class="ov-meta-row"><div class="ov-meta-k">Layout</div><div class="ov-meta-v">FG Selector + BOM Tree + Result <span class="ko">선택+트리+결과</span></div></div>
+        <div class="ov-meta-row"><div class="ov-meta-k">Source</div><div class="ov-meta-v">INT(SAP) BOM · ORG-01 origins</div></div>
+        <div class="ov-meta-row"><div class="ov-meta-k">Tables</div><div class="ov-meta-v"><code>md_bom</code>, <code>org_part_origin</code>, <code>org_rollup_result</code></div></div>
+        <div class="ov-meta-row"><div class="ov-meta-k">RBAC</div><div class="ov-meta-v"><code>ORG.View</code> / <code>ORG.Run</code></div></div>
+        <div class="ov-meta-row"><div class="ov-meta-k">Output</div><div class="ov-meta-v">FG 원산지 + 판정 근거 → ORG-05</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. SCREEN MOCKUP -->
+  <section class="sec" id="s2">
+    <div class="sec-hdr"><div class="sec-num">02</div><div class="sec-title-wrap"><div class="sec-title-en">Screen Mockup</div><div class="sec-title-ko">화면 목업 — Web · BOM 트리 + 집계 결과</div></div><div class="sec-line"></div></div>
+
+    <div class="mock-wrap">
+      <div class="mock-lbl">ORG-04 · BOM Origin Rollup · Tree &amp; Result</div>
+      <div class="mock-win">
+        <div class="mock-tbar"><span class="dots"><span></span><span></span><span></span></span> UOCM — BOM Origin Rollup <span class="bc">/org/bom-rollup</span></div>
+        <div class="mock-toolbar">
+          <select style="min-width:240px;"><option>완제품 · FG-SEAT-A2 · Front Seat Assy (2026MY)</option></select>
+          <select><option>BOM Rev · R12 (최신)</option></select>
+          <span style="flex:1;"></span>
+          <button class="mbtn mbtn-ghost">⟳ INT 재동기화</button>
+          <button class="mbtn mbtn-pri">▶ 집계 실행</button>
+        </div>
+        <div class="mock-body">
+          <div class="kpi-strip">
+            <div class="kc"><div class="kv" style="color:#0891b2;">5</div><div class="kl">BOM Levels · 단계</div></div>
+            <div class="kc"><div class="kv" style="color:#0f2747;">38</div><div class="kl">Nodes · 노드</div></div>
+            <div class="kc"><div class="kv" style="color:#16a34a;">35</div><div class="kl">Origin OK · 원산지有</div></div>
+            <div class="kc"><div class="kv" style="color:#a16207;">2</div><div class="kl">Pending · 보류</div></div>
+            <div class="kc"><div class="kv" style="color:#dc2626;">1</div><div class="kl">No BOM Link · 미연결</div></div>
+          </div>
+          <table class="tbl">
+            <thead><tr>
+              <th style="width:48px;">Lvl<span class="th-ko">단계</span></th>
+              <th>품목 · Item</th>
+              <th style="width:90px;">구성<span class="th-ko">Role</span></th>
+              <th style="width:84px;">단가비중<span class="th-ko">Cost %</span></th>
+              <th style="width:70px;">원산지<span class="th-ko">Origin</span></th>
+              <th style="width:110px;">판정 상태<span class="th-ko">Status</span></th>
+            </tr></thead>
+            <tbody>
+              <tr class="rok"><td class="mono">0</td><td style="font-weight:700;">FG-SEAT-A2 · Front Seat Assy <span style="font-size:9px;color:var(--sub);">(완제품)</span></td><td><span class="b b-i">FG</span></td><td class="mono">100.0%</td><td>🇺🇸 US</td><td><span class="b b-ok">판정완료</span></td></tr>
+              <tr><td class="mono">1</td><td style="padding-left:22px;">▸ SUB-FRAME-07 · Seat Frame Sub-assy <span style="font-size:9px;color:var(--sub);">(반제품)</span></td><td><span class="b b-n">SUB</span></td><td class="mono">41.2%</td><td>🇲🇽 MX</td><td><span class="b b-ok">집계 Y</span></td></tr>
+              <tr><td class="mono">2</td><td style="padding-left:44px;">• BRK-STL-09 · Steel Bracket</td><td><span class="b b-n">COMP</span></td><td class="mono">14.8%</td><td>🇲🇽 MX</td><td><span class="b b-ok">원산지 Y</span></td></tr>
+              <tr><td class="mono">2</td><td style="padding-left:44px;">• BOLT-M8-22 · M8 Bolt ×8</td><td><span class="b b-n">COMP</span></td><td class="mono">3.1%</td><td>🇨🇳 CN</td><td><span class="b b-ok">원산지 N</span></td></tr>
+              <tr><td class="mono">1</td><td style="padding-left:22px;">▸ SUB-CUSH-03 · Cushion Sub-assy <span style="font-size:9px;color:var(--sub);">(반제품)</span></td><td><span class="b b-n">SUB</span></td><td class="mono">33.5%</td><td>🇺🇸 US</td><td><span class="b b-ok">집계 Y</span></td></tr>
+              <tr><td class="mono">2</td><td style="padding-left:44px;">• FAB-GY-C03 · Cover Fabric</td><td><span class="b b-n">COMP</span></td><td class="mono">19.0%</td><td>🇺🇸 US</td><td><span class="b b-ok">원산지 Y</span></td></tr>
+              <tr class="rw"><td class="mono">2</td><td style="padding-left:44px;">• SEAL-EPDM-04 · EPDM Seal</td><td><span class="b b-n">COMP</span></td><td class="mono">2.4%</td><td>—</td><td><span class="b b-w">원산지 미등록</span></td></tr>
+              <tr class="rd"><td class="mono">2</td><td style="padding-left:44px;">• CONN-PA66-12 · Connector</td><td><span class="b b-e">?</span></td><td class="mono">—</td><td>—</td><td><span class="b b-e">BOM 미연결</span></td></tr>
+            </tbody>
+          </table>
+          <div style="margin-top:6px;font-size:9px;color:var(--sub);">들여쓰기 = BOM 단계 · 🇺🇸/🇲🇽/🇨🇳 노드 원산지 · 노랑=원산지 미등록 · 빨강=BOM 미연결(INT)</div>
+
+          <div style="margin-top:14px;border:1px solid #fde68a;background:#fffbeb;border-radius:6px;padding:12px 14px;">
+            <div style="font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#92400e;margin-bottom:6px;">⚠ 완제품 원산지 판정 · FG Origin Determination</div>
+            <div style="font-size:14px;font-weight:900;color:#0f2747;">완제품 원산지 판정: 🇺🇸 US (실질적 변형) · RVC 예상 68%</div>
+            <div style="font-size:10px;color:#92400e;margin-top:6px;">단, <strong>2개 노드 보류</strong> — SEAL-EPDM-04(원산지 미등록), CONN-PA66-12(BOM 미연결). 보류 해소 전까지 결과는 <strong>"보류 / Pending"</strong>로 표시되며 확정 불가 (BR-ORG-03).</div>
+            <div style="margin-top:10px;display:flex;gap:8px;">
+              <button class="mbtn mbtn-sec">보류 노드 보기</button>
+              <button class="mbtn mbtn-pri">RVC 계산 → ORG-05</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. UI COMPONENTS -->
+  <section class="sec" id="s3">
+    <div class="sec-hdr"><div class="sec-num">03</div><div class="sec-title-wrap"><div class="sec-title-en">UI Component Specification</div><div class="sec-title-ko">UI 컴포넌트 명세</div></div><div class="sec-line"></div></div>
+    <table class="cs-tbl">
+      <thead><tr><th style="width:84px;">ID</th><th style="width:180px;">Component <span class="th-ko">컴포넌트</span></th><th style="width:120px;">Type</th><th style="width:50px;">Req</th><th>Validation / Behavior <span class="th-ko">검증·동작</span></th></tr></thead>
+      <tbody>
+        <tr><td class="c-id">CMP-01</td><td class="c-name">FG Selector<span class="ko">완제품 선택</span></td><td><span class="c-type">LOOKUP</span></td><td class="c-req y">Y</td><td class="c-validation">MD Part(완제품 유형) 조회 + BOM Rev 선택. 선택 시 INT에서 BOM 구조 프리페치.</td></tr>
+        <tr><td class="c-id">CMP-02</td><td class="c-name">[▶ 집계 실행]<span class="ko">Run rollup</span></td><td><span class="c-type">BUTTON</span></td><td class="c-req y">Y</td><td class="c-validation"><code>ORG.Run</code> 권한 필요. 클릭 시 BOM 트리 전개 + 노드별 원산지 결합 + 규칙 적용 실행.</td></tr>
+        <tr><td class="c-id">CMP-03</td><td class="c-name">BOM Tree Grid<span class="ko">BOM 트리 그리드</span></td><td><span class="c-type">TREE-TABLE</span></td><td class="c-req y">Y</td><td class="c-validation">단계(Lvl) 들여쓰기로 다단계 BOM 표시. 컬럼: 품목·구성·단가비중·원산지·판정상태. 노드 클릭 → ORG-01 원산지.</td></tr>
+        <tr><td class="c-id">CMP-04</td><td class="c-name">Per-node Origin<span class="ko">노드 원산지 표시</span></td><td><span class="c-type">FLAG/BADGE</span></td><td class="c-req n">N</td><td class="c-validation">노드별 🇺🇸/🇲🇽/🇨🇳 국기 + originating Y/N. 미등록은 "—" + 노랑 행.</td></tr>
+        <tr><td class="c-id">CMP-05</td><td class="c-name">Rollup Result Banner<span class="ko">집계 결과 배너</span></td><td><span class="c-type">PANEL</span></td><td class="c-req y">Y</td><td class="c-validation">완제품 원산지 + 판정 근거(실질적 변형 등) + RVC 예상치 표시. 결과는 <code>org_rollup_result</code> 저장.</td></tr>
+        <tr><td class="c-id">CMP-06</td><td class="c-name">Pending Indicator<span class="ko">보류 표시</span></td><td><span class="c-type">ALERT</span></td><td class="c-req n">N</td><td class="c-validation">원산지 미등록·BOM 미연결 노드 발견 시 결과 "보류" 처리 + 해당 노드 리스트(BR-ORG-03).</td></tr>
+        <tr><td class="c-id">CMP-07</td><td class="c-name">[RVC 계산 → ORG-05]<span class="ko">→ RVC</span></td><td><span class="c-type">BUTTON</span></td><td class="c-req n">N</td><td class="c-validation">판정 결과 + 단가비중을 ORG-05로 전달. 보류 시 비활성(확정 후 활성).</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- 4. EVENT FLOW -->
+  <section class="sec" id="s4">
+    <div class="sec-hdr"><div class="sec-num">04</div><div class="sec-title-wrap"><div class="sec-title-en">Event &amp; Action Flow</div><div class="sec-title-ko">이벤트 · 액션 흐름</div></div><div class="sec-line"></div></div>
+    <div class="ef-wrap">
+      <div class="ef-step">
+        <div class="ef-num">1</div>
+        <div>
+          <div class="ef-trig"><span class="ef-trig-tag user">USER</span><span class="ef-trig-name">Select FG + Run rollup</span></div>
+          <div class="ef-action">완제품(FG)과 BOM Rev 선택 후 [▶ 집계 실행] 클릭.</div>
+          <div class="ef-action-ko"><code>ORG.Run</code> 권한 확인. 미권한 시 버튼 비활성.</div>
+          <div class="ef-result"><span class="er-lbl">RESULT</span>Rollup job started · 집계 작업 시작</div>
+        </div>
+      </div>
+      <div class="ef-step">
+        <div class="ef-num">2</div>
+        <div>
+          <div class="ef-trig"><span class="ef-trig-tag system">SYSTEM</span><span class="ef-trig-name">Pull BOM from INT (SAP)</span></div>
+          <div class="ef-action">INT(SAP)에서 다단계 BOM 구조 조회 + <code>md_bom</code> 동기화. 트리 전개.</div>
+          <div class="ef-action-ko">미연결 자재 발견 시 해당 노드 빨강 표시(→ EXC-02).</div>
+          <div class="ef-result"><span class="er-lbl">RESULT</span>BOM tree expanded · 트리 구성</div>
+        </div>
+      </div>
+      <div class="ef-step">
+        <div class="ef-num">3</div>
+        <div>
+          <div class="ef-trig"><span class="ef-trig-tag system">SYSTEM</span><span class="ef-trig-name">Gather component origins (ORG-01)</span></div>
+          <div class="ef-action">각 말단 노드를 <code>org_part_origin</code>(ORG-01)에 결합하여 원산지·originating 플래그 수집.</div>
+          <div class="ef-action-ko">원산지 미등록 노드 발견 시 표시(→ EXC-01).</div>
+          <div class="ef-result"><span class="er-lbl">RESULT</span>Origins joined · 노드별 원산지 결합</div>
+        </div>
+      </div>
+      <div class="ef-step">
+        <div class="ef-num">4</div>
+        <div>
+          <div class="ef-trig"><span class="ef-trig-tag system">SYSTEM</span><span class="ef-trig-name">Apply rules → FG origin + basis</span></div>
+          <div class="ef-action">노드별 판정 규칙(실질적 변형/세번변경) 적용 후 상향 집계. 완제품 원산지 + 판정 근거 산출(BR-ORG-05).</div>
+          <div class="ef-action-ko">전 노드·규칙을 근거로 <code>org_rollup_result</code> 저장(BR-ORG-01).</div>
+          <div class="ef-result"><span class="er-lbl">RESULT</span>FG origin determined · 완제품 판정 근거 생성</div>
+        </div>
+      </div>
+      <div class="ef-step terminal">
+        <div class="ef-num">✓</div>
+        <div>
+          <div class="ef-trig"><span class="ef-trig-tag system">SYSTEM</span><span class="ef-trig-name">Confirm result · or Pending if gaps</span></div>
+          <div class="ef-action">결손(원산지 미등록·BOM 미연결) 없으면 결과 확정 → [RVC 계산 → ORG-05] 활성. 결손 있으면 <code>Pending</code>으로 종료(BR-ORG-03).</div>
+          <div class="ef-action-ko">완제품 원산지는 ORG-05(RVC)·LBL(COO 라벨)·AUD에서 참조.</div>
+          <div class="ef-result"><span class="er-lbl">DONE</span>Result = Confirmed or <code>Pending</code> · 보류 시 확정 불가</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. EXCEPTION -->
+  <section class="sec" id="s5">
+    <div class="sec-hdr"><div class="sec-num">05</div><div class="sec-title-wrap"><div class="sec-title-en">Exception Handling</div><div class="sec-title-ko">예외 처리</div></div><div class="sec-line"></div></div>
+    <div class="exc-grid">
+      <div class="exc-card warn">
+        <div class="exc-hdr"><span class="exc-code">EXC-01</span><span class="exc-name">Missing Component Origin<span class="ko">부품 원산지 미등록</span></span></div>
+        <div class="exc-row"><span class="lbl">Trigger</span><span class="val">말단 노드가 ORG-01에 등록 원산지 없음.</span></div>
+        <div class="exc-row"><span class="lbl">Action</span><span class="val">결과 "보류" 처리(BR-ORG-03). 해당 노드 노랑 표시 + ORG-01 등록 링크.</span></div>
+        <div class="exc-msg">원산지 미등록 부품 — 결과 보류 (Pending)</div>
+      </div>
+      <div class="exc-card">
+        <div class="exc-hdr"><span class="exc-code">EXC-02</span><span class="exc-name">BOM Not Linked (INT)<span class="ko">BOM 미연결</span></span></div>
+        <div class="exc-row"><span class="lbl">Trigger</span><span class="val">INT(SAP)에 해당 자재의 BOM 구성이 없음.</span></div>
+        <div class="exc-row"><span class="lbl">Action</span><span class="val">노드 빨강 표시. 집계 미완 → "보류". INT 동기화 안내.</span></div>
+        <div class="exc-msg">BOM 미연결 — INT에서 구성 확인 필요</div>
+      </div>
+      <div class="exc-card">
+        <div class="exc-hdr"><span class="exc-code">EXC-03</span><span class="exc-name">Circular BOM<span class="ko">순환 참조</span></span></div>
+        <div class="exc-row"><span class="lbl">Trigger</span><span class="val">BOM 전개 중 노드가 자기 상위를 재참조(루프).</span></div>
+        <div class="exc-row"><span class="lbl">Action</span><span class="val">전개 중단 + 순환 경로 표시. 집계 차단.</span></div>
+        <div class="exc-msg">순환 BOM 감지 — 구조 검토 필요</div>
+      </div>
+      <div class="exc-card warn">
+        <div class="exc-hdr"><span class="exc-code">EXC-04</span><span class="exc-name">Cost Weight Missing<span class="ko">단가비중 누락</span></span></div>
+        <div class="exc-row"><span class="lbl">Trigger</span><span class="val">노드 단가/비중 정보 없음.</span></div>
+        <div class="exc-row"><span class="lbl">Action</span><span class="val">원산지 판정은 진행하되 RVC 영향 경고. ORG-05 계산 정확도 저하 안내.</span></div>
+        <div class="exc-msg">단가비중 누락 — RVC 결과 영향 가능</div>
+      </div>
+      <div class="exc-card warn">
+        <div class="exc-hdr"><span class="exc-code">EXC-05</span><span class="exc-name">Stale BOM Version<span class="ko">BOM 버전 경과</span></span></div>
+        <div class="exc-row"><span class="lbl">Trigger</span><span class="val">집계에 사용한 BOM Rev가 INT 최신과 불일치.</span></div>
+        <div class="exc-row"><span class="lbl">Action</span><span class="val">경고 배너 + "INT 재동기화" 권유. 이전 Rev 결과는 참조용 표시.</span></div>
+        <div class="exc-msg">최신 BOM 아님 — 재동기화 권장</div>
+      </div>
+      <div class="exc-card info">
+        <div class="exc-hdr"><span class="exc-code">EXC-06</span><span class="exc-name">No Permission<span class="ko">권한 없음</span></span></div>
+        <div class="exc-row"><span class="lbl">Trigger</span><span class="val"><code>ORG.View</code>만 보유 — 실행 권한 없음.</span></div>
+        <div class="exc-row"><span class="lbl">Action</span><span class="val">[집계 실행] 비활성. 기존 결과 열람만 가능.</span></div>
+        <div class="exc-msg">집계 실행 권한이 없습니다 (ORG.Run 필요)</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. LINKED -->
+  <section class="sec" id="s6">
+    <div class="sec-hdr"><div class="sec-num">06</div><div class="sec-title-wrap"><div class="sec-title-en">Linked Screens</div><div class="sec-title-ko">연계 화면</div></div><div class="sec-line"></div></div>
+    <div class="lnk-wrap">
+      <div class="lnk-row">
+        <a class="lnk-node up" href="VOL04_ORG01_Part_Origin_Registry.html"><div class="lnk-id">ORG-01</div><div class="lnk-name">Part Origin</div><div class="lnk-ko">부품 원산지 ▸ 입력</div></a>
+        <a class="lnk-node up" href="VOL06_INT_Integration.html"><div class="lnk-id">INT</div><div class="lnk-name">Integration (SAP)</div><div class="lnk-ko">BOM 구조 제공</div></a>
+        <span class="lnk-arr">→</span>
+        <div class="lnk-node cur"><div class="lnk-id">ORG-04</div><div class="lnk-name">BOM Origin Rollup</div><div class="lnk-ko">현재 화면</div></div>
+        <span class="lnk-arr">→</span>
+        <a class="lnk-node down" href="VOL04_ORG05_RVC_Calculation.html"><div class="lnk-id">ORG-05</div><div class="lnk-name">RVC Calculation</div><div class="lnk-ko">RVC 계산</div></a>
+      </div>
+      <div class="lnk-row" style="margin-top:14px;">
+        <a class="lnk-node down" href="VOL03_LBL_Label_Management.html"><div class="lnk-id">LBL</div><div class="lnk-name">Label</div><div class="lnk-ko">COO 라벨 = FG 원산지</div></a>
+        <a class="lnk-node down" href="VOL05_AUD_Audit_Support.html"><div class="lnk-id">AUD</div><div class="lnk-name">Audit Support</div><div class="lnk-ko">판정 근거·역추적</div></a>
+      </div>
+      <div style="text-align:center;font-size:10px;color:var(--sub);margin-top:14px;">상위: 부품 원산지(ORG-01) + BOM(INT) 입력 · 하위: RVC(ORG-05)·COO 라벨(LBL)·감사 근거(AUD)로 연계</div>
+    </div>
+  </section>
+
+  <!-- 7. BUSINESS RULES -->
+  <section class="sec" id="s7">
+    <div class="sec-hdr"><div class="sec-num">07</div><div class="sec-title-wrap"><div class="sec-title-en">Business Rules</div><div class="sec-title-ko">업무 규칙</div></div><div class="sec-line"></div></div>
+    <table class="br-mini">
+      <thead><tr><th style="width:96px;">ID</th><th>Rule · 규칙</th><th style="width:80px;">Action</th></tr></thead>
+      <tbody>
+        <tr><td class="br-id">BR-ORG-03</td><td><div class="br-en">Pending on gaps — if any component lacks a registered origin or its BOM is not linked, the rollup result is held as "Pending"; FG origin cannot be confirmed until resolved. No guessing.</div><div class="br-ko">부품 원산지 미등록 또는 BOM 미연결 시 결과는 "보류". 해소 전까지 완제품 원산지 확정 불가 — 추정 없음.</div></td><td class="br-act"><span class="blk">차단</span></td></tr>
+        <tr><td class="br-id">BR-ORG-05</td><td><div class="br-en">FG = rollup result — the finished-good origin is determined solely by rolling component origins up the BOM with the applied determination rules; it is never entered manually.</div><div class="br-ko">완제품 원산지는 부품 원산지의 BOM 상향 집계 + 판정 규칙 적용 결과로만 결정. 수기 입력 불가.</div></td><td class="br-act"><span class="aut">자동</span></td></tr>
+        <tr><td class="br-id">BR-ORG-01</td><td><div class="br-en">Evidence trail — every node, its origin flag, and the rule applied are stored as the auditable judgment basis (원산지 판정 근거) for ORG-05, LBL, and AUD.</div><div class="br-ko">모든 노드·원산지 플래그·적용 규칙을 감사 가능한 원산지 판정 근거로 저장(ORG-05·LBL·AUD 연계).</div></td><td class="br-act"><span class="aut">자동</span></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  </div>
+  <div class="page-footer">
+    <span class="pf-l">UOCM · USMCA Origin Compliance Management System</span>
+    <span class="pf-r">VOL.4 · ORG-04 · BOM Origin Rollup · L3 Spec</span>
+  </div>
+</div>
+</div>
+</body>
+</html>

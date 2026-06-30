@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>UOCM · VOL.4 · ORG-01 · Part Origin Registry · 상세 설계서</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;600;700&family=Bebas+Neue&display=swap');
+:root{
+  --brand:#059669;--brand-dk:#047857;
+  --ink:#0a1422;--ink2:#101d2e;--ink3:#1c2c40;
+  --surface:#fff;--bg:#f4f7fa;--border:#d3dce6;--text:#1e2a38;--sub:#5b6b7d;
+  --doc:#0891b2;--doc-dk:#0e7490;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);font-size:13px;line-height:1.6;}
+
+/* NAV */
+.uo-nav{position:sticky;top:0;z-index:9999;background:#fff;border-bottom:1px solid #e5eaf0;box-shadow:0 1px 4px rgba(15,39,71,.06);}
+.uo-nav-inner{display:flex;align-items:stretch;overflow-x:auto;scrollbar-width:none;}
+.uo-nav-inner::-webkit-scrollbar{display:none;}
+.nav-home{display:flex;align-items:center;gap:8px;padding:0 16px;background:rgba(5,150,105,.08);border-right:1px solid #e5eaf0;text-decoration:none;flex-shrink:0;min-height:42px;}
+.nav-home-logo{font-family:'Bebas Neue',sans-serif;font-size:17px;color:var(--brand);letter-spacing:2px;}
+.nav-home-sub{font-size:9px;color:#94a3b8;}
+.nav-vol{display:flex;align-items:center;gap:5px;padding:0 12px;text-decoration:none;font-size:10px;font-weight:700;color:#5b6b7d;border-bottom:2px solid transparent;white-space:nowrap;min-height:42px;transition:color .12s;}
+.nav-vol:hover{color:#0f2747;background:#f6f8fa;}
+.nav-vol.active{color:#0f2747;border-bottom-color:#059669;}
+.nav-vol .nv-code{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;}
+
+/* BREADCRUMB */
+.l3-crumb{background:#f6f8fa;border-bottom:1px solid #e5eaf0;padding:7px 24px;display:flex;align-items:center;gap:8px;font-size:10px;color:#5b6b7d;font-family:'JetBrains Mono',monospace;letter-spacing:.5px;}
+.l3-crumb a{color:#5b6b7d;text-decoration:none;transition:color .12s;}
+.l3-crumb a:hover{color:#0f2747;}
+.l3-crumb .arr{color:#cbd5e1;}
+.l3-crumb .current{color:#047857;font-weight:700;}
+.l3-crumb .lvl{font-size:8px;padding:1px 6px;border:1px solid #d3dce6;border-radius:2px;color:#94a3b8;margin-right:4px;}
+
+/* LAYOUT */
+.page-wrap{display:flex;}
+.sidebar{width:240px;min-width:240px;background:#f6f8fa;position:sticky;top:69px;height:calc(100vh - 69px);overflow-y:auto;scrollbar-width:thin;border-right:1px solid #e5eaf0;}
+.sb-head{padding:16px 14px 12px;border-bottom:1px solid #e5eaf0;}
+.sb-vol{font-family:'JetBrains Mono',monospace;font-size:9px;color:#047857;letter-spacing:2px;margin-bottom:4px;}
+.sb-mod-en{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1px;color:#0f2747;}
+.sb-mod-ko{font-size:10px;color:#94a3b8;}
+.sb-section{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#94a3b8;padding:14px 14px 6px;}
+.sb-link{display:flex;align-items:center;gap:7px;padding:6px 14px;text-decoration:none;color:#5b6b7d;font-size:11px;border-left:2px solid transparent;transition:all .12s;}
+.sb-link:hover{color:#0f2747;background:#eef2f7;}
+.sb-link.on{color:#0f2747;border-left-color:#059669;background:rgba(5,150,105,.08);}
+.sb-link .sl-id{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;width:44px;flex-shrink:0;color:#0891b2;}
+.sb-link.on .sl-id{color:#047857;}
+.sb-link .sl-en{font-size:10px;font-weight:600;}
+.sb-link .sl-ko{font-size:9px;color:#94a3b8;margin-top:1px;}
+.sb-toc{padding:6px 14px 14px;border-top:1px solid #e5eaf0;margin-top:6px;}
+.sb-toc-title{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#047857;margin-bottom:6px;}
+.sb-toc a{display:block;padding:4px 8px;border-radius:3px;font-size:10px;color:#5b6b7d;text-decoration:none;transition:all .12s;}
+.sb-toc a:hover{color:#0f2747;background:#eef2f7;}
+.sb-toc a .num{font-family:'JetBrains Mono',monospace;color:#059669;font-size:9px;margin-right:6px;}
+
+.main{flex:1;min-width:0;}
+
+/* SCREEN HEADER */
+.scr-hdr{padding:32px 48px 26px;background:linear-gradient(135deg,#e6fbff,#ffffff);position:relative;overflow:hidden;border-bottom:1px solid #e5eaf0;}
+.scr-hdr::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(8,145,178,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(8,145,178,.05) 1px,transparent 1px);background-size:32px 32px;pointer-events:none;}
+.scr-hdr::after{content:'';position:absolute;top:-40%;right:-10%;width:380px;height:380px;background:radial-gradient(circle,rgba(8,145,178,.12),transparent 70%);pointer-events:none;}
+.scr-hdr-inner{position:relative;z-index:1;}
+.scr-eyebrow{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#0891b2;margin-bottom:12px;display:flex;align-items:center;gap:10px;}
+.scr-eyebrow .dot{width:5px;height:5px;background:#22d3ee;border-radius:50%;box-shadow:0 0 8px #22d3ee;}
+.scr-id-block{display:flex;align-items:flex-end;gap:18px;margin-bottom:14px;}
+.scr-id{font-family:'Bebas Neue',sans-serif;font-size:54px;letter-spacing:2px;color:#0891b2;line-height:.9;text-shadow:0 0 22px rgba(8,145,178,.25);}
+.scr-title-en{font-family:'Bebas Neue',sans-serif;font-size:46px;letter-spacing:1.5px;color:#0f2747;line-height:.95;}
+.scr-title-ko{font-size:13px;color:#5b6b7d;letter-spacing:3px;}
+.scr-meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px;}
+.meta-chip{display:flex;align-items:center;gap:6px;padding:5px 11px;background:#f6f8fa;border:1px solid #d3dce6;border-radius:3px;font-size:10px;color:#1e2a38;}
+.meta-chip .mc-lbl{font-family:'JetBrains Mono',monospace;font-size:8px;color:#94a3b8;letter-spacing:1px;text-transform:uppercase;}
+.meta-chip .mc-val{font-weight:700;}
+.meta-chip.web{border-color:rgba(8,145,178,.3);color:#0891b2;}
+.meta-chip.phase{border-color:rgba(16,185,129,.3);color:#047857;}
+.meta-chip.role{border-color:rgba(34,211,238,.3);color:#0891b2;}
+
+.content{padding:0 48px 60px;}
+.sec{margin-top:36px;}
+.sec-hdr{display:flex;align-items:center;gap:14px;margin-bottom:16px;}
+.sec-num{font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--doc);letter-spacing:1px;line-height:1;min-width:42px;}
+.sec-title-wrap{flex:1;}
+.sec-title-en{font-size:18px;font-weight:800;color:var(--text);letter-spacing:-.3px;}
+.sec-title-ko{font-size:11px;color:var(--sub);margin-top:1px;}
+.sec-line{flex:1;height:1px;background:linear-gradient(90deg,var(--doc),transparent);max-width:200px;}
+
+/* OVERVIEW */
+.ov-grid{display:grid;grid-template-columns:1.6fr 1fr;gap:14px;}
+.ov-desc{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--doc);border-radius:0 6px 6px 0;padding:16px 18px;}
+.ov-desc-en{font-size:12px;color:var(--text);line-height:1.85;margin-bottom:10px;}
+.ov-desc-ko{font-size:11px;color:var(--sub);line-height:1.85;padding-top:10px;border-top:1px dashed var(--border);}
+.ov-meta{background:var(--surface);border:1px solid var(--border);border-radius:6px;overflow:hidden;}
+.ov-meta-row{display:flex;border-bottom:1px solid var(--border);font-size:11px;}
+.ov-meta-row:last-child{border-bottom:none;}
+.ov-meta-k{flex:0 0 110px;background:#f6f8fa;padding:8px 12px;font-weight:700;color:var(--sub);font-size:10px;letter-spacing:.5px;text-transform:uppercase;border-right:1px solid var(--border);}
+.ov-meta-v{flex:1;padding:8px 12px;color:var(--text);}
+.ov-meta-v .ko{font-size:10px;color:var(--sub);margin-left:6px;}
+.ov-meta-v code{font-family:'JetBrains Mono',monospace;font-size:10px;background:#f0f3f7;padding:1px 6px;border-radius:3px;color:var(--doc);}
+
+/* MOCKUP */
+.mock-wrap{background:#eef1f5;border:1px solid var(--border);border-radius:8px;padding:14px;}
+.mock-lbl{font-size:9px;font-weight:700;color:var(--sub);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.mock-lbl::before{content:'';width:6px;height:6px;background:var(--doc);border-radius:50%;}
+.mock-win{background:#fff;border:1px solid #c8d0db;border-radius:6px;overflow:hidden;box-shadow:0 4px 14px rgba(0,0,0,.08);}
+.mock-tbar{background:var(--text);color:#fff;padding:8px 14px;display:flex;align-items:center;gap:8px;font-size:11px;font-weight:700;}
+.mock-tbar .dots{display:flex;gap:5px;}
+.mock-tbar .dots span{width:9px;height:9px;border-radius:50%;display:block;background:rgba(255,255,255,.25);}
+.mock-tbar .bc{margin-left:auto;font-size:9px;color:rgba(255,255,255,.4);font-family:'JetBrains Mono',monospace;}
+.mock-toolbar{background:#f6f8fa;border-bottom:1px solid var(--border);padding:8px 14px;display:flex;gap:7px;align-items:center;flex-wrap:wrap;}
+.mock-toolbar select,.mock-toolbar input{padding:4px 9px;border:1px solid var(--border);border-radius:3px;font-size:11px;background:#fff;color:var(--text);}
+.mbtn{padding:5px 12px;border-radius:4px;font-size:11px;font-weight:700;border:1px solid transparent;cursor:pointer;display:inline-flex;align-items:center;gap:5px;}
+.mbtn-pri{background:var(--doc);color:#fff;border-color:var(--doc);}
+.mbtn-sec{background:#fff;color:var(--text);border-color:var(--border);}
+.mbtn-ghost{background:transparent;color:var(--sub);border-color:var(--border);}
+.mock-body{padding:14px;}
+
+.kpi-strip{display:flex;gap:0;border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-bottom:14px;}
+.kc{flex:1;padding:10px 13px;border-right:1px solid var(--border);background:#fafbfc;}
+.kc:last-child{border-right:none;}
+.kv{font-size:22px;font-weight:900;font-family:'JetBrains Mono',monospace;line-height:1;}
+.kl{font-size:9px;color:var(--sub);margin-top:3px;}
+
+.tbl{width:100%;border-collapse:collapse;font-size:11px;}
+.tbl th{background:#f0f3f7;padding:7px 9px;font-weight:700;border:1px solid var(--border);text-align:left;font-size:10px;color:var(--text);}
+.tbl th .th-ko{font-weight:400;color:var(--sub);font-size:9px;display:block;}
+.tbl td{padding:6px 9px;border:1px solid var(--border);vertical-align:middle;}
+.tbl .rok td{background:#f0fdf4;}
+.tbl .rw td{background:#fffbeb;}
+.tbl .rd td{background:#fef2f2;}
+.tbl tr:hover td{filter:brightness(.98);}
+.tbl .mono{font-family:'JetBrains Mono',monospace;font-size:10px;}
+.b{display:inline-block;font-size:9px;font-weight:700;padding:2px 7px;border-radius:8px;}
+.b-ok{background:#dcfce7;color:#166534;}.b-w{background:#fef9c3;color:#92400e;}.b-e{background:#fee2e2;color:#991b1b;}.b-i{background:#cffafe;color:#155e75;}.b-n{background:#f1f5f9;color:#475569;}
+
+/* DRAWER FORM MOCK */
+.drawer{background:#fff;border:1px solid var(--border);border-radius:6px;overflow:hidden;box-shadow:0 6px 24px rgba(0,0,0,.1);}
+.drawer-h{background:linear-gradient(135deg,#0e2148,#0e7490);color:#fff;padding:11px 16px;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:space-between;}
+.drawer-h .x{opacity:.6;}
+.drawer-b{padding:16px;display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.fld{display:flex;flex-direction:column;gap:4px;}
+.fld.full{grid-column:1/3;}
+.fld-l{font-size:10px;font-weight:700;color:var(--sub);}
+.fld-l .req{color:#dc2626;}
+.fld-in{border:1px solid var(--border);border-radius:4px;padding:7px 10px;font-size:11px;color:var(--text);background:#fff;}
+.fld-in.ph{color:#9aa7b5;}
+.drop{grid-column:1/3;border:2px dashed #67e8f9;border-radius:8px;background:#ecfeff;padding:22px;text-align:center;color:#155e75;}
+.drop .di{font-size:30px;}
+.drawer-f{border-top:1px solid var(--border);padding:12px 16px;display:flex;justify-content:flex-end;gap:8px;background:#f6f8fa;}
+
+/* COMPONENT SPEC */
+.cs-tbl{width:100%;border-collapse:collapse;font-size:11px;background:var(--surface);border:1px solid var(--border);border-radius:6px;overflow:hidden;}
+.cs-tbl th{background:#ecfeff;color:#0e7490;padding:9px 10px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;border-bottom:1px solid #a5f3fc;}
+.cs-tbl th .th-ko{display:block;color:#3aa6c0;font-weight:400;font-size:9px;letter-spacing:0;text-transform:none;margin-top:1px;}
+.cs-tbl td{padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:top;}
+.cs-tbl tr:last-child td{border-bottom:none;}
+.cs-tbl tr:hover td{background:#f9fafb;}
+.cs-tbl .c-id{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;color:var(--doc);}
+.cs-tbl .c-name{font-weight:700;color:var(--text);}
+.cs-tbl .c-name .ko{font-size:10px;font-weight:400;color:var(--sub);display:block;margin-top:1px;}
+.cs-tbl .c-type{font-family:'JetBrains Mono',monospace;font-size:10px;color:#7c3aed;background:#f5f3ff;padding:2px 6px;border-radius:3px;display:inline-block;}
+.cs-tbl .c-req.y{color:#dc2626;font-weight:700;font-family:'JetBrains Mono',monospace;font-size:9px;}
+.cs-tbl .c-req.n{color:var(--sub);font-family:'JetBrains Mono',monospace;font-size:9px;}
+.cs-tbl .c-validation{font-size:10px;color:var(--text);line-height:1.6;}
+.cs-tbl .c-validation code{font-family:'JetBrains Mono',monospace;font-size:9px;background:#fff7ed;color:#9a3412;padding:1px 5px;border-radius:2px;}
+
+/* EVENT FLOW */
+.ef-wrap{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:18px 20px;}
+.ef-step{display:grid;grid-template-columns:46px 1fr;gap:14px;padding:10px 0;position:relative;}
+.ef-step:not(:last-child)::before{content:'';position:absolute;left:23px;top:42px;bottom:-10px;width:2px;background:linear-gradient(180deg,var(--doc),rgba(8,145,178,.15));}
+.ef-num{width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,var(--doc),#0e7490);color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;box-shadow:0 4px 12px rgba(8,145,178,.25);position:relative;z-index:1;}
+.ef-step.terminal .ef-num{background:linear-gradient(135deg,#059669,#047857);box-shadow:0 4px 12px rgba(5,150,105,.25);}
+.ef-step.error .ef-num{background:linear-gradient(135deg,#dc2626,#991b1b);box-shadow:0 4px 12px rgba(220,38,38,.25);}
+.ef-trig{display:flex;align-items:center;gap:6px;margin-bottom:4px;}
+.ef-trig-tag{font-family:'JetBrains Mono',monospace;font-size:8px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:2px 7px;border-radius:2px;}
+.ef-trig-tag.user{background:#cffafe;color:#155e75;}
+.ef-trig-tag.system{background:#f3e8ff;color:#7c3aed;}
+.ef-trig-tag.scheduled{background:#fef3c7;color:#92400e;}
+.ef-trig-name{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:var(--text);}
+.ef-action{font-size:12px;color:var(--text);line-height:1.7;margin-bottom:3px;}
+.ef-action-ko{font-size:11px;color:var(--sub);line-height:1.7;}
+.ef-result{margin-top:6px;padding:7px 10px;background:#f6f8fa;border-left:2px solid var(--doc);border-radius:0 3px 3px 0;font-size:10px;color:var(--text);}
+.ef-result .er-lbl{font-family:'JetBrains Mono',monospace;font-size:8px;font-weight:700;color:var(--doc);letter-spacing:1px;margin-right:6px;}
+.ef-result code{font-family:'JetBrains Mono',monospace;font-size:10px;background:#fff;padding:1px 5px;border-radius:2px;border:1px solid var(--border);color:#7c3aed;}
+.ef-step.error .ef-result{border-left-color:#dc2626;background:#fef2f2;}
+.ef-step.error .ef-result .er-lbl{color:#dc2626;}
+.ef-step.terminal .ef-result{border-left-color:#059669;background:#f0fdf4;}
+.ef-step.terminal .ef-result .er-lbl{color:#059669;}
+
+/* EXCEPTION */
+.exc-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;}
+.exc-card{background:var(--surface);border:1px solid var(--border);border-top:3px solid #dc2626;border-radius:0 0 6px 6px;padding:13px 15px;}
+.exc-card.warn{border-top-color:#f59e0b;}
+.exc-card.info{border-top-color:#0891b2;}
+.exc-hdr{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.exc-code{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;color:#dc2626;background:#fef2f2;padding:2px 8px;border-radius:3px;}
+.exc-card.warn .exc-code{color:#92400e;background:#fef3c7;}
+.exc-card.info .exc-code{color:#155e75;background:#cffafe;}
+.exc-name{font-size:12px;font-weight:700;color:var(--text);flex:1;}
+.exc-name .ko{font-size:10px;font-weight:400;color:var(--sub);display:block;}
+.exc-row{display:grid;grid-template-columns:64px 1fr;gap:8px;padding:5px 0;border-top:1px dashed var(--border);font-size:10px;}
+.exc-row:first-of-type{border-top:none;}
+.exc-row .lbl{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;color:var(--sub);letter-spacing:.5px;text-transform:uppercase;padding-top:2px;}
+.exc-row .val{color:var(--text);line-height:1.6;}
+.exc-row .val code{font-family:'JetBrains Mono',monospace;font-size:9px;background:#f0f3f7;padding:1px 5px;border-radius:2px;color:#7c3aed;}
+.exc-msg{margin-top:8px;padding:7px 10px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:10px;text-align:center;background:#fef2f2;border:1px solid #fecaca;color:#991b1b;}
+.exc-card.warn .exc-msg{background:#fffbeb;border-color:#fde68a;color:#92400e;}
+.exc-card.info .exc-msg{background:#ecfeff;border-color:#a5f3fc;color:#155e75;}
+
+/* LINKAGE */
+.lnk-wrap{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:20px 24px;}
+.lnk-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:center;}
+.lnk-node{padding:12px 16px;border-radius:6px;text-align:center;min-width:128px;border:2px solid;text-decoration:none;}
+.lnk-node.up{background:#f0fdf4;border-color:#22c55e;}
+.lnk-node.cur{background:linear-gradient(135deg,#0e2148,#0e7490);border-color:#22d3ee;color:#fff;box-shadow:0 4px 16px rgba(8,145,178,.25);}
+.lnk-node.down{background:#fef3c7;border-color:#f59e0b;}
+.lnk-id{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;letter-spacing:.5px;margin-bottom:3px;}
+.lnk-node.up .lnk-id{color:#15803d;}
+.lnk-node.cur .lnk-id{color:#67e8f9;}
+.lnk-node.down .lnk-id{color:#92400e;}
+.lnk-name{font-size:11px;font-weight:700;color:var(--text);}
+.lnk-node.cur .lnk-name{color:#fff;}
+.lnk-ko{font-size:9px;opacity:.7;margin-top:2px;}
+.lnk-arr{font-size:20px;color:var(--sub);font-weight:700;}
+
+/* BR MINI */
+.br-mini{width:100%;border-collapse:collapse;font-size:11px;background:var(--surface);border:1px solid var(--border);border-radius:6px;overflow:hidden;}
+.br-mini th{background:#ecfeff;color:#155e75;padding:8px 10px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;border-bottom:1px solid #a5f3fc;}
+.br-mini td{padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:top;}
+.br-mini tr:last-child td{border-bottom:none;}
+.br-mini .br-id{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;color:var(--brand-dk);white-space:nowrap;}
+.br-mini .br-en{font-size:11px;color:var(--text);line-height:1.6;}
+.br-mini .br-ko{font-size:10px;color:var(--sub);line-height:1.6;margin-top:3px;}
+.br-mini .br-act{text-align:center;}
+.br-mini .br-act span{display:inline-block;font-size:9px;font-weight:700;padding:2px 7px;border-radius:3px;}
+.br-mini .br-act .blk{background:#fee2e2;color:#991b1b;}
+.br-mini .br-act .alt{background:#fef9c3;color:#92400e;}
+.br-mini .br-act .aut{background:#cffafe;color:#155e75;}
+
+.page-footer{padding:24px 48px;border-top:1px solid #e5eaf0;background:#f6f8fa;color:#94a3b8;display:flex;justify-content:space-between;align-items:center;font-size:10px;}
+.page-footer .pf-l{font-family:'JetBrains Mono',monospace;letter-spacing:.5px;}
+.page-footer .pf-r{color:#047857;font-family:'JetBrains Mono',monospace;}
+
+@media(max-width:1100px){.ov-grid{grid-template-columns:1fr;}.exc-grid{grid-template-columns:1fr;}.drawer-b{grid-template-columns:1fr;}.fld.full,.drop{grid-column:auto;}.scr-id-block{flex-direction:column;align-items:flex-start;gap:6px;}.scr-id{font-size:42px;}.scr-title-en{font-size:32px;}}
+</style>
+</head>
+<body>
+<nav class="uo-nav"><div class="uo-nav-inner">
+  <a href="index.html" class="nav-home"><span class="nav-home-logo">UOCM</span><span class="nav-home-sub">Index</span></a>
+  <a href="VOL01_Overview.html" class="nav-vol"><span class="nv-code" style="color:#10b981;">OV</span><span>Overview</span></a>
+  <a href="VOL02_DOC_Document_Management.html" class="nav-vol"><span class="nv-code" style="color:#2563eb;">DOC</span><span>Document</span></a>
+  <a href="VOL03_LBL_Label_Management.html" class="nav-vol"><span class="nv-code" style="color:#7c3aed;">LBL</span><span>Label</span></a>
+  <a href="VOL04_ORG_Origin_Management.html" class="nav-vol active"><span class="nv-code" style="color:#0891b2;">ORG</span><span>Origin</span></a>
+  <a href="VOL05_AUD_Audit_Support.html" class="nav-vol"><span class="nv-code" style="color:#dc2626;">AUD</span><span>Audit</span></a>
+  <a href="VOL06_INT_Integration.html" class="nav-vol"><span class="nv-code" style="color:#6366f1;">INT</span><span>Integration</span></a>
+  <a href="VOL07_SYS_System.html" class="nav-vol"><span class="nv-code" style="color:#64748b;">SYS</span><span>System</span></a>
+  <a href="VOL08_MD_Master_Data.html" class="nav-vol"><span class="nv-code" style="color:#d97706;">MD</span><span>Master Data</span></a>
+</div></nav>
+
+<div class="l3-crumb">
+  <span class="lvl">L1</span><a href="index.html">UOCM Index</a>
+  <span class="arr">▸</span>
+  <span class="lvl">L2</span><a href="VOL04_ORG_Origin_Management.html">VOL.4 · ORG Origin</a>
+  <span class="arr">▸</span>
+  <span class="lvl">L3</span><span class="current">ORG-01 · Part Origin Registry</span>
+</div>
+
+<div class="page-wrap">
+<nav class="sidebar">
+  <div class="sb-head">
+    <div class="sb-vol">VOL.4 · ORG MODULE</div>
+    <div class="sb-mod-en">ORIGIN</div>
+    <div class="sb-mod-ko">원산지 관리</div>
+  </div>
+  <div class="sb-section">L3 Screens · 화면 상세</div>
+  <a class="sb-link on" href="VOL04_ORG01_Part_Origin_Registry.html"><span class="sl-id">ORG-01</span><div><div class="sl-en">Part Origin Registry</div><div class="sl-ko">부품 원산지 등록</div></div></a>
+  <a class="sb-link" href="VOL04_ORG02_Country_Tracking.html"><span class="sl-id">ORG-02</span><div><div class="sl-en">Country Tracking</div><div class="sl-ko">국가별 추적</div></div></a>
+  <a class="sb-link" href="VOL04_ORG03_Change_History.html"><span class="sl-id">ORG-03</span><div><div class="sl-en">Change History</div><div class="sl-ko">변경 이력</div></div></a>
+  <a class="sb-link" href="VOL04_ORG04_BOM_Origin_Rollup.html"><span class="sl-id">ORG-04</span><div><div class="sl-en">BOM Origin Rollup</div><div class="sl-ko">BOM 원산지 집계</div></div></a>
+  <a class="sb-link" href="VOL04_ORG05_RVC_Calculation.html"><span class="sl-id">ORG-05</span><div><div class="sl-en">RVC Calculation</div><div class="sl-ko">RVC 자동판정</div></div></a>
+  <div class="sb-toc">
+    <div class="sb-toc-title">On this page</div>
+    <a href="#s1"><span class="num">01</span>Overview</a>
+    <a href="#s2"><span class="num">02</span>Screen Mockup</a>
+    <a href="#s3"><span class="num">03</span>UI Components</a>
+    <a href="#s4"><span class="num">04</span>Event &amp; Action Flow</a>
+    <a href="#s5"><span class="num">05</span>Exception Handling</a>
+    <a href="#s6"><span class="num">06</span>Linked Screens</a>
+    <a href="#s7"><span class="num">07</span>Business Rules</a>
+  </div>
+</nav>
+
+<div class="main">
+  <div class="scr-hdr">
+    <div class="scr-hdr-inner">
+      <div class="scr-eyebrow"><span class="dot"></span>VOL.4 · ORG · Origin Management · 부품 원산지·판정근거 등록</div>
+      <div class="scr-id-block">
+        <div class="scr-id">ORG-01</div>
+        <div><div class="scr-title-en">Part Origin Registry</div></div>
+      </div>
+      <div class="scr-title-ko">부 품 원 산 지 등 록</div>
+      <div class="scr-meta">
+        <div class="meta-chip web"><span class="mc-lbl">Device</span><span class="mc-val">🖥 Web PC</span></div>
+        <div class="meta-chip phase"><span class="mc-lbl">Phase</span><span class="mc-val">3 · 전사</span></div>
+        <div class="meta-chip role"><span class="mc-lbl">Role</span><span class="mc-val">Compliance / Trade (ORG.Edit)</span></div>
+        <div class="meta-chip"><span class="mc-lbl">Freq</span><span class="mc-val">부품 등록/변경 시</span></div>
+        <div class="meta-chip"><span class="mc-lbl">URL</span><span class="mc-val" style="font-family:'JetBrains Mono',monospace;">/org/parts</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="content">
+
+  <!-- 1. OVERVIEW -->
+  <section class="sec" id="s1">
+    <div class="sec-hdr"><div class="sec-num">01</div><div class="sec-title-wrap"><div class="sec-title-en">Overview</div><div class="sec-title-ko">화면 개요</div></div><div class="sec-line"></div></div>
+    <div class="ov-grid">
+      <div class="ov-desc">
+        <div class="ov-desc-en">The <strong>Part Origin Registry</strong> records, for every part, its <strong>country of origin</strong> together with the <strong>determination basis</strong> — Wholly Obtained (완전생산), Tariff Shift / Substantial Transformation (실질변형), or RVC threshold. Each registration must be backed by a <strong>supporting certificate linked from DOC</strong> (BR-ORG-01: evidence required); a part with no valid certificate is saved as <em>Pending</em>, never <em>Confirmed</em>. Every origin change is audit-logged through ORG-03 (BR-ORG-02), and confirmed origins feed the <strong>BOM Origin Rollup (ORG-04)</strong> and downstream RVC calculation (ORG-05). This screen is the authoritative part-level origin master for USMCA qualification.</div>
+        <div class="ov-desc-ko"><strong>부품 원산지 등록</strong>은 각 부품의 <strong>원산지국</strong>과 <strong>판정기준</strong>(완전생산·실질변형·RVC)을 기록하는 화면입니다. 모든 등록은 <strong>DOC에서 연결된 근거 증빙(인증서)</strong>이 필요하며(BR-ORG-01: 증빙 필수), 유효 인증서가 없으면 <em>보류</em> 상태로만 저장되고 <em>확정</em>되지 않습니다. 모든 원산지 변경은 ORG-03 이력으로 감사 로그가 남고(BR-ORG-02), 확정 원산지는 <strong>BOM 원산지 집계(ORG-04)</strong>와 RVC 자동판정(ORG-05)으로 흘러갑니다. USMCA 판정의 부품 단위 원산지 마스터입니다.</div>
+      </div>
+      <div class="ov-meta">
+        <div class="ov-meta-row"><div class="ov-meta-k">Screen ID</div><div class="ov-meta-v"><code>ORG-01</code></div></div>
+        <div class="ov-meta-row"><div class="ov-meta-k">Entry</div><div class="ov-meta-v">ORG 메뉴 · MD Part 등록 후 <span class="ko">신규/변경 시</span></div></div>
+        <div class="ov-meta-row"><div class="ov-meta-k">Layout</div><div class="ov-meta-v">Grid + Slide Drawer <span class="ko">그리드 + 드로어</span></div></div>
+        <div class="ov-meta-row"><div class="ov-meta-k">Basis</div><div class="ov-meta-v">완전생산 / 실질변형 / RVC</div></div>
+        <div class="ov-meta-row"><div class="ov-meta-k">Tables</div><div class="ov-meta-v"><code>org_part_origin</code>, <code>md_part</code>, <code>doc_certificate</code></div></div>
+        <div class="ov-meta-row"><div class="ov-meta-k">RBAC</div><div class="ov-meta-v"><code>ORG.View</code> / <code>ORG.Edit</code></div></div>
+        <div class="ov-meta-row"><div class="ov-meta-k">Feeds</div><div class="ov-meta-v">ORG-04 Rollup · ORG-05 RVC</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. SCREEN MOCKUP -->
+  <section class="sec" id="s2">
+    <div class="sec-hdr"><div class="sec-num">02</div><div class="sec-title-wrap"><div class="sec-title-en">Screen Mockup</div><div class="sec-title-ko">화면 목업 — Web 그리드 + 원산지 등록 드로어</div></div><div class="sec-line"></div></div>
+
+    <div class="mock-wrap">
+      <div class="mock-lbl">ORG-01 · Part Origin Registry · Main Grid</div>
+      <div class="mock-win">
+        <div class="mock-tbar"><span class="dots"><span></span><span></span><span></span></span> UOCM — Part Origin Registry <span class="bc">/org/parts</span></div>
+        <div class="mock-toolbar">
+          <select><option>공급사 · All Suppliers</option></select>
+          <select><option>원산지국 · All Origin</option></select>
+          <select><option>판정기준 · All Basis</option></select>
+          <select><option>상태 · All Status</option></select>
+          <input placeholder="🔍 품목코드 · 품명 검색" style="min-width:170px;">
+          <span style="flex:1;"></span>
+          <button class="mbtn mbtn-ghost">⤓ Excel</button>
+          <button class="mbtn mbtn-pri">＋ 원산지 등록</button>
+        </div>
+        <div class="mock-body">
+          <div class="kpi-strip">
+            <div class="kc"><div class="kv" style="color:#0891b2;">1,284</div><div class="kl">Parts · 등록 부품</div></div>
+            <div class="kc"><div class="kv" style="color:#16a34a;">1,107</div><div class="kl">Confirmed · 확정</div></div>
+            <div class="kc"><div class="kv" style="color:#a16207;">177</div><div class="kl">Pending · 보류(증빙 미연결)</div></div>
+            <div class="kc"><div class="kv" style="color:#155e75;">86.2%</div><div class="kl">Originating · 역내</div></div>
+            <div class="kc"><div class="kv" style="color:#7c3aed;">12</div><div class="kl">Cert Expiring · 증빙 임박</div></div>
+          </div>
+          <table class="tbl">
+            <thead><tr>
+              <th style="width:118px;">Part Code<span class="th-ko">품목코드</span></th>
+              <th>Part Name<span class="th-ko">품명</span></th>
+              <th style="width:78px;">Origin<span class="th-ko">원산지국</span></th>
+              <th style="width:96px;">Basis<span class="th-ko">판정기준</span></th>
+              <th>Evidence<span class="th-ko">근거 증빙</span></th>
+              <th style="width:84px;">Effective<span class="th-ko">유효</span></th>
+              <th style="width:88px;">Status<span class="th-ko">상태</span></th>
+            </tr></thead>
+            <tbody>
+              <tr class="rok"><td class="mono">FAB-GY-C03</td><td>시트 원단 (Seat Fabric)</td><td>🇺🇸 US</td><td><span class="b b-i">실질변형</span></td><td><a href="VOL02_DOC02_Certificate_Viewer.html" class="mono" style="color:#0891b2;text-decoration:none;">USMCA-25-0412</a></td><td class="mono">2026-01-01</td><td><span class="b b-ok">확정</span></td></tr>
+              <tr class="rok"><td class="mono">BRK-STL-09</td><td>브레이크 디스크 (Brake Disc)</td><td>🇲🇽 MX</td><td><span class="b b-i">완전생산</span></td><td><a href="VOL02_DOC02_Certificate_Viewer.html" class="mono" style="color:#0891b2;text-decoration:none;">COO-25-1180</a></td><td class="mono">2025-09-15</td><td><span class="b b-ok">확정</span></td></tr>
+              <tr class="rok"><td class="mono">SEAL-EPDM-04</td><td>도어 씰 (Door Seal)</td><td>🇺🇸 US</td><td><span class="b b-i">RVC 65%</span></td><td><a href="VOL02_DOC02_Certificate_Viewer.html" class="mono" style="color:#0891b2;text-decoration:none;">USMCA-24-0771</a></td><td class="mono">2025-07-08</td><td><span class="b b-ok">확정</span></td></tr>
+              <tr class="rw"><td class="mono">CONN-PA66-12</td><td>커넥터 (Connector)</td><td>🇨🇳 CN</td><td><span class="b b-i">실질변형</span></td><td><a href="VOL02_DOC02_Certificate_Viewer.html" class="mono" style="color:#a16207;text-decoration:none;">AFFID-25-0903 ⚠</a></td><td class="mono">2026-07-22</td><td><span class="b b-w">확정·증빙임박</span></td></tr>
+              <tr class="rd"><td class="mono">BOLT-M8-22</td><td>볼트 (Bolt)</td><td>🇨🇳 CN</td><td><span class="b b-n">미판정</span></td><td><span style="color:#dc2626;font-size:10px;">증빙 미연결</span></td><td class="mono">—</td><td><span class="b b-e">보류</span></td></tr>
+              <tr><td class="mono">WIRE-HRN-31</td><td>와이어 하네스 (Wire Harness)</td><td>🇲🇽 MX</td><td><span class="b b-i">RVC 72%</span></td><td><a href="VOL02_DOC02_Certificate_Viewer.html" class="mono" style="color:#0891b2;text-decoration:none;">COO-25-1201</a></td><td class="mono">2027-01-31</td><td><span class="b b-n" style="background:#f3e8ff;color:#7c3aed;">검토중</span></td></tr>
+            </tbody>
+          </table>
+          <div style="margin-top:8px;font-size:9px;color:var(--sub);">행 클릭 → 원산지 편집 드로어 · 노랑=증빙 만료 임박 · 빨강=증빙 미연결(보류) · 보라=검토중 · 증빙번호 클릭 → DOC-02 뷰어</div>
+        </div>
+      </div>
+
+      <div class="mock-lbl" style="margin-top:16px;">ORG-01 · ＋ 원산지 등록 Drawer · Register Drawer</div>
+      <div class="drawer">
+        <div class="drawer-h"><span>＋ 원산지 등록 · Register Part Origin</span><span class="x">✕</span></div>
+        <div class="drawer-b">
+          <div class="fld full"><span class="fld-l">품목 (Part) <span class="req">*</span></span><span class="fld-in ph">FAB-GY-C03 · 시트 원단 … (MD Part 검색·선택)</span></div>
+          <div class="fld"><span class="fld-l">원산지국 (Origin) <span class="req">*</span></span><span class="fld-in">🇺🇸 United States (US) ▾</span></div>
+          <div class="fld"><span class="fld-l">판정기준 (Basis) <span class="req">*</span></span><span class="fld-in">실질변형 (Tariff Shift) ▾</span></div>
+          <div class="drop"><div class="di">🔗</div><div style="font-weight:700;font-size:12px;margin-top:4px;">근거 증빙 연결 — DOC 인증서 검색·선택</div><div style="font-size:10px;opacity:.75;margin-top:2px;">Link valid certificate from DOC (required · BR-ORG-01)</div></div>
+          <div class="fld"><span class="fld-l">연결된 증빙 <span class="req">*</span></span><span class="fld-in mono">USMCA-25-0412 (유효)</span></div>
+          <div class="fld"><span class="fld-l">발효일 (Effective) <span class="req">*</span></span><span class="fld-in mono">2026-01-01</span></div>
+          <div class="fld full"><span class="fld-l">비고 · Note</span><span class="fld-in ph">판정 근거 요약 / 변경 사유 입력</span></div>
+        </div>
+        <div class="drawer-f">
+          <button class="mbtn mbtn-sec">취소</button>
+          <button class="mbtn mbtn-pri">저장 (확정) →</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. UI COMPONENTS -->
+  <section class="sec" id="s3">
+    <div class="sec-hdr"><div class="sec-num">03</div><div class="sec-title-wrap"><div class="sec-title-en">UI Component Specification</div><div class="sec-title-ko">UI 컴포넌트 명세</div></div><div class="sec-line"></div></div>
+    <h3 style="font-size:12px;font-weight:700;color:var(--sub);margin:6px 0 8px;">3.1 Grid &amp; Toolbar <span style="font-weight:400;">· 목록·툴바</span></h3>
+    <table class="cs-tbl">
+      <thead><tr><th style="width:84px;">ID</th><th style="width:170px;">Component <span class="th-ko">컴포넌트</span></th><th style="width:120px;">Type</th><th style="width:50px;">Req</th><th>Validation / Behavior <span class="th-ko">검증·동작</span></th></tr></thead>
+      <tbody>
+        <tr><td class="c-id">CMP-01</td><td class="c-name">Filter Bar<span class="ko">필터 바</span></td><td><span class="c-type">SELECT×4</span></td><td class="c-req n">N</td><td class="c-validation">공급사·원산지국·판정기준·상태 다중 조합 필터. 선택 즉시 서버 사이드 페이징 그리드 갱신.</td></tr>
+        <tr><td class="c-id">CMP-02</td><td class="c-name">Origin Grid<span class="ko">원산지 그리드</span></td><td><span class="c-type">TABLE</span></td><td class="c-req y">Y</td><td class="c-validation">품목코드·품명·원산지(국기)·판정기준 배지·근거 증빙·유효일·상태 표시. 행 색상: 확정=흰/녹, 증빙임박=노랑, 보류=빨강, 검토중=보라. 행 클릭 → 편집 드로어.</td></tr>
+        <tr><td class="c-id">CMP-03</td><td class="c-name">[＋ 원산지 등록]<span class="ko">등록 버튼</span></td><td><span class="c-type">BUTTON</span></td><td class="c-req y">Y</td><td class="c-validation"><code>ORG.Edit</code> 권한 필요. 클릭 시 등록 드로어 오픈. 미권한 시 비활성(→ EXC-06).</td></tr>
+        <tr><td class="c-id">CMP-04</td><td class="c-name">Evidence Link<span class="ko">근거 증빙 링크</span></td><td><span class="c-type">LINK</span></td><td class="c-req n">N</td><td class="c-validation">인증서번호 클릭 → DOC-02 뷰어 이동. 만료 임박 시 ⚠ 아이콘. 미연결 행은 "증빙 미연결" 빨강 표기.</td></tr>
+      </tbody>
+    </table>
+    <h3 style="font-size:12px;font-weight:700;color:var(--sub);margin:18px 0 8px;">3.2 Register / Edit Drawer <span style="font-weight:400;">· 등록·편집 드로어</span></h3>
+    <table class="cs-tbl">
+      <thead><tr><th style="width:84px;">ID</th><th style="width:170px;">Component</th><th style="width:120px;">Type</th><th style="width:50px;">Req</th><th>Validation / Behavior</th></tr></thead>
+      <tbody>
+        <tr><td class="c-id">CMP-05</td><td class="c-name">Part Lookup<span class="ko">품목 조회</span></td><td><span class="c-type">LOOKUP</span></td><td class="c-req y">Y</td><td class="c-validation">MD Part 마스터 조회·단일 선택. 미등록 품목은 선택 불가(MD 선등록 필요). 동일 품목 활성 원산지 존재 시 변경 처리(→ ORG-03).</td></tr>
+        <tr><td class="c-id">CMP-06</td><td class="c-name">Origin Country<span class="ko">원산지국</span></td><td><span class="c-type">SELECT</span></td><td class="c-req y">Y</td><td class="c-validation">ISO 3166 국가코드(BR-ORG-06). <code>KR/US/MX/CN</code> 우선 노출. 비ISO 코드 선택 차단(→ EXC-02).</td></tr>
+        <tr><td class="c-id">CMP-07</td><td class="c-name">Determination Basis<span class="ko">판정기준</span></td><td><span class="c-type">SELECT</span></td><td class="c-req y">Y</td><td class="c-validation">완전생산(WO) / 실질변형(Tariff Shift) / RVC(%). RVC 선택 시 임계치 입력란 활성. ORG-05 자동판정과 정합 검증.</td></tr>
+        <tr><td class="c-id">CMP-08</td><td class="c-name">Evidence (DOC) Link<span class="ko">근거 증빙 연결</span></td><td><span class="c-type">LOOKUP</span></td><td class="c-req y">Y</td><td class="c-validation"><code>DOC</code> 유효 인증서 검색·연결(BR-ORG-01). 만료/미승인 증빙은 선택 불가. 미연결 저장 시 상태 강제 "보류"(→ EXC-01).</td></tr>
+        <tr><td class="c-id">CMP-09</td><td class="c-name">Effective Date<span class="ko">발효일</span></td><td><span class="c-type">DATE</span></td><td class="c-req y">Y</td><td class="c-validation">원산지 효력 시작일. 연결 증빙 유효기간 내여야 함. 과거 변경은 이력으로 보존(BR-ORG-02).</td></tr>
+        <tr><td class="c-id">CMP-10</td><td class="c-name">[저장 (확정)]<span class="ko">저장·확정</span></td><td><span class="c-type">BUTTON</span></td><td class="c-req y">Y</td><td class="c-validation">필수항목+유효 증빙 통과 시 <code>org_part_origin</code> upsert → 상태 "확정". 변경 시 ORG-03 로그 기록 후 ORG-04 집계에 반영.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- 4. EVENT FLOW -->
+  <section class="sec" id="s4">
+    <div class="sec-hdr"><div class="sec-num">04</div><div class="sec-title-wrap"><div class="sec-title-en">Event &amp; Action Flow</div><div class="sec-title-ko">이벤트 · 액션 흐름</div></div><div class="sec-line"></div></div>
+    <div class="ef-wrap">
+      <div class="ef-step">
+        <div class="ef-num">1</div>
+        <div>
+          <div class="ef-trig"><span class="ef-trig-tag user">USER</span><span class="ef-trig-name">Register part + Select origin/basis</span></div>
+          <div class="ef-action">[＋ 원산지 등록] 클릭 → MD Part 조회·선택 → 원산지국 + 판정기준(완전생산/실질변형/RVC) 입력.</div>
+          <div class="ef-action-ko"><code>ORG.Edit</code> 권한 확인. 미권한 시 버튼 비활성.</div>
+          <div class="ef-result"><span class="er-lbl">RESULT</span>Drawer filled · 원산지·판정기준 입력 완료</div>
+        </div>
+      </div>
+      <div class="ef-step">
+        <div class="ef-num">2</div>
+        <div>
+          <div class="ef-trig"><span class="ef-trig-tag user">USER</span><span class="ef-trig-name">Link valid certificate (DOC)</span></div>
+          <div class="ef-action">DOC 인증서 검색 → 유효 증빙 연결(BR-ORG-01). 만료/미승인 증빙은 선택 불가.</div>
+          <div class="ef-action-ko">발효일이 증빙 유효기간 내인지 검증.</div>
+          <div class="ef-result"><span class="er-lbl">RESULT</span>Evidence linked · 근거 증빙 연결</div>
+        </div>
+      </div>
+      <div class="ef-step">
+        <div class="ef-num">3</div>
+        <div>
+          <div class="ef-trig"><span class="ef-trig-tag user">USER</span><span class="ef-trig-name">Click [저장 (확정)]</span></div>
+          <div class="ef-action">필수항목+유효 증빙 검증 통과 시 <code>org_part_origin</code> upsert → 상태 <code>Confirmed</code>.</div>
+          <div class="ef-action-ko">증빙 미연결이면 저장은 되나 상태 "보류"로 강제(→ EXC-01).</div>
+          <div class="ef-result"><span class="er-lbl">RESULT</span>Status = <code>Confirmed</code> · 확정</div>
+        </div>
+      </div>
+      <div class="ef-step">
+        <div class="ef-num">4</div>
+        <div>
+          <div class="ef-trig"><span class="ef-trig-tag system">SYSTEM</span><span class="ef-trig-name">Audit log + Feed rollup</span></div>
+          <div class="ef-action">원산지 변경 시 ORG-03 변경 이력 기록(BR-ORG-02). 확정 원산지를 ORG-04 BOM 집계 + ORG-05 RVC로 전달.</div>
+          <div class="ef-action-ko">국가별 추적(ORG-02) 뷰 갱신.</div>
+          <div class="ef-result"><span class="er-lbl">RESULT</span>Change logged · Rollup updated</div>
+        </div>
+      </div>
+      <div class="ef-step terminal">
+        <div class="ef-num">✓</div>
+        <div>
+          <div class="ef-trig"><span class="ef-trig-tag system">SYSTEM</span><span class="ef-trig-name">Origin confirmed → BOM rollup</span></div>
+          <div class="ef-action">확정 부품 원산지가 ORG-04 BOM 원산지 집계의 입력값으로 반영. USMCA 역내/역외 판정 근거로 사용.</div>
+          <div class="ef-action-ko">증빙 링크 통해 AUD 역추적에서 참조 가능.</div>
+          <div class="ef-result"><span class="er-lbl">DONE</span>Part origin is now the authoritative master · 원산지 마스터 반영</div>
+        </div>
+      </div>
+      <div class="ef-step error">
+        <div class="ef-num">!</div>
+        <div>
+          <div class="ef-trig"><span class="ef-trig-tag system">SYSTEM</span><span class="ef-trig-name">No evidence → Pending</span></div>
+          <div class="ef-action">근거 증빙이 없거나 만료된 경우 확정 차단. 저장은 <code>Pending</code> 상태로만 허용(BR-ORG-01).</div>
+          <div class="ef-action-ko">보류 부품은 ORG-04 집계에서 역내로 인정되지 않음.</div>
+          <div class="ef-result"><span class="er-lbl">ERROR</span>Evidence required to confirm · 증빙 필요</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. EXCEPTION -->
+  <section class="sec" id="s5">
+    <div class="sec-hdr"><div class="sec-num">05</div><div class="sec-title-wrap"><div class="sec-title-en">Exception Handling</div><div class="sec-title-ko">예외 처리</div></div><div class="sec-line"></div></div>
+    <div class="exc-grid">
+      <div class="exc-card">
+        <div class="exc-hdr"><span class="exc-code">EXC-01</span><span class="exc-name">Evidence Missing<span class="ko">근거 증빙 누락</span></span></div>
+        <div class="exc-row"><span class="lbl">Trigger</span><span class="val">확정 저장 시 유효 증빙 미연결 (BR-ORG-01).</span></div>
+        <div class="exc-row"><span class="lbl">Action</span><span class="val">확정 차단. 상태 "보류"로만 저장. DOC 연결 안내.</span></div>
+        <div class="exc-msg">근거 증빙 연결 필요 · Evidence required to confirm</div>
+      </div>
+      <div class="exc-card warn">
+        <div class="exc-hdr"><span class="exc-code">EXC-02</span><span class="exc-name">Invalid Country Code<span class="ko">국가코드 오류</span></span></div>
+        <div class="exc-row"><span class="lbl">Trigger</span><span class="val">ISO 3166 비표준 원산지국 코드 입력 (BR-ORG-06).</span></div>
+        <div class="exc-row"><span class="lbl">Action</span><span class="val">선택 차단. ISO 표준 코드만 허용.</span></div>
+        <div class="exc-msg">유효한 ISO 국가코드를 선택하세요</div>
+      </div>
+      <div class="exc-card info">
+        <div class="exc-hdr"><span class="exc-code">EXC-03</span><span class="exc-name">Duplicate Part Origin<span class="ko">원산지 중복</span></span></div>
+        <div class="exc-row"><span class="lbl">Trigger</span><span class="val">동일 품목에 활성 원산지가 이미 존재.</span></div>
+        <div class="exc-row"><span class="lbl">Action</span><span class="val">변경 처리로 전환 → ORG-03 변경 이력 기록(BR-ORG-02).</span></div>
+        <div class="exc-msg">기존 원산지 변경 — 이력으로 처리됩니다 (ORG-03)</div>
+      </div>
+      <div class="exc-card warn">
+        <div class="exc-hdr"><span class="exc-code">EXC-04</span><span class="exc-name">Cert Expired Warning<span class="ko">증빙 만료 경고</span></span></div>
+        <div class="exc-row"><span class="lbl">Trigger</span><span class="val">연결된 증빙이 만료되었거나 만료 임박.</span></div>
+        <div class="exc-row"><span class="lbl">Action</span><span class="val">⚠ 경고 표시. 갱신 증빙 재연결 요청. 만료 시 확정 무효화 검토.</span></div>
+        <div class="exc-msg">증빙 만료 — 갱신 증빙을 연결하세요</div>
+      </div>
+      <div class="exc-card info">
+        <div class="exc-hdr"><span class="exc-code">EXC-05</span><span class="exc-name">No BOM Link<span class="ko">BOM 미연결</span></span></div>
+        <div class="exc-row"><span class="lbl">Trigger</span><span class="val">확정 부품이 어떤 BOM에도 사용되지 않음.</span></div>
+        <div class="exc-row"><span class="lbl">Action</span><span class="val">정보성 안내. 저장은 허용. ORG-04 집계에는 미반영(참고).</span></div>
+        <div class="exc-msg">BOM 미사용 부품 — 집계에 반영되지 않습니다</div>
+      </div>
+      <div class="exc-card info">
+        <div class="exc-hdr"><span class="exc-code">EXC-06</span><span class="exc-name">No Edit Permission<span class="ko">권한 없음</span></span></div>
+        <div class="exc-row"><span class="lbl">Trigger</span><span class="val"><code>ORG.View</code>만 보유한 사용자.</span></div>
+        <div class="exc-row"><span class="lbl">Action</span><span class="val">등록 버튼 비활성. 열람만 가능.</span></div>
+        <div class="exc-msg">등록 권한이 없습니다 (ORG.Edit 필요)</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. LINKED -->
+  <section class="sec" id="s6">
+    <div class="sec-hdr"><div class="sec-num">06</div><div class="sec-title-wrap"><div class="sec-title-en">Linked Screens</div><div class="sec-title-ko">연계 화면</div></div><div class="sec-line"></div></div>
+    <div class="lnk-wrap">
+      <div class="lnk-row">
+        <a class="lnk-node up" href="VOL02_DOC01_Certificate_Registry.html"><div class="lnk-id">DOC</div><div class="lnk-name">Certificate</div><div class="lnk-ko">근거 증빙 ▸ 연결</div></a>
+        <a class="lnk-node up" href="VOL08_MD_Master_Data.html"><div class="lnk-id">MD</div><div class="lnk-name">Part Master</div><div class="lnk-ko">품목 기준정보</div></a>
+        <span class="lnk-arr">→</span>
+        <div class="lnk-node cur"><div class="lnk-id">ORG-01</div><div class="lnk-name">Part Origin Registry</div><div class="lnk-ko">현재 화면</div></div>
+        <span class="lnk-arr">→</span>
+        <a class="lnk-node down" href="VOL04_ORG04_BOM_Origin_Rollup.html"><div class="lnk-id">ORG-04</div><div class="lnk-name">BOM Rollup</div><div class="lnk-ko">원산지 집계</div></a>
+      </div>
+      <div class="lnk-row" style="margin-top:14px;">
+        <a class="lnk-node down" href="VOL04_ORG02_Country_Tracking.html"><div class="lnk-id">ORG-02</div><div class="lnk-name">Country Tracking</div><div class="lnk-ko">국가별 뷰</div></a>
+        <a class="lnk-node down" href="VOL04_ORG03_Change_History.html"><div class="lnk-id">ORG-03</div><div class="lnk-name">Change History</div><div class="lnk-ko">변경 이력</div></a>
+        <a class="lnk-node down" href="VOL04_ORG05_RVC_Calculation.html"><div class="lnk-id">ORG-05</div><div class="lnk-name">RVC Calculation</div><div class="lnk-ko">RVC 자동판정</div></a>
+      </div>
+      <div style="text-align:center;font-size:10px;color:var(--sub);margin-top:14px;">상위: DOC 증빙·MD 품목에서 입력 · 하위: 국가별 추적·변경 이력·BOM 집계·RVC 판정으로 분기</div>
+    </div>
+  </section>
+
+  <!-- 7. BUSINESS RULES -->
+  <section class="sec" id="s7">
+    <div class="sec-hdr"><div class="sec-num">07</div><div class="sec-title-wrap"><div class="sec-title-en">Business Rules</div><div class="sec-title-ko">업무 규칙</div></div><div class="sec-line"></div></div>
+    <table class="br-mini">
+      <thead><tr><th style="width:96px;">ID</th><th>Rule · 규칙</th><th style="width:80px;">Action</th></tr></thead>
+      <tbody>
+        <tr><td class="br-id">BR-ORG-01</td><td><div class="br-en">Evidence required — a part origin can only be Confirmed when a valid, approved certificate is linked from DOC; without it the record stays Pending and is not treated as originating.</div><div class="br-ko">DOC 유효 인증서가 연결되어야만 원산지 확정 가능. 미연결 시 "보류"로만 저장되며 역내로 인정되지 않음.</div></td><td class="br-act"><span class="blk">차단</span></td></tr>
+        <tr><td class="br-id">BR-ORG-02</td><td><div class="br-en">Change log — every change to a part's origin country, basis, or evidence is captured as an immutable history record in ORG-03 (who / when / from→to).</div><div class="br-ko">원산지국·판정기준·증빙 변경은 ORG-03 변경 이력에 불변 기록(담당·시점·변경 전후).</div></td><td class="br-act"><span class="aut">자동</span></td></tr>
+        <tr><td class="br-id">BR-ORG-06</td><td><div class="br-en">ISO country — origin country must be a valid ISO 3166 alpha-2 code; non-standard codes are rejected at entry.</div><div class="br-ko">원산지국은 ISO 3166 alpha-2 표준 코드만 허용. 비표준 코드는 입력 단계에서 거부.</div></td><td class="br-act"><span class="blk">차단</span></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  </div>
+  <div class="page-footer">
+    <span class="pf-l">UOCM · USMCA Origin Compliance Management System</span>
+    <span class="pf-r">VOL.4 · ORG-01 · Part Origin Registry · L3 Spec</span>
+  </div>
+</div>
+</div>
+</body>
+</html>
