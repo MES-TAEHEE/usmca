@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>UOCM · VOL.8 · MD-05 · HTS Code · 상세 설계서</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;600;700&family=Bebas+Neue&display=swap');
+:root{
+  --brand:#059669;--brand-dk:#047857;
+  --ink:#0a1422;--ink2:#101d2e;--ink3:#1c2c40;
+  --surface:#fff;--bg:#f4f7fa;--border:#d3dce6;--text:#1e2a38;--sub:#5b6b7d;
+  --doc:#d97706;--doc-dk:#b45309;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);font-size:13px;line-height:1.6;}
+
+/* NAV */
+.uo-nav{position:sticky;top:0;z-index:9999;background:#fff;border-bottom:1px solid #e5eaf0;box-shadow:0 1px 4px rgba(15,39,71,.06);}
+.uo-nav-inner{display:flex;align-items:stretch;overflow-x:auto;scrollbar-width:none;}
+.uo-nav-inner::-webkit-scrollbar{display:none;}
+.nav-home{display:flex;align-items:center;gap:8px;padding:0 16px;background:rgba(5,150,105,.08);border-right:1px solid #e5eaf0;text-decoration:none;flex-shrink:0;min-height:42px;}
+.nav-home-logo{font-family:'Bebas Neue',sans-serif;font-size:17px;color:var(--brand);letter-spacing:2px;}
+.nav-home-sub{font-size:9px;color:#94a3b8;}
+.nav-vol{display:flex;align-items:center;gap:5px;padding:0 12px;text-decoration:none;font-size:10px;font-weight:700;color:#5b6b7d;border-bottom:2px solid transparent;white-space:nowrap;min-height:42px;transition:color .12s;}
+.nav-vol:hover{color:#0f2747;background:#f6f8fa;}
+.nav-vol.active{color:#0f2747;border-bottom-color:#059669;}
+.nav-vol .nv-code{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;}
+
+/* BREADCRUMB */
+.l3-crumb{background:#f6f8fa;border-bottom:1px solid #e5eaf0;padding:7px 24px;display:flex;align-items:center;gap:8px;font-size:10px;color:#5b6b7d;font-family:'JetBrains Mono',monospace;letter-spacing:.5px;}
+.l3-crumb a{color:#5b6b7d;text-decoration:none;transition:color .12s;}
+.l3-crumb a:hover{color:#0f2747;}
+.l3-crumb .arr{color:#cbd5e1;}
+.l3-crumb .current{color:#047857;font-weight:700;}
+.l3-crumb .lvl{font-size:8px;padding:1px 6px;border:1px solid #d3dce6;border-radius:2px;color:#94a3b8;margin-right:4px;}
+
+/* LAYOUT */
+.page-wrap{display:flex;}
+.sidebar{width:240px;min-width:240px;background:#f6f8fa;position:sticky;top:69px;height:calc(100vh - 69px);overflow-y:auto;scrollbar-width:thin;border-right:1px solid #e5eaf0;}
+.sb-head{padding:16px 14px 12px;border-bottom:1px solid #e5eaf0;}
+.sb-vol{font-family:'JetBrains Mono',monospace;font-size:9px;color:#047857;letter-spacing:2px;margin-bottom:4px;}
+.sb-mod-en{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1px;color:#0f2747;}
+.sb-mod-ko{font-size:10px;color:#94a3b8;}
+.sb-section{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#94a3b8;padding:14px 14px 6px;}
+.sb-link{display:flex;align-items:center;gap:7px;padding:6px 14px;text-decoration:none;color:#5b6b7d;font-size:11px;border-left:2px solid transparent;transition:all .12s;}
+.sb-link:hover{color:#0f2747;background:#eef2f7;}
+.sb-link.on{color:#0f2747;border-left-color:#059669;background:rgba(5,150,105,.08);}
+.sb-link .sl-id{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;width:44px;flex-shrink:0;color:#d97706;}
+.sb-link.on .sl-id{color:#047857;}
+.sb-link .sl-en{font-size:10px;font-weight:600;}
+.sb-link .sl-ko{font-size:9px;color:#94a3b8;margin-top:1px;}
+.sb-toc{padding:6px 14px 14px;border-top:1px solid #e5eaf0;margin-top:6px;}
+.sb-toc-title{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#047857;margin-bottom:6px;}
+.sb-toc a{display:block;padding:4px 8px;border-radius:3px;font-size:10px;color:#5b6b7d;text-decoration:none;transition:all .12s;}
+.sb-toc a:hover{color:#0f2747;background:#eef2f7;}
+.sb-toc a .num{font-family:'JetBrains Mono',monospace;color:#059669;font-size:9px;margin-right:6px;}
+
+.main{flex:1;min-width:0;}
+
+/* SCREEN HEADER */
+.scr-hdr{padding:32px 48px 26px;background:linear-gradient(135deg,#fffaf0,#ffffff);position:relative;overflow:hidden;border-bottom:1px solid #e5eaf0;}
+.scr-hdr::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(217,119,6,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(217,119,6,.05) 1px,transparent 1px);background-size:32px 32px;pointer-events:none;}
+.scr-hdr::after{content:'';position:absolute;top:-40%;right:-10%;width:380px;height:380px;background:radial-gradient(circle,rgba(217,119,6,.12),transparent 70%);pointer-events:none;}
+.scr-hdr-inner{position:relative;z-index:1;}
+.scr-eyebrow{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#d97706;margin-bottom:12px;display:flex;align-items:center;gap:10px;}
+.scr-eyebrow .dot{width:5px;height:5px;background:#fbbf24;border-radius:50%;box-shadow:0 0 8px #fbbf24;}
+.scr-id-block{display:flex;align-items:flex-end;gap:18px;margin-bottom:14px;}
+.scr-id{font-family:'Bebas Neue',sans-serif;font-size:54px;letter-spacing:2px;color:#d97706;line-height:.9;text-shadow:0 0 22px rgba(217,119,6,.25);}
+.scr-title-en{font-family:'Bebas Neue',sans-serif;font-size:46px;letter-spacing:1.5px;color:#0f2747;line-height:.95;}
+.scr-title-ko{font-size:13px;color:#5b6b7d;letter-spacing:3px;}
+.scr-meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px;}
+.meta-chip{display:flex;align-items:center;gap:6px;padding:5px 11px;background:#f6f8fa;border:1px solid #d3dce6;border-radius:3px;font-size:10px;color:#1e2a38;}
+.meta-chip .mc-lbl{font-family:'JetBrains Mono',monospace;font-size:8px;color:#94a3b8;letter-spacing:1px;text-transform:uppercase;}
+.meta-chip .mc-val{font-weight:700;}
+.meta-chip.web{border-color:rgba(217,119,6,.3);color:#d97706;}
+.meta-chip.phase{border-color:rgba(16,185,129,.3);color:#047857;}
+.meta-chip.role{border-color:rgba(251,191,36,.3);color:#d97706;}
+
+.content{padding:0 48px 60px;}
+.sec{margin-top:36px;}
+.sec-hdr{display:flex;align-items:center;gap:14px;margin-bottom:16px;}
+.sec-num{font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--doc);letter-spacing:1px;line-height:1;min-width:42px;}
+.sec-title-wrap{flex:1;}
+.sec-title-en{font-size:18px;font-weight:800;color:var(--text);letter-spacing:-.3px;}
+.sec-title-ko{font-size:11px;color:var(--sub);margin-top:1px;}
+.sec-line{flex:1;height:1px;background:linear-gradient(90deg,var(--doc),transparent);max-width:200px;}
+
+/* OVERVIEW */
+.ov-grid{display:grid;grid-template-columns:1.6fr 1fr;gap:14px;}
+.ov-desc{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--doc);border-radius:0 6px 6px 0;padding:16px 18px;}
+.ov-desc-en{font-size:12px;color:var(--text);line-height:1.85;margin-bottom:10px;}
+.ov-desc-ko{font-size:11px;color:var(--sub);line-height:1.85;padding-top:10px;border-top:1px dashed var(--border);}
+.ov-meta{background:var(--surface);border:1px solid var(--border);border-radius:6px;overflow:hidden;}
+.ov-meta-row{display:flex;border-bottom:1px solid var(--border);font-size:11px;}
+.ov-meta-row:last-child{border-bottom:none;}
+.ov-meta-k{flex:0 0 110px;background:#f6f8fa;padding:8px 12px;font-weight:700;color:var(--sub);font-size:10px;letter-spacing:.5px;text-transform:uppercase;border-right:1px solid var(--border);}
+.ov-meta-v{flex:1;padding:8px 12px;color:var(--text);}
+.ov-meta-v .ko{font-size:10px;color:var(--sub);margin-left:6px;}
+.ov-meta-v code{font-family:'JetBrains Mono',monospace;font-size:10px;background:#f0f3f7;padding:1px 6px;border-radius:3px;color:var(--doc);}
+
+.tbl{width:100%;border-collapse:collapse;font-size:11px;}
+.tbl th{background:#f0f3f7;padding:7px 9px;font-weight:700;border:1px solid var(--border);text-align:left;font-size:10px;color:var(--text);}
+.tbl th .th-ko{font-weight:400;color:var(--sub);font-size:9px;display:block;}
+.tbl td{padding:6px 9px;border:1px solid var(--border);vertical-align:middle;}
+.tbl .rok td{background:#f0fdf4;}
+.tbl .rw td{background:#fffbeb;}
+.tbl .rd td{background:#fef2f2;}
+.tbl tr:hover td{filter:brightness(.98);}
+.tbl .mono{font-family:'JetBrains Mono',monospace;font-size:10px;}
+.b{display:inline-block;font-size:9px;font-weight:700;padding:2px 7px;border-radius:8px;}
+.b-ok{background:#dcfce7;color:#166534;}.b-w{background:#fef9c3;color:#92400e;}.b-e{background:#fee2e2;color:#991b1b;}.b-i{background:#fef3c7;color:#92400e;}.b-n{background:#f1f5f9;color:#475569;}
+
+/* COMPONENT SPEC */
+.cs-tbl{width:100%;border-collapse:collapse;font-size:11px;background:var(--surface);border:1px solid var(--border);border-radius:6px;overflow:hidden;}
+.cs-tbl th{background:#fffbeb;color:#b45309;padding:9px 10px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;border-bottom:1px solid #fde68a;}
+.cs-tbl th .th-ko{display:block;color:#d8a04a;font-weight:400;font-size:9px;letter-spacing:0;text-transform:none;margin-top:1px;}
+.cs-tbl td{padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:top;}
+.cs-tbl tr:last-child td{border-bottom:none;}
+.cs-tbl tr:hover td{background:#f9fafb;}
+.cs-tbl .c-id{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;color:var(--doc);}
+.cs-tbl .c-name{font-weight:700;color:var(--text);}
+.cs-tbl .c-name .ko{font-size:10px;font-weight:400;color:var(--sub);display:block;margin-top:1px;}
+.cs-tbl .c-type{font-family:'JetBrains Mono',monospace;font-size:10px;color:#7c3aed;background:#f5f3ff;padding:2px 6px;border-radius:3px;display:inline-block;}
+.cs-tbl .c-req.y{color:#dc2626;font-weight:700;font-family:'JetBrains Mono',monospace;font-size:9px;}
+.cs-tbl .c-req.n{color:var(--sub);font-family:'JetBrains Mono',monospace;font-size:9px;}
+.cs-tbl .c-validation{font-size:10px;color:var(--text);line-height:1.6;}
+.cs-tbl .c-validation code{font-family:'JetBrains Mono',monospace;font-size:9px;background:#fff7ed;color:#9a3412;padding:1px 5px;border-radius:2px;}
+
+/* LINKAGE */
+.lnk-wrap{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:20px 24px;}
+.lnk-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:center;}
+.lnk-node{padding:12px 16px;border-radius:6px;text-align:center;min-width:128px;border:2px solid;text-decoration:none;}
+.lnk-node.up{background:#f0fdf4;border-color:#22c55e;}
+.lnk-node.cur{background:linear-gradient(135deg,#0e2148,#b45309);border-color:#fbbf24;color:#fff;box-shadow:0 4px 16px rgba(217,119,6,.25);}
+.lnk-node.down{background:#fef3c7;border-color:#f59e0b;}
+.lnk-id{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;letter-spacing:.5px;margin-bottom:3px;}
+.lnk-node.up .lnk-id{color:#15803d;}
+.lnk-node.cur .lnk-id{color:#fcd34d;}
+.lnk-node.down .lnk-id{color:#92400e;}
+.lnk-name{font-size:11px;font-weight:700;color:var(--text);}
+.lnk-node.cur .lnk-name{color:#fff;}
+.lnk-ko{font-size:9px;opacity:.7;margin-top:2px;}
+.lnk-arr{font-size:20px;color:var(--sub);font-weight:700;}
+
+/* CONSTRAINTS */
+.cx-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;}
+.cx-card{background:var(--surface);border:1px solid var(--border);border-top:3px solid var(--doc);border-radius:0 0 6px 6px;padding:13px 15px;}
+.cx-hdr{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.cx-tag{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;color:#b45309;background:#fef3c7;padding:2px 8px;border-radius:3px;}
+.cx-name{font-size:12px;font-weight:700;color:var(--text);flex:1;}
+.cx-name .ko{font-size:10px;font-weight:400;color:var(--sub);display:block;}
+.cx-row{display:grid;grid-template-columns:80px 1fr;gap:8px;padding:5px 0;border-top:1px dashed var(--border);font-size:10px;}
+.cx-row:first-of-type{border-top:none;}
+.cx-row .lbl{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;color:var(--sub);letter-spacing:.5px;text-transform:uppercase;padding-top:2px;}
+.cx-row .val{color:var(--text);line-height:1.6;}
+.cx-row .val code{font-family:'JetBrains Mono',monospace;font-size:9px;background:#fffbeb;padding:1px 5px;border-radius:2px;color:#9a3412;}
+
+/* BR MINI */
+.br-mini{width:100%;border-collapse:collapse;font-size:11px;background:var(--surface);border:1px solid var(--border);border-radius:6px;overflow:hidden;}
+.br-mini th{background:#fffbeb;color:#92400e;padding:8px 10px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;border-bottom:1px solid #fde68a;}
+.br-mini td{padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:top;}
+.br-mini tr:last-child td{border-bottom:none;}
+.br-mini .br-id{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;color:var(--brand-dk);white-space:nowrap;}
+.br-mini .br-en{font-size:11px;color:var(--text);line-height:1.6;}
+.br-mini .br-ko{font-size:10px;color:var(--sub);line-height:1.6;margin-top:3px;}
+.br-mini .br-act{text-align:center;}
+.br-mini .br-act span{display:inline-block;font-size:9px;font-weight:700;padding:2px 7px;border-radius:3px;}
+.br-mini .br-act .blk{background:#fee2e2;color:#991b1b;}
+.br-mini .br-act .alt{background:#fef9c3;color:#92400e;}
+.br-mini .br-act .aut{background:#fef3c7;color:#92400e;}
+
+.page-footer{padding:24px 48px;border-top:1px solid #e5eaf0;background:#f6f8fa;color:#94a3b8;display:flex;justify-content:space-between;align-items:center;font-size:10px;}
+.page-footer .pf-l{font-family:'JetBrains Mono',monospace;letter-spacing:.5px;}
+.page-footer .pf-r{color:#047857;font-family:'JetBrains Mono',monospace;}
+
+@media(max-width:1100px){.ov-grid{grid-template-columns:1fr;}.cx-grid{grid-template-columns:1fr;}.scr-id-block{flex-direction:column;align-items:flex-start;gap:6px;}.scr-id{font-size:42px;}.scr-title-en{font-size:32px;}}
+</style>
+</head>
+<body>
+<nav class="uo-nav"><div class="uo-nav-inner">
+  <a href="index.html" class="nav-home"><span class="nav-home-logo">UOCM</span><span class="nav-home-sub">Index</span></a>
+  <a href="VOL01_Overview.html" class="nav-vol"><span class="nv-code" style="color:#10b981;">OV</span><span>Overview</span></a>
+  <a href="VOL02_DOC_Document_Management.html" class="nav-vol"><span class="nv-code" style="color:#2563eb;">DOC</span><span>Document</span></a>
+  <a href="VOL03_LBL_Label_Management.html" class="nav-vol"><span class="nv-code" style="color:#7c3aed;">LBL</span><span>Label</span></a>
+  <a href="VOL04_ORG_Origin_Management.html" class="nav-vol"><span class="nv-code" style="color:#0891b2;">ORG</span><span>Origin</span></a>
+  <a href="VOL05_AUD_Audit_Support.html" class="nav-vol"><span class="nv-code" style="color:#dc2626;">AUD</span><span>Audit</span></a>
+  <a href="VOL06_INT_Integration.html" class="nav-vol"><span class="nv-code" style="color:#6366f1;">INT</span><span>Integration</span></a>
+  <a href="VOL07_SYS_System.html" class="nav-vol"><span class="nv-code" style="color:#64748b;">SYS</span><span>System</span></a>
+  <a href="VOL08_MD_Master_Data.html" class="nav-vol active"><span class="nv-code" style="color:#d97706;">MD</span><span>Master Data</span></a>
+</div></nav>
+
+<div class="l3-crumb">
+  <span class="lvl">L1</span><a href="index.html">UOCM Index</a>
+  <span class="arr">▸</span>
+  <span class="lvl">L2</span><a href="VOL08_MD_Master_Data.html">VOL.8 · MD Master Data</a>
+  <span class="arr">▸</span>
+  <span class="lvl">L3</span><span class="current">MD-05 · HTS Code</span>
+</div>
+
+<div class="page-wrap">
+<nav class="sidebar">
+  <div class="sb-head">
+    <div class="sb-vol">VOL.8 · MD MODULE</div>
+    <div class="sb-mod-en">MASTER DATA</div>
+    <div class="sb-mod-ko">기준정보 관리</div>
+  </div>
+  <div class="sb-section">L3 Entities · 엔티티 상세</div>
+  <a class="sb-link" href="VOL08_MD01_Supplier.html"><span class="sl-id">MD-01</span><div><div class="sl-en">Supplier</div><div class="sl-ko">공급사</div></div></a>
+  <a class="sb-link" href="VOL08_MD02_Part.html"><span class="sl-id">MD-02</span><div><div class="sl-en">Part</div><div class="sl-ko">품목</div></div></a>
+  <a class="sb-link" href="VOL08_MD03_BOM.html"><span class="sl-id">MD-03</span><div><div class="sl-en">BOM</div><div class="sl-ko">자재명세</div></div></a>
+  <a class="sb-link" href="VOL08_MD04_Customer.html"><span class="sl-id">MD-04</span><div><div class="sl-en">Customer</div><div class="sl-ko">고객사</div></div></a>
+  <a class="sb-link on" href="VOL08_MD05_HTS_Code.html"><span class="sl-id">MD-05</span><div><div class="sl-en">HTS Code</div><div class="sl-ko">품목분류</div></div></a>
+  <a class="sb-link" href="VOL08_MD06_Country.html"><span class="sl-id">MD-06</span><div><div class="sl-en">Country</div><div class="sl-ko">국가코드</div></div></a>
+  <a class="sb-link" href="VOL08_MD07_Site.html"><span class="sl-id">MD-07</span><div><div class="sl-en">Site / Plant</div><div class="sl-ko">사업장</div></div></a>
+  <a class="sb-link" href="VOL08_MD08_User_Role.html"><span class="sl-id">MD-08</span><div><div class="sl-en">User / Role</div><div class="sl-ko">사용자·권한</div></div></a>
+  <div class="sb-toc">
+    <div class="sb-toc-title">On this page</div>
+    <a href="#s1"><span class="num">01</span>Entity Overview</a>
+    <a href="#s2"><span class="num">02</span>Table Design</a>
+    <a href="#s3"><span class="num">03</span>Relationships</a>
+    <a href="#s4"><span class="num">04</span>Indexes &amp; Constraints</a>
+    <a href="#s5"><span class="num">05</span>Sample Data</a>
+    <a href="#s6"><span class="num">06</span>Business Rules</a>
+  </div>
+</nav>
+
+<div class="main">
+  <div class="scr-hdr">
+    <div class="scr-hdr-inner">
+      <div class="scr-eyebrow"><span class="dot"></span>VOL.8 · MD · Master Data · 품목분류(HTS) 기준정보</div>
+      <div class="scr-id-block">
+        <div class="scr-id">MD-05</div>
+        <div><div class="scr-title-en">HTS Code</div></div>
+      </div>
+      <div class="scr-title-ko">품 목 분 류 (H T S)</div>
+      <div class="scr-meta">
+        <div class="meta-chip phase"><span class="mc-lbl">Type</span><span class="mc-val">기준정보</span></div>
+        <div class="meta-chip web"><span class="mc-lbl">Table</span><span class="mc-val" style="font-family:'JetBrains Mono',monospace;">md_hts</span></div>
+        <div class="meta-chip"><span class="mc-lbl">Source</span><span class="mc-val">수기 / 관세표준</span></div>
+        <div class="meta-chip"><span class="mc-lbl">Owner</span><span class="mc-val">Customs / Trade</span></div>
+        <div class="meta-chip role"><span class="mc-lbl">RBAC</span><span class="mc-val">MD.Edit</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="content">
+
+  <!-- 1. ENTITY OVERVIEW -->
+  <section class="sec" id="s1">
+    <div class="sec-hdr"><div class="sec-num">01</div><div class="sec-title-wrap"><div class="sec-title-en">Entity Overview</div><div class="sec-title-ko">엔티티 개요</div></div><div class="sec-line"></div></div>
+    <div class="ov-grid">
+      <div class="ov-desc">
+        <div class="ov-desc-en">The <strong>HTS Code</strong> entity is the harmonized tariff classification reference for the entire UOCM platform. Each record pairs an HTS heading with its <strong>tariff rates</strong> (base duty + USMCA preferential rate) and the <strong>USMCA origin rule</strong> applicable to that heading — the specific <em>tariff shift</em> or <em>Regional Value Content (RVC)</em> requirement that determines whether a good qualifies as originating. As such, <code>md_hts</code> serves a dual purpose: it is the basis for <strong>duty calculation</strong> and the rule source for <strong>origin determination</strong>. Parts (MD-02) reference an HTS code, the origin engine (ORG-05) reads the heading's <code>origin_rule</code> and <code>rvc_threshold</code> to drive its qualification logic, and certificates (DOC) classify HTS-type evidence against it.</div>
+        <div class="ov-desc-ko"><strong>HTS Code</strong> 엔티티는 UOCM 플랫폼 전체의 관세 품목분류 기준정보입니다. 각 레코드는 HTS 호(heading)에 대해 <strong>관세율</strong>(기본세율 + USMCA 특혜세율)과 해당 호에 적용되는 <strong>USMCA 원산지 규칙</strong>(원산지 결정을 좌우하는 <em>세번변경(tariff shift)</em> 또는 <em>역내부가가치(RVC)</em> 요건)을 함께 보유합니다. 따라서 <code>md_hts</code>는 <strong>관세 산정</strong>의 기초이자 <strong>원산지 판정</strong>의 규칙 원천이라는 이중 역할을 합니다. 품목(MD-02)이 HTS 코드를 참조하고, 원산지 엔진(ORG-05)은 호의 <code>origin_rule</code>·<code>rvc_threshold</code>를 읽어 판정 로직을 구동하며, 증빙(DOC)은 HTS 유형 증빙을 이에 대조합니다.</div>
+      </div>
+      <div class="ov-meta">
+        <div class="ov-meta-row"><div class="ov-meta-k">Entity ID</div><div class="ov-meta-v"><code>MD-05</code></div></div>
+        <div class="ov-meta-row"><div class="ov-meta-k">Table</div><div class="ov-meta-v"><code>md_hts</code></div></div>
+        <div class="ov-meta-row"><div class="ov-meta-k">Type</div><div class="ov-meta-v">기준정보 (Reference Master)</div></div>
+        <div class="ov-meta-row"><div class="ov-meta-k">Source</div><div class="ov-meta-v">수기 입력 / 관세표준 <span class="ko">Customs schedule</span></div></div>
+        <div class="ov-meta-row"><div class="ov-meta-k">Owner</div><div class="ov-meta-v">Customs / Trade Team</div></div>
+        <div class="ov-meta-row"><div class="ov-meta-k">Used by</div><div class="ov-meta-v"><code>md_part</code>, <code>org_rvc_calc</code>, <code>doc_certificate</code></div></div>
+        <div class="ov-meta-row"><div class="ov-meta-k">RBAC</div><div class="ov-meta-v"><code>MD.View</code> / <code>MD.Edit</code></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. TABLE DESIGN -->
+  <section class="sec" id="s2">
+    <div class="sec-hdr"><div class="sec-num">02</div><div class="sec-title-wrap"><div class="sec-title-en">Table Design</div><div class="sec-title-ko">테이블 설계 — md_hts</div></div><div class="sec-line"></div></div>
+    <table class="cs-tbl">
+      <thead><tr><th style="width:150px;">Column <span class="th-ko">컬럼</span></th><th style="width:150px;">Type</th><th style="width:50px;">Null</th><th style="width:60px;">Key</th><th>Description <span class="th-ko">설명</span></th></tr></thead>
+      <tbody>
+        <tr><td class="c-name">hts_id</td><td><span class="c-type">BIGINT IDENTITY</span></td><td class="c-req y">NO</td><td class="c-req y">PK</td><td class="c-validation">Surrogate primary key. 자동 증가 식별자.</td></tr>
+        <tr><td class="c-name">hts_code</td><td><span class="c-type">NVARCHAR(12)</span></td><td class="c-req y">NO</td><td class="c-req y">UQ</td><td class="c-validation">HTS 분류 코드 (예: <code>8708.30</code>). 고유 제약. 중복 불가(BR-MD-04).</td></tr>
+        <tr><td class="c-name">description</td><td><span class="c-type">NVARCHAR(200)</span></td><td class="c-req y">NO</td><td class="c-req n">—</td><td class="c-validation">품목 영문 설명 (English heading description).</td></tr>
+        <tr><td class="c-name">description_ko</td><td><span class="c-type">NVARCHAR(200)</span></td><td class="c-req n">YES</td><td class="c-req n">—</td><td class="c-validation">품목 국문 설명.</td></tr>
+        <tr><td class="c-name">chapter</td><td><span class="c-type">CHAR(2)</span></td><td class="c-req n">YES</td><td class="c-req n">IX</td><td class="c-validation">HS 류(chapter) 2자리 (예: <code>87</code>). 색인 컬럼.</td></tr>
+        <tr><td class="c-name">heading</td><td><span class="c-type">CHAR(4)</span></td><td class="c-req n">YES</td><td class="c-req n">IX</td><td class="c-validation">HS 호(heading) 4자리 (예: <code>8708</code>). 색인 컬럼.</td></tr>
+        <tr><td class="c-name">base_duty_rate</td><td><span class="c-type">DECIMAL(6,3)</span></td><td class="c-req n">YES</td><td class="c-req n">—</td><td class="c-validation">기본 관세율 (%). <code>CHECK ≥ 0</code>.</td></tr>
+        <tr><td class="c-name">usmca_pref_rate</td><td><span class="c-type">DECIMAL(6,3)</span></td><td class="c-req n">YES</td><td class="c-req n">—</td><td class="c-validation">USMCA 특혜 관세율 (%). 원산지 충족 시 적용. <code>CHECK ≥ 0</code>.</td></tr>
+        <tr><td class="c-name">origin_rule</td><td><span class="c-type">NVARCHAR(200)</span></td><td class="c-req n">YES</td><td class="c-req n">—</td><td class="c-validation">USMCA 원산지 규칙 — 세번변경(tariff shift) / RVC 규칙 텍스트. ORG-05 판정 입력값.</td></tr>
+        <tr><td class="c-name">rvc_threshold</td><td><span class="c-type">DECIMAL(5,2)</span></td><td class="c-req n">YES</td><td class="c-req n">—</td><td class="c-validation">역내부가가치 기준치 (%) (예: <code>75.00</code>). RVC 규칙 적용 시 사용.</td></tr>
+        <tr><td class="c-name">effective_from</td><td><span class="c-type">DATE</span></td><td class="c-req n">YES</td><td class="c-req n">—</td><td class="c-validation">세율·규칙 적용 개시일.</td></tr>
+        <tr><td class="c-name">is_active</td><td><span class="c-type">BIT</span></td><td class="c-req y">NO</td><td class="c-req n">—</td><td class="c-validation">활성 여부. <code>DEFAULT 1</code>. 폐지 코드는 0 (논리 삭제).</td></tr>
+        <tr><td class="c-name">created_by</td><td><span class="c-type">NVARCHAR(50)</span></td><td class="c-req y">NO</td><td class="c-req n">—</td><td class="c-validation">생성자.</td></tr>
+        <tr><td class="c-name">created_at</td><td><span class="c-type">DATETIME2</span></td><td class="c-req y">NO</td><td class="c-req n">—</td><td class="c-validation">생성일시. <code>DEFAULT SYSUTCDATETIME()</code>.</td></tr>
+        <tr><td class="c-name">updated_by</td><td><span class="c-type">NVARCHAR(50)</span></td><td class="c-req n">YES</td><td class="c-req n">—</td><td class="c-validation">최종 수정자.</td></tr>
+        <tr><td class="c-name">updated_at</td><td><span class="c-type">DATETIME2</span></td><td class="c-req n">YES</td><td class="c-req n">—</td><td class="c-validation">최종 수정일시.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- 3. RELATIONSHIPS -->
+  <section class="sec" id="s3">
+    <div class="sec-hdr"><div class="sec-num">03</div><div class="sec-title-wrap"><div class="sec-title-en">Relationships</div><div class="sec-title-ko">관계 — 참조 무결성</div></div><div class="sec-line"></div></div>
+    <div class="lnk-wrap">
+      <div class="lnk-row">
+        <div class="lnk-node cur"><div class="lnk-id">MD-05</div><div class="lnk-name">md_hts</div><div class="lnk-ko">품목분류 기준정보</div></div>
+      </div>
+      <div class="lnk-row" style="margin-top:16px;">
+        <a class="lnk-node down" href="VOL08_MD02_Part.html"><div class="lnk-id">md_part</div><div class="lnk-name">Part</div><div class="lnk-ko">hts_id 참조</div></a>
+        <a class="lnk-node down" href="VOL04_ORG_Origin_Management.html"><div class="lnk-id">org_rvc_calc</div><div class="lnk-name">RVC Calc</div><div class="lnk-ko">threshold / rule 사용</div></a>
+        <a class="lnk-node down" href="VOL02_DOC_Document_Management.html"><div class="lnk-id">doc_certificate</div><div class="lnk-name">Certificate</div><div class="lnk-ko">HTS 유형 증빙 대조</div></a>
+      </div>
+      <div style="text-align:center;font-size:10px;color:var(--sub);margin-top:16px;">Referenced by — <code style="font-family:'JetBrains Mono',monospace;background:#fffbeb;padding:1px 5px;border-radius:2px;color:#9a3412;">md_part.hts_id → md_hts.hts_id</code> · org_rvc_calc(threshold·rule) · doc_certificate(HTS type)</div>
+    </div>
+    <table class="tbl" style="margin-top:14px;">
+      <thead><tr><th style="width:200px;">From <span class="th-ko">참조 측</span></th><th style="width:120px;">Cardinality</th><th>Purpose <span class="th-ko">용도</span></th></tr></thead>
+      <tbody>
+        <tr><td class="mono">md_part.hts_id</td><td>N : 1</td><td>모든 품목이 HTS 코드를 참조 → 관세·원산지 판정 연결.</td></tr>
+        <tr><td class="mono">org_rvc_calc</td><td>N : 1</td><td>RVC/원산지 계산 시 호의 <code class="mono">origin_rule</code>·<code class="mono">rvc_threshold</code> 읽음.</td></tr>
+        <tr><td class="mono">doc_certificate</td><td>N : 1</td><td>HTS 유형 증빙(분류 사유서)을 해당 호에 대조·연결.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- 4. INDEXES & CONSTRAINTS -->
+  <section class="sec" id="s4">
+    <div class="sec-hdr"><div class="sec-num">04</div><div class="sec-title-wrap"><div class="sec-title-en">Indexes &amp; Constraints</div><div class="sec-title-ko">색인 · 제약조건</div></div><div class="sec-line"></div></div>
+    <div class="cx-grid">
+      <div class="cx-card">
+        <div class="cx-hdr"><span class="cx-tag">PK</span><span class="cx-name">Primary Key<span class="ko">기본키</span></span></div>
+        <div class="cx-row"><span class="lbl">Columns</span><span class="val"><code>hts_id</code></span></div>
+        <div class="cx-row"><span class="lbl">Type</span><span class="val">CLUSTERED · BIGINT IDENTITY</span></div>
+        <div class="cx-row"><span class="lbl">Note</span><span class="val">대리키. 외부 참조의 기준.</span></div>
+      </div>
+      <div class="cx-card">
+        <div class="cx-hdr"><span class="cx-tag">UQ</span><span class="cx-name">Unique Key<span class="ko">고유 제약</span></span></div>
+        <div class="cx-row"><span class="lbl">Columns</span><span class="val"><code>hts_code</code></span></div>
+        <div class="cx-row"><span class="lbl">Type</span><span class="val">UNIQUE NONCLUSTERED</span></div>
+        <div class="cx-row"><span class="lbl">Note</span><span class="val">HTS 코드 중복 불가 (BR-MD-04).</span></div>
+      </div>
+      <div class="cx-card">
+        <div class="cx-hdr"><span class="cx-tag">IX</span><span class="cx-name">Lookup Index<span class="ko">조회 색인</span></span></div>
+        <div class="cx-row"><span class="lbl">Columns</span><span class="val"><code>chapter</code>, <code>heading</code></span></div>
+        <div class="cx-row"><span class="lbl">Type</span><span class="val">NONCLUSTERED IX_md_hts_chap_head</span></div>
+        <div class="cx-row"><span class="lbl">Note</span><span class="val">류·호 단위 검색·분류 트리 탐색 가속.</span></div>
+      </div>
+      <div class="cx-card">
+        <div class="cx-hdr"><span class="cx-tag">CHECK</span><span class="cx-name">Rate Check<span class="ko">세율 검증</span></span></div>
+        <div class="cx-row"><span class="lbl">Rule</span><span class="val"><code>base_duty_rate &gt;= 0</code></span></div>
+        <div class="cx-row"><span class="lbl">Rule</span><span class="val"><code>usmca_pref_rate &gt;= 0</code></span></div>
+        <div class="cx-row"><span class="lbl">Note</span><span class="val">음수 관세율 차단. rvc_threshold 0–100 범위.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. SAMPLE DATA -->
+  <section class="sec" id="s5">
+    <div class="sec-hdr"><div class="sec-num">05</div><div class="sec-title-wrap"><div class="sec-title-en">Sample Data</div><div class="sec-title-ko">샘플 데이터</div></div><div class="sec-line"></div></div>
+    <table class="tbl">
+      <thead><tr>
+        <th style="width:64px;">hts_id</th>
+        <th style="width:90px;">hts_code</th>
+        <th>description<span class="th-ko">설명</span></th>
+        <th style="width:80px;">base_duty<span class="th-ko">기본세율</span></th>
+        <th style="width:80px;">usmca_pref<span class="th-ko">특혜세율</span></th>
+        <th>origin_rule<span class="th-ko">원산지 규칙</span></th>
+        <th style="width:74px;">rvc_thr.<span class="th-ko">RVC</span></th>
+        <th style="width:60px;">active</th>
+      </tr></thead>
+      <tbody>
+        <tr class="rok"><td class="mono">1001</td><td class="mono">8708.30</td><td>브레이크 부품 (Brake parts)</td><td class="mono">2.5%</td><td class="mono">0.0%</td><td>RVC 또는 세번변경 (4단위)</td><td class="mono">75.00%</td><td><span class="b b-ok">Y</span></td></tr>
+        <tr class="rok"><td class="mono">1002</td><td class="mono">8708.29</td><td>차체 부품 (Body parts)</td><td class="mono">2.5%</td><td class="mono">0.0%</td><td>RVC (순원가법)</td><td class="mono">75.00%</td><td><span class="b b-ok">Y</span></td></tr>
+        <tr class="rw"><td class="mono">1003</td><td class="mono">5903.10</td><td>코팅 직물 (Coated fabric, PVC)</td><td class="mono">7.5%</td><td class="mono">0.0%</td><td>세번변경 (CC) + RVC</td><td class="mono">60.00%</td><td><span class="b b-ok">Y</span></td></tr>
+        <tr class="rw"><td class="mono">1004</td><td class="mono">5903.90</td><td>코팅 직물 (Coated fabric, other)</td><td class="mono">7.5%</td><td class="mono">0.0%</td><td>세번변경 (CC)</td><td class="mono">—</td><td><span class="b b-ok">Y</span></td></tr>
+      </tbody>
+    </table>
+    <div style="margin-top:8px;font-size:9px;color:var(--sub);">예: rvc_threshold 75% = 자동차 부품 핵심부품 역내부가가치 기준 · 코팅직물(5903.x)은 섬유 원산지 규칙(CC) 적용 · 세율은 USMCA 특혜 적용 시 0% 전환.</div>
+  </section>
+
+  <!-- 6. BUSINESS RULES -->
+  <section class="sec" id="s6">
+    <div class="sec-hdr"><div class="sec-num">06</div><div class="sec-title-wrap"><div class="sec-title-en">Business Rules</div><div class="sec-title-ko">업무 규칙</div></div><div class="sec-line"></div></div>
+    <table class="br-mini">
+      <thead><tr><th style="width:96px;">ID</th><th>Rule · 규칙</th><th style="width:80px;">Action</th></tr></thead>
+      <tbody>
+        <tr><td class="br-id">BR-MD-01</td><td><div class="br-en">Master integrity — every master record carries created/updated audit columns; reference masters are not hard-deleted.</div><div class="br-ko">모든 기준정보는 생성·수정 감사 컬럼을 보유하며, 참조 기준정보는 물리 삭제하지 않음.</div></td><td class="br-act"><span class="aut">자동</span></td></tr>
+        <tr><td class="br-id">BR-MD-02</td><td><div class="br-en">Logical deactivation — deprecated HTS codes set <code class="mono" style="font-size:9px;">is_active = 0</code>; referenced codes cannot be removed, only deactivated.</div><div class="br-ko">폐지 HTS 코드는 <code class="mono" style="font-size:9px;">is_active = 0</code> 처리. 참조 중인 코드는 삭제 불가, 비활성만 가능.</div></td><td class="br-act"><span class="blk">차단</span></td></tr>
+        <tr><td class="br-id">BR-MD-04</td><td><div class="br-en">Unique HTS code — <code class="mono" style="font-size:9px;">hts_code</code> must be unique across the table; duplicate insert is rejected.</div><div class="br-ko"><code class="mono" style="font-size:9px;">hts_code</code> 유니크 — 동일 코드 중복 등록 거부.</div></td><td class="br-act"><span class="blk">차단</span></td></tr>
+        <tr><td class="br-id">BR-MD-05</td><td><div class="br-en">Origin rule drives ORG — <code class="mono" style="font-size:9px;">origin_rule</code> and <code class="mono" style="font-size:9px;">rvc_threshold</code> are the rule source for ORG-05 origin/RVC determination; rates must be ≥ 0.</div><div class="br-ko"><code class="mono" style="font-size:9px;">origin_rule</code>·<code class="mono" style="font-size:9px;">rvc_threshold</code>가 ORG-05 원산지·RVC 판정의 규칙 원천. 세율은 0 이상.</div></td><td class="br-act"><span class="alt">검증</span></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  </div>
+  <div class="page-footer">
+    <span class="pf-l">UOCM · USMCA Origin Compliance Management System</span>
+    <span class="pf-r">VOL.8 · MD-05 · HTS Code · L3 Table Design</span>
+  </div>
+</div>
+</div>
+</body>
+</html>

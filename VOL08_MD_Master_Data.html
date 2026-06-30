@@ -188,17 +188,17 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
   <a class="sb-link" href="#flow"><span class="sl-id">REL</span><div><div class="sl-en">Entity Relationships</div><div class="sl-ko">엔티티 관계도</div></div></a>
   <a class="sb-link" href="#kpi"><span class="sl-id">KPI</span><div><div class="sl-en">Module KPI</div><div class="sl-ko">핵심 지표</div></div></a>
   <div class="sb-section">Core Entities · 핵심 엔티티</div>
-  <a class="sb-link on" href="#md01"><span class="sl-id">MD-01</span><div><div class="sl-en">Supplier</div><div class="sl-ko">공급사</div></div><span class="sb-l3 todo" title="L3 예정">·</span></a>
-  <a class="sb-link" href="#md02"><span class="sl-id">MD-02</span><div><div class="sl-en">Part / Item</div><div class="sl-ko">품목</div></div><span class="sb-l3 todo" title="L3 예정">·</span></a>
-  <a class="sb-link" href="#md03"><span class="sl-id">MD-03</span><div><div class="sl-en">BOM</div><div class="sl-ko">자재명세서</div></div><span class="sb-l3 todo" title="L3 예정">·</span></a>
+  <a class="sb-link on" href="#md01"><span class="sl-id">MD-01</span><div><div class="sl-en">Supplier</div><div class="sl-ko">공급사</div></div><a class="sb-l3" href="VOL08_MD01_Supplier.html" title="L3 테이블 설계서">📋</a></a>
+  <a class="sb-link" href="#md02"><span class="sl-id">MD-02</span><div><div class="sl-en">Part / Item</div><div class="sl-ko">품목</div></div><a class="sb-l3" href="VOL08_MD02_Part.html" title="L3 테이블 설계서">📋</a></a>
+  <a class="sb-link" href="#md03"><span class="sl-id">MD-03</span><div><div class="sl-en">BOM</div><div class="sl-ko">자재명세서</div></div><a class="sb-l3" href="VOL08_MD03_BOM.html" title="L3 테이블 설계서">📋</a></a>
   <div class="sb-section">Classification · 분류</div>
-  <a class="sb-link" href="#md04"><span class="sl-id">MD-04</span><div><div class="sl-en">Country</div><div class="sl-ko">국가</div></div><span class="sb-l3 todo" title="L3 예정">·</span></a>
-  <a class="sb-link" href="#md05"><span class="sl-id">MD-05</span><div><div class="sl-en">HTS Code</div><div class="sl-ko">품목분류</div></div><span class="sb-l3 todo" title="L3 예정">·</span></a>
+  <a class="sb-link" href="#md04"><span class="sl-id">MD-04</span><div><div class="sl-en">Country</div><div class="sl-ko">국가</div></div><a class="sb-l3" href="VOL08_MD04_Country.html" title="L3 테이블 설계서">📋</a></a>
+  <a class="sb-link" href="#md05"><span class="sl-id">MD-05</span><div><div class="sl-en">HTS Code</div><div class="sl-ko">품목분류</div></div><a class="sb-l3" href="VOL08_MD05_HTS_Code.html" title="L3 테이블 설계서">📋</a></a>
   <div class="sb-section">Customer · 고객</div>
-  <a class="sb-link" href="#md06"><span class="sl-id">MD-06</span><div><div class="sl-en">OEM Customer</div><div class="sl-ko">고객(OEM)</div></div><span class="sb-l3 todo" title="L3 예정">·</span></a>
-  <a class="sb-link" href="#md08"><span class="sl-id">MD-08</span><div><div class="sl-en">Label Template</div><div class="sl-ko">라벨 템플릿</div></div><span class="sb-l3 todo" title="L3 예정">·</span></a>
+  <a class="sb-link" href="#md06"><span class="sl-id">MD-06</span><div><div class="sl-en">OEM Customer</div><div class="sl-ko">고객(OEM)</div></div><a class="sb-l3" href="VOL08_MD06_OEM_Customer.html" title="L3 테이블 설계서">📋</a></a>
+  <a class="sb-link" href="#md08"><span class="sl-id">MD-08</span><div><div class="sl-en">Label Template</div><div class="sl-ko">라벨 템플릿</div></div><a class="sb-l3" href="VOL08_MD08_Label_Template.html" title="L3 테이블 설계서">📋</a></a>
   <div class="sb-section">Reference · 증빙</div>
-  <a class="sb-link" href="#md07"><span class="sl-id">MD-07</span><div><div class="sl-en">Certificate Type</div><div class="sl-ko">증빙 유형</div></div><span class="sb-l3 todo" title="L3 예정">·</span></a>
+  <a class="sb-link" href="#md07"><span class="sl-id">MD-07</span><div><div class="sl-en">Certificate Type</div><div class="sl-ko">증빙 유형</div></div><a class="sb-l3" href="VOL08_MD07_Certificate_Type.html" title="L3 테이블 설계서">📋</a></a>
   <div class="sb-sep"></div>
   <div class="sb-section">Reference · 참조</div>
   <a class="sb-link" href="#ref-entity"><span class="sl-id">ENT</span><div><div class="sl-en">Entity List</div><div class="sl-ko">엔티티 목록</div></div></a>
@@ -212,28 +212,28 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
       <div class="mod-title-en">MASTER<br>DATA</div>
       <div class="mod-title-ko">기준정보 — 모든 모듈이 참조하는 공유 마스터 데이터 · 엔티티 카탈로그</div>
       <div class="mod-desc-bi">
-        <div class="mdb-en">The <strong>shared master data</strong> that every module references. Supplier, part, BOM, country, HTS, OEM customer, certificate type and label template form the common backbone consumed by DOC, LBL, ORG, AUD, INT and SYS. This volume is the <strong>entity catalog</strong> (L2 hub): it defines the 8 master entities, how they relate, and which modules consume them. Per-entity <strong>table-design L3 pages</strong> will follow as a later step — by work order, master-data L3 is done last, group by group.</div>
-        <div class="mdb-ko">모든 모듈이 참조하는 <strong>공유 마스터 데이터</strong>. 공급사·품목·BOM·국가·HTS·고객(OEM)·증빙 유형·라벨 템플릿은 DOC·LBL·ORG·AUD·INT·SYS가 함께 소비하는 공통 기반입니다. 본 권은 <strong>엔티티 카탈로그</strong>(L2 허브)로, 8개 마스터 엔티티와 상호 관계, 모듈별 소비 관계를 정의합니다. 엔티티별 <strong>테이블 설계 L3 페이지</strong>는 후속 단계에서 작성됩니다 — 작업 순서상 MD L3는 마지막에, 그룹별로 진행합니다.</div>
+        <div class="mdb-en">The <strong>shared master data</strong> that every module references. Supplier, part, BOM, country, HTS, OEM customer, certificate type and label template form the common backbone consumed by DOC, LBL, ORG, AUD, INT and SYS. This volume is the <strong>entity catalog</strong> (L2 hub): it defines the 8 master entities, how they relate, and which modules consume them. Per-entity <strong>table-design L3 pages</strong> are available — open each entity's 📋 link in the sidebar or card.</div>
+        <div class="mdb-ko">모든 모듈이 참조하는 <strong>공유 마스터 데이터</strong>. 공급사·품목·BOM·국가·HTS·고객(OEM)·증빙 유형·라벨 템플릿은 DOC·LBL·ORG·AUD·INT·SYS가 함께 소비하는 공통 기반입니다. 본 권은 <strong>엔티티 카탈로그</strong>(L2 허브)로, 8개 마스터 엔티티와 상호 관계, 모듈별 소비 관계를 정의합니다. 엔티티별 <strong>테이블 설계 L3 페이지</strong>가 모두 제공됩니다 — 사이드바·카드의 📋 링크에서 확인.</div>
       </div>
-      <div class="note-banner">📋 엔티티별 L3 테이블 설계서는 후속 단계에서 그룹별로 작성됩니다 (작업 순서상 마지막).</div>
+      <div class="note-banner">📋 각 엔티티 카드·사이드바의 📋 클릭 시 L3 테이블 설계서로 이동합니다.</div>
       <div class="mod-meta-strip">
         <div class="mms-item"><div class="mms-l">Entities</div><div class="mms-v">8</div></div>
-        <div class="mms-item"><div class="mms-l">L3 Done</div><div class="mms-v warn">0 / 8</div></div>
+        <div class="mms-item"><div class="mms-l">L3 Done</div><div class="mms-v">8 / 8</div></div>
         <div class="mms-item"><div class="mms-l">Type</div><div class="mms-v">Catalog</div></div>
         <div class="mms-item"><div class="mms-l">Scope</div><div class="mms-v">Shared</div></div>
         <div class="mms-item"><div class="mms-l">Phase</div><div class="mms-v">P1</div></div>
-        <div class="mms-item"><div class="mms-l">Status</div><div class="mms-v warn">L3 예정 (후속)</div></div>
+        <div class="mms-item"><div class="mms-l">Status</div><div class="mms-v">Complete</div></div>
       </div>
-      <div><span class="l3-hint">📋 L3 테이블 설계서는 후속 단계 — 현재는 엔티티 카탈로그만 제공</span></div>
+      <div><span class="l3-hint">📋 L3 테이블 설계서 8/8 제공 — 엔티티 카드의 📋 L3 Detail 링크에서 확인</span></div>
       <div class="screen-pills">
-        <span class="sp" title="L3 예정 · MD-01"><span class="sp-id">MD-01</span> Supplier <span style="opacity:.4;font-size:8px;">L3 예정</span></span>
-        <span class="sp" title="L3 예정 · MD-02"><span class="sp-id">MD-02</span> Part / Item <span style="opacity:.4;font-size:8px;">L3 예정</span></span>
-        <span class="sp" title="L3 예정 · MD-03"><span class="sp-id">MD-03</span> BOM <span style="opacity:.4;font-size:8px;">L3 예정</span></span>
-        <span class="sp" title="L3 예정 · MD-04"><span class="sp-id">MD-04</span> Country <span style="opacity:.4;font-size:8px;">L3 예정</span></span>
-        <span class="sp" title="L3 예정 · MD-05"><span class="sp-id">MD-05</span> HTS Code <span style="opacity:.4;font-size:8px;">L3 예정</span></span>
-        <span class="sp" title="L3 예정 · MD-06"><span class="sp-id">MD-06</span> OEM Customer <span style="opacity:.4;font-size:8px;">L3 예정</span></span>
-        <span class="sp" title="L3 예정 · MD-07"><span class="sp-id">MD-07</span> Certificate Type <span style="opacity:.4;font-size:8px;">L3 예정</span></span>
-        <span class="sp" title="L3 예정 · MD-08"><span class="sp-id">MD-08</span> Label Template <span style="opacity:.4;font-size:8px;">L3 예정</span></span>
+        <a class="sp" href="VOL08_MD01_Supplier.html" title="L3 · MD-01 Supplier"><span class="sp-id">MD-01</span> Supplier <span style="font-size:8px;">📋</span></a>
+        <a class="sp" href="VOL08_MD02_Part.html" title="L3 · MD-02 Part / Item"><span class="sp-id">MD-02</span> Part / Item <span style="font-size:8px;">📋</span></a>
+        <a class="sp" href="VOL08_MD03_BOM.html" title="L3 · MD-03 BOM"><span class="sp-id">MD-03</span> BOM <span style="font-size:8px;">📋</span></a>
+        <a class="sp" href="VOL08_MD04_Country.html" title="L3 · MD-04 Country"><span class="sp-id">MD-04</span> Country <span style="font-size:8px;">📋</span></a>
+        <a class="sp" href="VOL08_MD05_HTS_Code.html" title="L3 · MD-05 HTS Code"><span class="sp-id">MD-05</span> HTS Code <span style="font-size:8px;">📋</span></a>
+        <a class="sp" href="VOL08_MD06_OEM_Customer.html" title="L3 · MD-06 OEM Customer"><span class="sp-id">MD-06</span> OEM Customer <span style="font-size:8px;">📋</span></a>
+        <a class="sp" href="VOL08_MD07_Certificate_Type.html" title="L3 · MD-07 Certificate Type"><span class="sp-id">MD-07</span> Certificate Type <span style="font-size:8px;">📋</span></a>
+        <a class="sp" href="VOL08_MD08_Label_Template.html" title="L3 · MD-08 Label Template"><span class="sp-id">MD-08</span> Label Template <span style="font-size:8px;">📋</span></a>
       </div>
     </div>
   </div>
@@ -315,7 +315,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
           </div>
         </div>
         <div class="sc-tags"><span class="tag t-web">🖥 Web PC</span><span class="tag t-core">⚙ Core</span></div>
-        <span class="sc-l3-btn todo" title="L3 테이블 설계서 후속 작성 예정">⏳ L3 예정</span>
+        <a class="sc-l3-btn" href="VOL08_MD01_Supplier.html" title="L3 테이블 설계서">📋 L3 Detail →</a>
       </div>
       <div class="sc-body">
         <div class="headline">
@@ -342,7 +342,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
           </div>
         </div>
         <div class="sc-tags"><span class="tag t-web">🖥 Web PC</span><span class="tag t-core">⚙ Core</span></div>
-        <span class="sc-l3-btn todo" title="L3 테이블 설계서 후속 작성 예정">⏳ L3 예정</span>
+        <a class="sc-l3-btn" href="VOL08_MD02_Part.html" title="L3 테이블 설계서">📋 L3 Detail →</a>
       </div>
       <div class="sc-body">
         <div class="headline">
@@ -369,7 +369,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
           </div>
         </div>
         <div class="sc-tags"><span class="tag t-web">🖥 Web PC</span><span class="tag t-core">⚙ Core</span></div>
-        <span class="sc-l3-btn todo" title="L3 테이블 설계서 후속 작성 예정">⏳ L3 예정</span>
+        <a class="sc-l3-btn" href="VOL08_MD03_BOM.html" title="L3 테이블 설계서">📋 L3 Detail →</a>
       </div>
       <div class="sc-body">
         <div class="headline">
@@ -396,7 +396,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
           </div>
         </div>
         <div class="sc-tags"><span class="tag t-web">🖥 Web PC</span><span class="tag t-p1">Phase 1</span></div>
-        <span class="sc-l3-btn todo" title="L3 테이블 설계서 후속 작성 예정">⏳ L3 예정</span>
+        <a class="sc-l3-btn" href="VOL08_MD04_Country.html" title="L3 테이블 설계서">📋 L3 Detail →</a>
       </div>
       <div class="sc-body">
         <div class="headline">
@@ -423,7 +423,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
           </div>
         </div>
         <div class="sc-tags"><span class="tag t-web">🖥 Web PC</span><span class="tag t-p1">Phase 1</span></div>
-        <span class="sc-l3-btn todo" title="L3 테이블 설계서 후속 작성 예정">⏳ L3 예정</span>
+        <a class="sc-l3-btn" href="VOL08_MD05_HTS_Code.html" title="L3 테이블 설계서">📋 L3 Detail →</a>
       </div>
       <div class="sc-body">
         <div class="headline">
@@ -450,7 +450,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
           </div>
         </div>
         <div class="sc-tags"><span class="tag t-web">🖥 Web PC</span><span class="tag t-p1">Phase 1</span></div>
-        <span class="sc-l3-btn todo" title="L3 테이블 설계서 후속 작성 예정">⏳ L3 예정</span>
+        <a class="sc-l3-btn" href="VOL08_MD06_OEM_Customer.html" title="L3 테이블 설계서">📋 L3 Detail →</a>
       </div>
       <div class="sc-body">
         <div class="headline">
@@ -477,7 +477,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
           </div>
         </div>
         <div class="sc-tags"><span class="tag t-web">🖥 Web PC</span><span class="tag t-p1">Phase 1</span></div>
-        <span class="sc-l3-btn todo" title="L3 테이블 설계서 후속 작성 예정">⏳ L3 예정</span>
+        <a class="sc-l3-btn" href="VOL08_MD07_Certificate_Type.html" title="L3 테이블 설계서">📋 L3 Detail →</a>
       </div>
       <div class="sc-body">
         <div class="headline">
@@ -504,7 +504,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
           </div>
         </div>
         <div class="sc-tags"><span class="tag t-web">🖥 Web PC</span><span class="tag t-p1">Phase 1</span></div>
-        <span class="sc-l3-btn todo" title="L3 테이블 설계서 후속 작성 예정">⏳ L3 예정</span>
+        <a class="sc-l3-btn" href="VOL08_MD08_Label_Template.html" title="L3 테이블 설계서">📋 L3 Detail →</a>
       </div>
       <div class="sc-body">
         <div class="headline">

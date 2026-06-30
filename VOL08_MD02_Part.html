@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>UOCM · VOL.8 · MD-02 · Part · 상세 설계서</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;600;700&family=Bebas+Neue&display=swap');
+:root{
+  --brand:#059669;--brand-dk:#047857;
+  --ink:#0a1422;--ink2:#101d2e;--ink3:#1c2c40;
+  --surface:#fff;--bg:#f4f7fa;--border:#d3dce6;--text:#1e2a38;--sub:#5b6b7d;
+  --doc:#d97706;--doc-dk:#b45309;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);font-size:13px;line-height:1.6;}
+
+/* NAV */
+.uo-nav{position:sticky;top:0;z-index:9999;background:#fff;border-bottom:1px solid #e5eaf0;box-shadow:0 1px 4px rgba(15,39,71,.06);}
+.uo-nav-inner{display:flex;align-items:stretch;overflow-x:auto;scrollbar-width:none;}
+.uo-nav-inner::-webkit-scrollbar{display:none;}
+.nav-home{display:flex;align-items:center;gap:8px;padding:0 16px;background:rgba(5,150,105,.08);border-right:1px solid #e5eaf0;text-decoration:none;flex-shrink:0;min-height:42px;}
+.nav-home-logo{font-family:'Bebas Neue',sans-serif;font-size:17px;color:var(--brand);letter-spacing:2px;}
+.nav-home-sub{font-size:9px;color:#94a3b8;}
+.nav-vol{display:flex;align-items:center;gap:5px;padding:0 12px;text-decoration:none;font-size:10px;font-weight:700;color:#5b6b7d;border-bottom:2px solid transparent;white-space:nowrap;min-height:42px;transition:color .12s;}
+.nav-vol:hover{color:#0f2747;background:#f6f8fa;}
+.nav-vol.active{color:#0f2747;border-bottom-color:#059669;}
+.nav-vol .nv-code{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;}
+
+/* BREADCRUMB */
+.l3-crumb{background:#f6f8fa;border-bottom:1px solid #e5eaf0;padding:7px 24px;display:flex;align-items:center;gap:8px;font-size:10px;color:#5b6b7d;font-family:'JetBrains Mono',monospace;letter-spacing:.5px;}
+.l3-crumb a{color:#5b6b7d;text-decoration:none;transition:color .12s;}
+.l3-crumb a:hover{color:#0f2747;}
+.l3-crumb .arr{color:#cbd5e1;}
+.l3-crumb .current{color:#047857;font-weight:700;}
+.l3-crumb .lvl{font-size:8px;padding:1px 6px;border:1px solid #d3dce6;border-radius:2px;color:#94a3b8;margin-right:4px;}
+
+/* LAYOUT */
+.page-wrap{display:flex;}
+.sidebar{width:240px;min-width:240px;background:#f6f8fa;position:sticky;top:69px;height:calc(100vh - 69px);overflow-y:auto;scrollbar-width:thin;border-right:1px solid #e5eaf0;}
+.sb-head{padding:16px 14px 12px;border-bottom:1px solid #e5eaf0;}
+.sb-vol{font-family:'JetBrains Mono',monospace;font-size:9px;color:#047857;letter-spacing:2px;margin-bottom:4px;}
+.sb-mod-en{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1px;color:#0f2747;}
+.sb-mod-ko{font-size:10px;color:#94a3b8;}
+.sb-section{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#94a3b8;padding:14px 14px 6px;}
+.sb-link{display:flex;align-items:center;gap:7px;padding:6px 14px;text-decoration:none;color:#5b6b7d;font-size:11px;border-left:2px solid transparent;transition:all .12s;}
+.sb-link:hover{color:#0f2747;background:#eef2f7;}
+.sb-link.on{color:#0f2747;border-left-color:#059669;background:rgba(5,150,105,.08);}
+.sb-link .sl-id{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;width:44px;flex-shrink:0;color:#d97706;}
+.sb-link.on .sl-id{color:#047857;}
+.sb-link .sl-en{font-size:10px;font-weight:600;}
+.sb-link .sl-ko{font-size:9px;color:#94a3b8;margin-top:1px;}
+.sb-toc{padding:6px 14px 14px;border-top:1px solid #e5eaf0;margin-top:6px;}
+.sb-toc-title{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#047857;margin-bottom:6px;}
+.sb-toc a{display:block;padding:4px 8px;border-radius:3px;font-size:10px;color:#5b6b7d;text-decoration:none;transition:all .12s;}
+.sb-toc a:hover{color:#0f2747;background:#eef2f7;}
+.sb-toc a .num{font-family:'JetBrains Mono',monospace;color:#059669;font-size:9px;margin-right:6px;}
+
+.main{flex:1;min-width:0;}
+
+/* SCREEN HEADER */
+.scr-hdr{padding:32px 48px 26px;background:linear-gradient(135deg,#fffaf0,#ffffff);position:relative;overflow:hidden;border-bottom:1px solid #e5eaf0;}
+.scr-hdr::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(217,119,6,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(217,119,6,.05) 1px,transparent 1px);background-size:32px 32px;pointer-events:none;}
+.scr-hdr::after{content:'';position:absolute;top:-40%;right:-10%;width:380px;height:380px;background:radial-gradient(circle,rgba(217,119,6,.12),transparent 70%);pointer-events:none;}
+.scr-hdr-inner{position:relative;z-index:1;}
+.scr-eyebrow{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#d97706;margin-bottom:12px;display:flex;align-items:center;gap:10px;}
+.scr-eyebrow .dot{width:5px;height:5px;background:#fbbf24;border-radius:50%;box-shadow:0 0 8px #fbbf24;}
+.scr-id-block{display:flex;align-items:flex-end;gap:18px;margin-bottom:14px;}
+.scr-id{font-family:'Bebas Neue',sans-serif;font-size:54px;letter-spacing:2px;color:#d97706;line-height:.9;text-shadow:0 0 22px rgba(217,119,6,.25);}
+.scr-title-en{font-family:'Bebas Neue',sans-serif;font-size:46px;letter-spacing:1.5px;color:#0f2747;line-height:.95;}
+.scr-title-ko{font-size:13px;color:#5b6b7d;letter-spacing:3px;}
+.scr-meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px;}
+.meta-chip{display:flex;align-items:center;gap:6px;padding:5px 11px;background:#f6f8fa;border:1px solid #d3dce6;border-radius:3px;font-size:10px;color:#1e2a38;}
+.meta-chip .mc-lbl{font-family:'JetBrains Mono',monospace;font-size:8px;color:#94a3b8;letter-spacing:1px;text-transform:uppercase;}
+.meta-chip .mc-val{font-weight:700;}
+.meta-chip.web{border-color:rgba(217,119,6,.3);color:#d97706;}
+.meta-chip.phase{border-color:rgba(16,185,129,.3);color:#047857;}
+.meta-chip.role{border-color:rgba(251,191,36,.3);color:#d97706;}
+
+.content{padding:0 48px 60px;}
+.sec{margin-top:36px;}
+.sec-hdr{display:flex;align-items:center;gap:14px;margin-bottom:16px;}
+.sec-num{font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--doc);letter-spacing:1px;line-height:1;min-width:42px;}
+.sec-title-wrap{flex:1;}
+.sec-title-en{font-size:18px;font-weight:800;color:var(--text);letter-spacing:-.3px;}
+.sec-title-ko{font-size:11px;color:var(--sub);margin-top:1px;}
+.sec-line{flex:1;height:1px;background:linear-gradient(90deg,var(--doc),transparent);max-width:200px;}
+
+/* OVERVIEW */
+.ov-grid{display:grid;grid-template-columns:1.6fr 1fr;gap:14px;}
+.ov-desc{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--doc);border-radius:0 6px 6px 0;padding:16px 18px;}
+.ov-desc-en{font-size:12px;color:var(--text);line-height:1.85;margin-bottom:10px;}
+.ov-desc-ko{font-size:11px;color:var(--sub);line-height:1.85;padding-top:10px;border-top:1px dashed var(--border);}
+.ov-meta{background:var(--surface);border:1px solid var(--border);border-radius:6px;overflow:hidden;}
+.ov-meta-row{display:flex;border-bottom:1px solid var(--border);font-size:11px;}
+.ov-meta-row:last-child{border-bottom:none;}
+.ov-meta-k{flex:0 0 110px;background:#f6f8fa;padding:8px 12px;font-weight:700;color:var(--sub);font-size:10px;letter-spacing:.5px;text-transform:uppercase;border-right:1px solid var(--border);}
+.ov-meta-v{flex:1;padding:8px 12px;color:var(--text);}
+.ov-meta-v .ko{font-size:10px;color:var(--sub);margin-left:6px;}
+.ov-meta-v code{font-family:'JetBrains Mono',monospace;font-size:10px;background:#f0f3f7;padding:1px 6px;border-radius:3px;color:var(--doc);}
+
+.tbl{width:100%;border-collapse:collapse;font-size:11px;}
+.tbl th{background:#f0f3f7;padding:7px 9px;font-weight:700;border:1px solid var(--border);text-align:left;font-size:10px;color:var(--text);}
+.tbl th .th-ko{font-weight:400;color:var(--sub);font-size:9px;display:block;}
+.tbl td{padding:6px 9px;border:1px solid var(--border);vertical-align:middle;}
+.tbl .rok td{background:#f0fdf4;}
+.tbl .rw td{background:#fffbeb;}
+.tbl .rd td{background:#fef2f2;}
+.tbl tr:hover td{filter:brightness(.98);}
+.tbl .mono{font-family:'JetBrains Mono',monospace;font-size:10px;}
+.b{display:inline-block;font-size:9px;font-weight:700;padding:2px 7px;border-radius:8px;}
+.b-ok{background:#dcfce7;color:#166534;}.b-w{background:#fef9c3;color:#92400e;}.b-e{background:#fee2e2;color:#991b1b;}.b-i{background:#fef3c7;color:#92400e;}.b-n{background:#f1f5f9;color:#475569;}
+
+/* COMPONENT SPEC (column spec) */
+.cs-tbl{width:100%;border-collapse:collapse;font-size:11px;background:var(--surface);border:1px solid var(--border);border-radius:6px;overflow:hidden;}
+.cs-tbl th{background:#fffbeb;color:#b45309;padding:9px 10px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;border-bottom:1px solid #fde68a;}
+.cs-tbl th .th-ko{display:block;color:#d6a55a;font-weight:400;font-size:9px;letter-spacing:0;text-transform:none;margin-top:1px;}
+.cs-tbl td{padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:top;}
+.cs-tbl tr:last-child td{border-bottom:none;}
+.cs-tbl tr:hover td{background:#f9fafb;}
+.cs-tbl .c-id{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;color:var(--doc);}
+.cs-tbl .c-name{font-weight:700;color:var(--text);}
+.cs-tbl .c-name .ko{font-size:10px;font-weight:400;color:var(--sub);display:block;margin-top:1px;}
+.cs-tbl .c-type{font-family:'JetBrains Mono',monospace;font-size:10px;color:#7c3aed;background:#f5f3ff;padding:2px 6px;border-radius:3px;display:inline-block;}
+.cs-tbl .c-req.y{color:#dc2626;font-weight:700;font-family:'JetBrains Mono',monospace;font-size:9px;}
+.cs-tbl .c-req.n{color:var(--sub);font-family:'JetBrains Mono',monospace;font-size:9px;}
+.cs-tbl .c-validation{font-size:10px;color:var(--text);line-height:1.6;}
+.cs-tbl .c-validation code{font-family:'JetBrains Mono',monospace;font-size:9px;background:#fff7ed;color:#9a3412;padding:1px 5px;border-radius:2px;}
+
+/* LINKAGE */
+.lnk-wrap{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:20px 24px;}
+.lnk-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:center;}
+.lnk-node{padding:12px 16px;border-radius:6px;text-align:center;min-width:128px;border:2px solid;text-decoration:none;}
+.lnk-node.up{background:#f0fdf4;border-color:#22c55e;}
+.lnk-node.cur{background:linear-gradient(135deg,#0e2148,#b45309);border-color:#fbbf24;color:#fff;box-shadow:0 4px 16px rgba(217,119,6,.25);}
+.lnk-node.down{background:#fef3c7;border-color:#f59e0b;}
+.lnk-id{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;letter-spacing:.5px;margin-bottom:3px;}
+.lnk-node.up .lnk-id{color:#15803d;}
+.lnk-node.cur .lnk-id{color:#fcd34d;}
+.lnk-node.down .lnk-id{color:#92400e;}
+.lnk-name{font-size:11px;font-weight:700;color:var(--text);}
+.lnk-node.cur .lnk-name{color:#fff;}
+.lnk-ko{font-size:9px;opacity:.7;margin-top:2px;}
+.lnk-arr{font-size:20px;color:var(--sub);font-weight:700;}
+
+/* BR MINI */
+.br-mini{width:100%;border-collapse:collapse;font-size:11px;background:var(--surface);border:1px solid var(--border);border-radius:6px;overflow:hidden;}
+.br-mini th{background:#fffbeb;color:#92400e;padding:8px 10px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;border-bottom:1px solid #fde68a;}
+.br-mini td{padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:top;}
+.br-mini tr:last-child td{border-bottom:none;}
+.br-mini .br-id{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;color:var(--brand-dk);white-space:nowrap;}
+.br-mini .br-en{font-size:11px;color:var(--text);line-height:1.6;}
+.br-mini .br-ko{font-size:10px;color:var(--sub);line-height:1.6;margin-top:3px;}
+.br-mini .br-act{text-align:center;}
+.br-mini .br-act span{display:inline-block;font-size:9px;font-weight:700;padding:2px 7px;border-radius:3px;}
+.br-mini .br-act .blk{background:#fee2e2;color:#991b1b;}
+.br-mini .br-act .alt{background:#fef9c3;color:#92400e;}
+.br-mini .br-act .aut{background:#fef3c7;color:#92400e;}
+
+/* RELATIONSHIP CARDS */
+.rel-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.rel-card{background:var(--surface);border:1px solid var(--border);border-radius:6px;overflow:hidden;}
+.rel-card-h{padding:10px 14px;font-size:11px;font-weight:700;color:#fff;display:flex;align-items:center;gap:8px;}
+.rel-card.out .rel-card-h{background:linear-gradient(135deg,#b45309,#d97706);}
+.rel-card.in .rel-card-h{background:linear-gradient(135deg,#0e2148,#1c2c40);}
+.rel-card-h .ko{font-weight:400;font-size:10px;opacity:.8;}
+.rel-item{display:flex;align-items:center;gap:8px;padding:8px 14px;border-bottom:1px dashed var(--border);font-size:11px;}
+.rel-item:last-child{border-bottom:none;}
+.rel-item .rel-col{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;color:var(--doc);}
+.rel-item .rel-arr{color:#94a3b8;font-weight:700;}
+.rel-item .rel-tgt{font-family:'JetBrains Mono',monospace;font-size:10px;color:#1c2c40;background:#f0f3f7;padding:1px 6px;border-radius:3px;}
+.rel-item .rel-note{margin-left:auto;font-size:9px;color:var(--sub);}
+
+/* IDX */
+.idx-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+
+.page-footer{padding:24px 48px;border-top:1px solid #e5eaf0;background:#f6f8fa;color:#94a3b8;display:flex;justify-content:space-between;align-items:center;font-size:10px;}
+.page-footer .pf-l{font-family:'JetBrains Mono',monospace;letter-spacing:.5px;}
+.page-footer .pf-r{color:#047857;font-family:'JetBrains Mono',monospace;}
+
+@media(max-width:1100px){.ov-grid{grid-template-columns:1fr;}.rel-grid{grid-template-columns:1fr;}.idx-grid{grid-template-columns:1fr;}.scr-id-block{flex-direction:column;align-items:flex-start;gap:6px;}.scr-id{font-size:42px;}.scr-title-en{font-size:32px;}}
+</style>
+</head>
+<body>
+<nav class="uo-nav"><div class="uo-nav-inner">
+  <a href="index.html" class="nav-home"><span class="nav-home-logo">UOCM</span><span class="nav-home-sub">Index</span></a>
+  <a href="VOL01_Overview.html" class="nav-vol"><span class="nv-code" style="color:#10b981;">OV</span><span>Overview</span></a>
+  <a href="VOL02_DOC_Document_Management.html" class="nav-vol"><span class="nv-code" style="color:#2563eb;">DOC</span><span>Document</span></a>
+  <a href="VOL03_LBL_Label_Management.html" class="nav-vol"><span class="nv-code" style="color:#7c3aed;">LBL</span><span>Label</span></a>
+  <a href="VOL04_ORG_Origin_Management.html" class="nav-vol"><span class="nv-code" style="color:#0891b2;">ORG</span><span>Origin</span></a>
+  <a href="VOL05_AUD_Audit_Support.html" class="nav-vol"><span class="nv-code" style="color:#dc2626;">AUD</span><span>Audit</span></a>
+  <a href="VOL06_INT_Integration.html" class="nav-vol"><span class="nv-code" style="color:#6366f1;">INT</span><span>Integration</span></a>
+  <a href="VOL07_SYS_System.html" class="nav-vol"><span class="nv-code" style="color:#64748b;">SYS</span><span>System</span></a>
+  <a href="VOL08_MD_Master_Data.html" class="nav-vol active"><span class="nv-code" style="color:#d97706;">MD</span><span>Master Data</span></a>
+</div></nav>
+
+<div class="l3-crumb">
+  <span class="lvl">L1</span><a href="index.html">UOCM Index</a>
+  <span class="arr">▸</span>
+  <span class="lvl">L2</span><a href="VOL08_MD_Master_Data.html">VOL.8 · MD Master Data</a>
+  <span class="arr">▸</span>
+  <span class="lvl">L3</span><span class="current">MD-02 · Part</span>
+</div>
+
+<div class="page-wrap">
+<nav class="sidebar">
+  <div class="sb-head">
+    <div class="sb-vol">VOL.8 · MD MODULE</div>
+    <div class="sb-mod-en">MASTER DATA</div>
+    <div class="sb-mod-ko">기준정보 · 엔티티</div>
+  </div>
+  <div class="sb-section">Entities · 엔티티</div>
+  <a class="sb-link" href="VOL08_MD01_Supplier.html"><span class="sl-id">MD-01</span><div><div class="sl-en">Supplier</div><div class="sl-ko">공급사</div></div></a>
+  <a class="sb-link on" href="VOL08_MD02_Part.html"><span class="sl-id">MD-02</span><div><div class="sl-en">Part / Item</div><div class="sl-ko">품목</div></div></a>
+  <a class="sb-link" href="VOL08_MD03_BOM.html"><span class="sl-id">MD-03</span><div><div class="sl-en">BOM</div><div class="sl-ko">자재명세</div></div></a>
+  <a class="sb-link" href="VOL08_MD04_Country.html"><span class="sl-id">MD-04</span><div><div class="sl-en">Country</div><div class="sl-ko">국가</div></div></a>
+  <a class="sb-link" href="VOL08_MD05_HTS_Code.html"><span class="sl-id">MD-05</span><div><div class="sl-en">HTS Code</div><div class="sl-ko">HTS 코드</div></div></a>
+  <a class="sb-link" href="VOL08_MD06_OEM_Customer.html"><span class="sl-id">MD-06</span><div><div class="sl-en">OEM Customer</div><div class="sl-ko">OEM 고객사</div></div></a>
+  <a class="sb-link" href="VOL08_MD07_Certificate_Type.html"><span class="sl-id">MD-07</span><div><div class="sl-en">Certificate Type</div><div class="sl-ko">증빙 유형</div></div></a>
+  <a class="sb-link" href="VOL08_MD08_Label_Template.html"><span class="sl-id">MD-08</span><div><div class="sl-en">Label Template</div><div class="sl-ko">라벨 템플릿</div></div></a>
+  <div class="sb-toc">
+    <div class="sb-toc-title">On this page</div>
+    <a href="#s1"><span class="num">01</span>Entity Overview</a>
+    <a href="#s2"><span class="num">02</span>Table Design</a>
+    <a href="#s3"><span class="num">03</span>Relationships</a>
+    <a href="#s4"><span class="num">04</span>Indexes &amp; Constraints</a>
+    <a href="#s5"><span class="num">05</span>Sample Data</a>
+    <a href="#s6"><span class="num">06</span>Business Rules</a>
+  </div>
+</nav>
+
+<div class="main">
+  <div class="scr-hdr">
+    <div class="scr-hdr-inner">
+      <div class="scr-eyebrow"><span class="dot"></span>VOL.8 · MD · Master Data · 품목 기준정보 엔티티</div>
+      <div class="scr-id-block">
+        <div class="scr-id">MD-02</div>
+        <div><div class="scr-title-en">Part / Item</div></div>
+      </div>
+      <div class="scr-title-ko">품 목</div>
+      <div class="scr-meta">
+        <div class="meta-chip web"><span class="mc-lbl">Type</span><span class="mc-val">기준정보 Entity</span></div>
+        <div class="meta-chip"><span class="mc-lbl">Table</span><span class="mc-val" style="font-family:'JetBrains Mono',monospace;">md_part</span></div>
+        <div class="meta-chip phase"><span class="mc-lbl">Source</span><span class="mc-val">수기 + INT(SAP Material)</span></div>
+        <div class="meta-chip role"><span class="mc-lbl">Owner</span><span class="mc-val">Engineering / MD Admin</span></div>
+        <div class="meta-chip"><span class="mc-lbl">RBAC</span><span class="mc-val" style="font-family:'JetBrains Mono',monospace;">MD.Edit</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="content">
+
+  <!-- 1. ENTITY OVERVIEW -->
+  <section class="sec" id="s1">
+    <div class="sec-hdr"><div class="sec-num">01</div><div class="sec-title-wrap"><div class="sec-title-en">Entity Overview</div><div class="sec-title-ko">엔티티 개요</div></div><div class="sec-line"></div></div>
+    <div class="ov-grid">
+      <div class="ov-desc">
+        <div class="ov-desc-en">The <strong>Part / Item</strong> entity is the central material master for the entire compliance system — covering raw materials, components, sub-assemblies, and finished goods. Every part carries a stable <code>part_code</code>, a default declared origin country, an HTS classification, and an optional sourcing supplier. It is the anchor entity that <strong>origin determination (ORG)</strong>, <strong>BOM explosion (MD-03)</strong>, <strong>HTS classification (MD-05)</strong>, and <strong>certificates / labels (DOC, LBL)</strong> all reference. Parts may be created manually by Engineering or synchronized from SAP Material Master via the INT integration layer, keeping a single canonical item list across MES and ERP.</div>
+        <div class="ov-desc-ko"><strong>품목(Part / Item)</strong> 엔티티는 전 컴플라이언스 시스템의 핵심 자재 마스터로, 원자재·부품·반제품·완제품을 모두 포괄합니다. 모든 품목은 고정 <code>part_code</code>, 기본 신고 원산지국, HTS 분류, 선택적 소싱 공급사를 보유합니다. <strong>원산지 판정(ORG)</strong>, <strong>BOM 전개(MD-03)</strong>, <strong>HTS 분류(MD-05)</strong>, <strong>증빙·라벨(DOC, LBL)</strong>이 모두 참조하는 앵커 엔티티입니다. Engineering이 수기로 생성하거나 INT 연계로 SAP 자재마스터에서 동기화되어 MES·ERP 전반의 단일 품목 목록을 유지합니다.</div>
+      </div>
+      <div class="ov-meta">
+        <div class="ov-meta-row"><div class="ov-meta-k">Entity ID</div><div class="ov-meta-v"><code>MD-02</code></div></div>
+        <div class="ov-meta-row"><div class="ov-meta-k">Table</div><div class="ov-meta-v"><code>md_part</code></div></div>
+        <div class="ov-meta-row"><div class="ov-meta-k">PK</div><div class="ov-meta-v"><code>part_id</code> <span class="ko">BIGINT identity</span></div></div>
+        <div class="ov-meta-row"><div class="ov-meta-k">Natural Key</div><div class="ov-meta-v"><code>part_code</code> <span class="ko">유니크</span></div></div>
+        <div class="ov-meta-row"><div class="ov-meta-k">Source</div><div class="ov-meta-v">수기 + INT(SAP Material)</div></div>
+        <div class="ov-meta-row"><div class="ov-meta-k">Anchors</div><div class="ov-meta-v">ORG · BOM · HTS · DOC · LBL</div></div>
+        <div class="ov-meta-row"><div class="ov-meta-k">RBAC</div><div class="ov-meta-v"><code>MD.View</code> / <code>MD.Edit</code></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. TABLE DESIGN -->
+  <section class="sec" id="s2">
+    <div class="sec-hdr"><div class="sec-num">02</div><div class="sec-title-wrap"><div class="sec-title-en">Table Design</div><div class="sec-title-ko">테이블 설계 — <code style="font-family:'JetBrains Mono',monospace;">md_part</code></div></div><div class="sec-line"></div></div>
+    <table class="cs-tbl">
+      <thead><tr><th style="width:190px;">Column <span class="th-ko">컬럼</span></th><th style="width:150px;">Type</th><th style="width:46px;">Null</th><th style="width:60px;">Key</th><th>Description <span class="th-ko">설명</span></th></tr></thead>
+      <tbody>
+        <tr><td class="c-id">part_id</td><td><span class="c-type">BIGINT</span></td><td class="c-req y">N</td><td class="c-validation"><code>PK</code></td><td class="c-validation">Surrogate identity primary key. <code>IDENTITY(1,1)</code> 자동 증가 대리키.</td></tr>
+        <tr><td class="c-id">part_code</td><td><span class="c-type">NVARCHAR(30)</span></td><td class="c-req y">N</td><td class="c-validation"><code>UQ</code></td><td class="c-validation">Business part number, unique. 업무용 품번(유니크). 변경 불가 자연키.</td></tr>
+        <tr><td class="c-id">part_name</td><td><span class="c-type">NVARCHAR(100)</span></td><td class="c-req y">N</td><td class="c-validation"></td><td class="c-validation">Part name (KR). 품목명(국문).</td></tr>
+        <tr><td class="c-id">part_name_en</td><td><span class="c-type">NVARCHAR(100)</span></td><td class="c-req n">Y</td><td class="c-validation"></td><td class="c-validation">Part name (EN) for certificates/labels. 영문 품목명(증빙·라벨용).</td></tr>
+        <tr><td class="c-id">part_type</td><td><span class="c-type">NVARCHAR(20)</span></td><td class="c-req y">N</td><td class="c-validation"></td><td class="c-validation"><code>raw</code>/<code>component</code>/<code>sub_assy</code>/<code>finished</code>. 품목 유형(원자재·부품·반제품·완제품).</td></tr>
+        <tr><td class="c-id">uom</td><td><span class="c-type">NVARCHAR(10)</span></td><td class="c-req y">N</td><td class="c-validation"></td><td class="c-validation">Unit of measure (EA/KG/M…). 단위.</td></tr>
+        <tr><td class="c-id">hts_id</td><td><span class="c-type">BIGINT</span></td><td class="c-req n">Y</td><td class="c-validation"><code>FK</code></td><td class="c-validation">FK → <code>md_hts</code>. HTS 분류 코드 참조.</td></tr>
+        <tr><td class="c-id">default_origin_country</td><td><span class="c-type">CHAR(2)</span></td><td class="c-req n">Y</td><td class="c-validation"><code>FK</code></td><td class="c-validation">FK → <code>md_country</code> (ISO-2). 기본 신고 원산지국.</td></tr>
+        <tr><td class="c-id">supplier_id</td><td><span class="c-type">BIGINT</span></td><td class="c-req n">Y</td><td class="c-validation"><code>FK</code></td><td class="c-validation">FK → <code>md_supplier</code>. 소싱 공급사(자체 제작 시 NULL).</td></tr>
+        <tr><td class="c-id">unit_cost</td><td><span class="c-type">DECIMAL(18,4)</span></td><td class="c-req n">Y</td><td class="c-validation"></td><td class="c-validation">Unit cost for RVC/value calc. RVC·부가가치 산정용 단가.</td></tr>
+        <tr><td class="c-id">currency</td><td><span class="c-type">CHAR(3)</span></td><td class="c-req y">N</td><td class="c-validation"></td><td class="c-validation">ISO-4217, default <code>'USD'</code>. 통화 코드.</td></tr>
+        <tr><td class="c-id">sap_material_no</td><td><span class="c-type">NVARCHAR(20)</span></td><td class="c-req n">Y</td><td class="c-validation"></td><td class="c-validation">SAP Material number (INT sync key). SAP 자재번호(연계 키).</td></tr>
+        <tr><td class="c-id">status</td><td><span class="c-type">NVARCHAR(10)</span></td><td class="c-req y">N</td><td class="c-validation"></td><td class="c-validation">default <code>'active'</code> (<code>active</code>/<code>inactive</code>). 사용 상태.</td></tr>
+        <tr><td class="c-id">created_by</td><td><span class="c-type">NVARCHAR(50)</span></td><td class="c-req y">N</td><td class="c-validation"></td><td class="c-validation">Creator user id. 생성자.</td></tr>
+        <tr><td class="c-id">created_at</td><td><span class="c-type">DATETIME2</span></td><td class="c-req y">N</td><td class="c-validation"></td><td class="c-validation">Creation timestamp, default <code>SYSUTCDATETIME()</code>. 생성 일시.</td></tr>
+        <tr><td class="c-id">updated_by</td><td><span class="c-type">NVARCHAR(50)</span></td><td class="c-req n">Y</td><td class="c-validation"></td><td class="c-validation">Last modifier user id. 최종 수정자.</td></tr>
+        <tr><td class="c-id">updated_at</td><td><span class="c-type">DATETIME2</span></td><td class="c-req n">Y</td><td class="c-validation"></td><td class="c-validation">Last update timestamp. 최종 수정 일시.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- 3. RELATIONSHIPS -->
+  <section class="sec" id="s3">
+    <div class="sec-hdr"><div class="sec-num">03</div><div class="sec-title-wrap"><div class="sec-title-en">Relationships</div><div class="sec-title-ko">관계 (FK)</div></div><div class="sec-line"></div></div>
+    <div class="rel-grid">
+      <div class="rel-card out">
+        <div class="rel-card-h">↗ Foreign Keys Out <span class="ko">참조하는 테이블</span></div>
+        <div class="rel-item"><span class="rel-col">hts_id</span><span class="rel-arr">→</span><span class="rel-tgt">md_hts</span><span class="rel-note">N:1 · HTS 분류</span></div>
+        <div class="rel-item"><span class="rel-col">default_origin_country</span><span class="rel-arr">→</span><span class="rel-tgt">md_country</span><span class="rel-note">N:1 · 원산지국</span></div>
+        <div class="rel-item"><span class="rel-col">supplier_id</span><span class="rel-arr">→</span><span class="rel-tgt">md_supplier</span><span class="rel-note">N:1 · 공급사(nullable)</span></div>
+      </div>
+      <div class="rel-card in">
+        <div class="rel-card-h">↙ Referenced By <span class="ko">참조되는 테이블</span></div>
+        <div class="rel-item"><span class="rel-tgt">md_bom</span><span class="rel-arr">→</span><span class="rel-col">part_id</span><span class="rel-note">parent / child 품목</span></div>
+        <div class="rel-item"><span class="rel-tgt">org_part_origin</span><span class="rel-arr">→</span><span class="rel-col">part_id</span><span class="rel-note">원산지 판정 결과</span></div>
+        <div class="rel-item"><span class="rel-tgt">doc_certificate</span><span class="rel-arr">→</span><span class="rel-col">part_id</span><span class="rel-note">적용 품목(applied)</span></div>
+        <div class="rel-item"><span class="rel-tgt">lbl_issue</span><span class="rel-arr">→</span><span class="rel-col">part_id</span><span class="rel-note">라벨 발행 대상</span></div>
+      </div>
+    </div>
+    <div style="text-align:center;font-size:10px;color:var(--sub);margin-top:14px;">완제품은 <code style="font-family:'JetBrains Mono',monospace;">md_bom</code>의 parent로, 구성품은 child로 등장하여 자기참조 BOM 트리를 형성합니다.</div>
+  </section>
+
+  <!-- 4. INDEXES & CONSTRAINTS -->
+  <section class="sec" id="s4">
+    <div class="sec-hdr"><div class="sec-num">04</div><div class="sec-title-wrap"><div class="sec-title-en">Indexes &amp; Constraints</div><div class="sec-title-ko">인덱스 · 제약조건</div></div><div class="sec-line"></div></div>
+    <div class="idx-grid">
+      <table class="cs-tbl">
+        <thead><tr><th style="width:120px;">Name</th><th style="width:80px;">Kind</th><th>Columns / Rule <span class="th-ko">컬럼·규칙</span></th></tr></thead>
+        <tbody>
+          <tr><td class="c-id">PK_md_part</td><td><span class="b b-i">PK</span></td><td class="c-validation"><code>part_id</code> — clustered identity.</td></tr>
+          <tr><td class="c-id">UQ_md_part_code</td><td><span class="b b-ok">UNIQUE</span></td><td class="c-validation"><code>part_code</code> — 업무 품번 유일성.</td></tr>
+          <tr><td class="c-id">IX_md_part_hts</td><td><span class="b b-n">INDEX</span></td><td class="c-validation"><code>hts_id</code> — HTS 조인 가속.</td></tr>
+          <tr><td class="c-id">IX_md_part_supplier</td><td><span class="b b-n">INDEX</span></td><td class="c-validation"><code>supplier_id</code> — 공급사별 조회.</td></tr>
+          <tr><td class="c-id">IX_md_part_type</td><td><span class="b b-n">INDEX</span></td><td class="c-validation"><code>part_type</code> — 유형별 필터.</td></tr>
+        </tbody>
+      </table>
+      <table class="cs-tbl">
+        <thead><tr><th style="width:140px;">Constraint</th><th>Definition <span class="th-ko">정의</span></th></tr></thead>
+        <tbody>
+          <tr><td class="c-id">CK_part_type</td><td class="c-validation"><code>part_type IN ('raw','component','sub_assy','finished')</code> — 유형 enum 검증.</td></tr>
+          <tr><td class="c-id">CK_status</td><td class="c-validation"><code>status IN ('active','inactive')</code> — 상태 enum.</td></tr>
+          <tr><td class="c-id">DF_currency</td><td class="c-validation"><code>DEFAULT 'USD'</code> for <code>currency</code>.</td></tr>
+          <tr><td class="c-id">DF_status</td><td class="c-validation"><code>DEFAULT 'active'</code> for <code>status</code>.</td></tr>
+          <tr><td class="c-id">FK_*</td><td class="c-validation">FK to <code>md_hts</code> / <code>md_country</code> / <code>md_supplier</code> — ON DELETE NO ACTION.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 5. SAMPLE DATA -->
+  <section class="sec" id="s5">
+    <div class="sec-hdr"><div class="sec-num">05</div><div class="sec-title-wrap"><div class="sec-title-en">Sample Data</div><div class="sec-title-ko">샘플 데이터</div></div><div class="sec-line"></div></div>
+    <table class="tbl">
+      <thead><tr>
+        <th style="width:110px;">part_code</th>
+        <th>part_name <span class="th-ko">품목명</span></th>
+        <th style="width:84px;">part_type</th>
+        <th style="width:50px;">uom</th>
+        <th style="width:60px;">origin</th>
+        <th>supplier</th>
+        <th style="width:90px;">unit_cost</th>
+        <th style="width:60px;">status</th>
+      </tr></thead>
+      <tbody>
+        <tr class="rok"><td class="mono">FAB-GY-C03</td><td>그레이 원단 C03 <span style="color:var(--sub);font-size:9px;">(Gray Fabric C03)</span></td><td><span class="b b-n">raw</span></td><td class="mono">M</td><td>🇺🇸 US</td><td>현대원단 (Hyundai Fabric)</td><td class="mono">4.2500 USD</td><td><span class="b b-ok">active</span></td></tr>
+        <tr><td class="mono">BRK-STL-09</td><td>브레이크 강재 09 <span style="color:var(--sub);font-size:9px;">(Brake Steel 09)</span></td><td><span class="b b-i">component</span></td><td class="mono">EA</td><td>🇲🇽 MX</td><td>대성금속 (Daesung Metal)</td><td class="mono">12.8000 USD</td><td><span class="b b-ok">active</span></td></tr>
+        <tr><td class="mono">CONN-PA66-12</td><td>커넥터 PA66 12핀 <span style="color:var(--sub);font-size:9px;">(Connector PA66)</span></td><td><span class="b b-i">component</span></td><td class="mono">EA</td><td>🇨🇳 CN</td><td>JS Components</td><td class="mono">0.9200 USD</td><td><span class="b b-ok">active</span></td></tr>
+        <tr class="rok"><td class="mono">FG-SEAT-A1</td><td>완성 시트 어셈블리 A1 <span style="color:var(--sub);font-size:9px;">(Seat Assy A1)</span></td><td><span class="b b-w">finished</span></td><td class="mono">EA</td><td>🇺🇸 US</td><td><span style="color:var(--sub);">— (in-house)</span></td><td class="mono">186.5000 USD</td><td><span class="b b-ok">active</span></td></tr>
+      </tbody>
+    </table>
+    <div style="margin-top:8px;font-size:9px;color:var(--sub);">완제품 <code style="font-family:'JetBrains Mono',monospace;">FG-SEAT-A1</code>은 자체 제작으로 supplier_id NULL이며, 원산지(US)는 BOM 롤업으로 산정됩니다 (ORG-04).</div>
+  </section>
+
+  <!-- 6. BUSINESS RULES -->
+  <section class="sec" id="s6">
+    <div class="sec-hdr"><div class="sec-num">06</div><div class="sec-title-wrap"><div class="sec-title-en">Business Rules</div><div class="sec-title-ko">업무 규칙</div></div><div class="sec-line"></div></div>
+    <table class="br-mini">
+      <thead><tr><th style="width:96px;">ID</th><th>Rule · 규칙</th><th style="width:80px;">Action</th></tr></thead>
+      <tbody>
+        <tr><td class="br-id">BR-MD-01</td><td><div class="br-en">Unique part code — <code style="font-family:'JetBrains Mono',monospace;">part_code</code> must be unique system-wide and is immutable once referenced.</div><div class="br-ko">품번(part_code)은 시스템 전체에서 유일하며, 참조 발생 후 변경 불가.</div></td><td class="br-act"><span class="blk">차단</span></td></tr>
+        <tr><td class="br-id">BR-MD-02</td><td><div class="br-en">Mandatory classification — every part must carry an HTS code and default origin country before use in ORG / certificates.</div><div class="br-ko">ORG·증빙 사용 전 모든 품목은 HTS 코드·기본 원산지국을 보유해야 함.</div></td><td class="br-act"><span class="alt">경고</span></td></tr>
+        <tr><td class="br-id">BR-MD-04</td><td><div class="br-en">Finished-good origin roll-up — a finished part's declared origin must be derived via BOM origin roll-up, not set manually (link ORG-04).</div><div class="br-ko">완제품 원산지는 수기 입력이 아닌 BOM 롤업으로 산정해야 함 (ORG-04 연계).</div></td><td class="br-act"><span class="aut">자동</span></td></tr>
+        <tr><td class="br-id">BR-MD-05</td><td><div class="br-en">Soft delete only — referenced parts cannot be hard-deleted; set <code style="font-family:'JetBrains Mono',monospace;">status='inactive'</code> instead to preserve traceability.</div><div class="br-ko">참조된 품목은 물리 삭제 불가. status='inactive' 처리로 역추적성 보존.</div></td><td class="br-act"><span class="blk">차단</span></td></tr>
+        <tr><td class="br-id">BR-MD-06</td><td><div class="br-en">In-house parts — finished / sub-assembly parts may have NULL supplier; raw / component parts should reference a sourcing supplier.</div><div class="br-ko">완제품·반제품은 공급사 NULL 허용. 원자재·부품은 소싱 공급사 지정 권장.</div></td><td class="br-act"><span class="alt">경고</span></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  </div>
+  <div class="page-footer">
+    <span class="pf-l">UOCM · USMCA Origin Compliance Management System</span>
+    <span class="pf-r">VOL.8 · MD-02 · Part · L3 Table Design</span>
+  </div>
+</div>
+</div>
+</body>
+</html>

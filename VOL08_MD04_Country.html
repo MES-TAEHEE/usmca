@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>UOCM · VOL.8 · MD-04 · Country · 테이블 설계서</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;600;700&family=Bebas+Neue&display=swap');
+:root{
+  --brand:#059669;--brand-dk:#047857;
+  --ink:#0a1422;--ink2:#101d2e;--ink3:#1c2c40;
+  --surface:#fff;--bg:#f4f7fa;--border:#d3dce6;--text:#1e2a38;--sub:#5b6b7d;
+  --doc:#d97706;--doc-dk:#b45309;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);font-size:13px;line-height:1.6;}
+
+/* NAV */
+.uo-nav{position:sticky;top:0;z-index:9999;background:#fff;border-bottom:1px solid #e5eaf0;box-shadow:0 1px 4px rgba(15,39,71,.06);}
+.uo-nav-inner{display:flex;align-items:stretch;overflow-x:auto;scrollbar-width:none;}
+.uo-nav-inner::-webkit-scrollbar{display:none;}
+.nav-home{display:flex;align-items:center;gap:8px;padding:0 16px;background:rgba(5,150,105,.08);border-right:1px solid #e5eaf0;text-decoration:none;flex-shrink:0;min-height:42px;}
+.nav-home-logo{font-family:'Bebas Neue',sans-serif;font-size:17px;color:var(--brand);letter-spacing:2px;}
+.nav-home-sub{font-size:9px;color:#94a3b8;}
+.nav-vol{display:flex;align-items:center;gap:5px;padding:0 12px;text-decoration:none;font-size:10px;font-weight:700;color:#5b6b7d;border-bottom:2px solid transparent;white-space:nowrap;min-height:42px;transition:color .12s;}
+.nav-vol:hover{color:#0f2747;background:#f6f8fa;}
+.nav-vol.active{color:#0f2747;border-bottom-color:#059669;}
+.nav-vol .nv-code{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;}
+
+/* BREADCRUMB */
+.l3-crumb{background:#f6f8fa;border-bottom:1px solid #e5eaf0;padding:7px 24px;display:flex;align-items:center;gap:8px;font-size:10px;color:#5b6b7d;font-family:'JetBrains Mono',monospace;letter-spacing:.5px;}
+.l3-crumb a{color:#5b6b7d;text-decoration:none;transition:color .12s;}
+.l3-crumb a:hover{color:#0f2747;}
+.l3-crumb .arr{color:#cbd5e1;}
+.l3-crumb .current{color:#047857;font-weight:700;}
+.l3-crumb .lvl{font-size:8px;padding:1px 6px;border:1px solid #d3dce6;border-radius:2px;color:#94a3b8;margin-right:4px;}
+
+/* LAYOUT */
+.page-wrap{display:flex;}
+.sidebar{width:240px;min-width:240px;background:#f6f8fa;position:sticky;top:69px;height:calc(100vh - 69px);overflow-y:auto;scrollbar-width:thin;border-right:1px solid #e5eaf0;}
+.sb-head{padding:16px 14px 12px;border-bottom:1px solid #e5eaf0;}
+.sb-vol{font-family:'JetBrains Mono',monospace;font-size:9px;color:#047857;letter-spacing:2px;margin-bottom:4px;}
+.sb-mod-en{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1px;color:#0f2747;}
+.sb-mod-ko{font-size:10px;color:#94a3b8;}
+.sb-section{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#94a3b8;padding:14px 14px 6px;}
+.sb-link{display:flex;align-items:center;gap:7px;padding:6px 14px;text-decoration:none;color:#5b6b7d;font-size:11px;border-left:2px solid transparent;transition:all .12s;}
+.sb-link:hover{color:#0f2747;background:#eef2f7;}
+.sb-link.on{color:#0f2747;border-left-color:#059669;background:rgba(5,150,105,.08);}
+.sb-link .sl-id{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;width:44px;flex-shrink:0;color:#d97706;}
+.sb-link.on .sl-id{color:#047857;}
+.sb-link .sl-en{font-size:10px;font-weight:600;}
+.sb-link .sl-ko{font-size:9px;color:#94a3b8;margin-top:1px;}
+.sb-toc{padding:6px 14px 14px;border-top:1px solid #e5eaf0;margin-top:6px;}
+.sb-toc-title{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#047857;margin-bottom:6px;}
+.sb-toc a{display:block;padding:4px 8px;border-radius:3px;font-size:10px;color:#5b6b7d;text-decoration:none;transition:all .12s;}
+.sb-toc a:hover{color:#0f2747;background:#eef2f7;}
+.sb-toc a .num{font-family:'JetBrains Mono',monospace;color:#059669;font-size:9px;margin-right:6px;}
+
+.main{flex:1;min-width:0;}
+
+/* SCREEN HEADER */
+.scr-hdr{padding:32px 48px 26px;background:linear-gradient(135deg,#fffaf0,#ffffff);position:relative;overflow:hidden;border-bottom:1px solid #e5eaf0;}
+.scr-hdr::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(217,119,6,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(217,119,6,.05) 1px,transparent 1px);background-size:32px 32px;pointer-events:none;}
+.scr-hdr::after{content:'';position:absolute;top:-40%;right:-10%;width:380px;height:380px;background:radial-gradient(circle,rgba(217,119,6,.12),transparent 70%);pointer-events:none;}
+.scr-hdr-inner{position:relative;z-index:1;}
+.scr-eyebrow{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#d97706;margin-bottom:12px;display:flex;align-items:center;gap:10px;}
+.scr-eyebrow .dot{width:5px;height:5px;background:#fbbf24;border-radius:50%;box-shadow:0 0 8px #fbbf24;}
+.scr-id-block{display:flex;align-items:flex-end;gap:18px;margin-bottom:14px;}
+.scr-id{font-family:'Bebas Neue',sans-serif;font-size:54px;letter-spacing:2px;color:#d97706;line-height:.9;text-shadow:0 0 22px rgba(217,119,6,.25);}
+.scr-title-en{font-family:'Bebas Neue',sans-serif;font-size:46px;letter-spacing:1.5px;color:#0f2747;line-height:.95;}
+.scr-title-ko{font-size:13px;color:#5b6b7d;letter-spacing:3px;}
+.scr-meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px;}
+.meta-chip{display:flex;align-items:center;gap:6px;padding:5px 11px;background:#f6f8fa;border:1px solid #d3dce6;border-radius:3px;font-size:10px;color:#1e2a38;}
+.meta-chip .mc-lbl{font-family:'JetBrains Mono',monospace;font-size:8px;color:#94a3b8;letter-spacing:1px;text-transform:uppercase;}
+.meta-chip .mc-val{font-weight:700;}
+.meta-chip.web{border-color:rgba(217,119,6,.3);color:#d97706;}
+.meta-chip.phase{border-color:rgba(16,185,129,.3);color:#047857;}
+.meta-chip.role{border-color:rgba(251,191,36,.3);color:#d97706;}
+
+.content{padding:0 48px 60px;}
+.sec{margin-top:36px;}
+.sec-hdr{display:flex;align-items:center;gap:14px;margin-bottom:16px;}
+.sec-num{font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--doc);letter-spacing:1px;line-height:1;min-width:42px;}
+.sec-title-wrap{flex:1;}
+.sec-title-en{font-size:18px;font-weight:800;color:var(--text);letter-spacing:-.3px;}
+.sec-title-ko{font-size:11px;color:var(--sub);margin-top:1px;}
+.sec-line{flex:1;height:1px;background:linear-gradient(90deg,var(--doc),transparent);max-width:200px;}
+
+/* OVERVIEW */
+.ov-grid{display:grid;grid-template-columns:1.6fr 1fr;gap:14px;}
+.ov-desc{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--doc);border-radius:0 6px 6px 0;padding:16px 18px;}
+.ov-desc-en{font-size:12px;color:var(--text);line-height:1.85;margin-bottom:10px;}
+.ov-desc-ko{font-size:11px;color:var(--sub);line-height:1.85;padding-top:10px;border-top:1px dashed var(--border);}
+.ov-meta{background:var(--surface);border:1px solid var(--border);border-radius:6px;overflow:hidden;}
+.ov-meta-row{display:flex;border-bottom:1px solid var(--border);font-size:11px;}
+.ov-meta-row:last-child{border-bottom:none;}
+.ov-meta-k{flex:0 0 110px;background:#f6f8fa;padding:8px 12px;font-weight:700;color:var(--sub);font-size:10px;letter-spacing:.5px;text-transform:uppercase;border-right:1px solid var(--border);}
+.ov-meta-v{flex:1;padding:8px 12px;color:var(--text);}
+.ov-meta-v .ko{font-size:10px;color:var(--sub);margin-left:6px;}
+.ov-meta-v code{font-family:'JetBrains Mono',monospace;font-size:10px;background:#f0f3f7;padding:1px 6px;border-radius:3px;color:var(--doc);}
+
+.tbl{width:100%;border-collapse:collapse;font-size:11px;}
+.tbl th{background:#f0f3f7;padding:7px 9px;font-weight:700;border:1px solid var(--border);text-align:left;font-size:10px;color:var(--text);}
+.tbl th .th-ko{font-weight:400;color:var(--sub);font-size:9px;display:block;}
+.tbl td{padding:6px 9px;border:1px solid var(--border);vertical-align:middle;}
+.tbl .rok td{background:#f0fdf4;}
+.tbl .rw td{background:#fffbeb;}
+.tbl .rd td{background:#fef2f2;}
+.tbl tr:hover td{filter:brightness(.98);}
+.tbl .mono{font-family:'JetBrains Mono',monospace;font-size:10px;}
+.b{display:inline-block;font-size:9px;font-weight:700;padding:2px 7px;border-radius:8px;}
+.b-ok{background:#dcfce7;color:#166534;}.b-w{background:#fef9c3;color:#92400e;}.b-e{background:#fee2e2;color:#991b1b;}.b-i{background:#fef3c7;color:#92400e;}.b-n{background:#f1f5f9;color:#475569;}
+
+/* COMPONENT / COLUMN SPEC */
+.cs-tbl{width:100%;border-collapse:collapse;font-size:11px;background:var(--surface);border:1px solid var(--border);border-radius:6px;overflow:hidden;}
+.cs-tbl th{background:#fffbeb;color:#b45309;padding:9px 10px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;border-bottom:1px solid #fde68a;}
+.cs-tbl th .th-ko{display:block;color:#d4a35a;font-weight:400;font-size:9px;letter-spacing:0;text-transform:none;margin-top:1px;}
+.cs-tbl td{padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:top;}
+.cs-tbl tr:last-child td{border-bottom:none;}
+.cs-tbl tr:hover td{background:#f9fafb;}
+.cs-tbl .c-id{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;color:var(--doc);}
+.cs-tbl .c-name{font-weight:700;color:var(--text);}
+.cs-tbl .c-name .ko{font-size:10px;font-weight:400;color:var(--sub);display:block;margin-top:1px;}
+.cs-tbl .c-type{font-family:'JetBrains Mono',monospace;font-size:10px;color:#7c3aed;background:#f5f3ff;padding:2px 6px;border-radius:3px;display:inline-block;}
+.cs-tbl .c-req.y{color:#dc2626;font-weight:700;font-family:'JetBrains Mono',monospace;font-size:9px;}
+.cs-tbl .c-req.n{color:var(--sub);font-family:'JetBrains Mono',monospace;font-size:9px;}
+.cs-tbl .c-validation{font-size:10px;color:var(--text);line-height:1.6;}
+.cs-tbl .c-validation code{font-family:'JetBrains Mono',monospace;font-size:9px;background:#fff7ed;color:#9a3412;padding:1px 5px;border-radius:2px;}
+
+/* LINKAGE */
+.lnk-wrap{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:20px 24px;}
+.lnk-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:center;}
+.lnk-node{padding:12px 16px;border-radius:6px;text-align:center;min-width:128px;border:2px solid;text-decoration:none;}
+.lnk-node.up{background:#f0fdf4;border-color:#22c55e;}
+.lnk-node.cur{background:linear-gradient(135deg,#0e2148,#b45309);border-color:#fbbf24;color:#fff;box-shadow:0 4px 16px rgba(217,119,6,.25);}
+.lnk-node.down{background:#fef3c7;border-color:#f59e0b;}
+.lnk-id{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;letter-spacing:.5px;margin-bottom:3px;}
+.lnk-node.up .lnk-id{color:#15803d;}
+.lnk-node.cur .lnk-id{color:#fcd34d;}
+.lnk-node.down .lnk-id{color:#92400e;}
+.lnk-name{font-size:11px;font-weight:700;color:var(--text);}
+.lnk-node.cur .lnk-name{color:#fff;}
+.lnk-ko{font-size:9px;opacity:.7;margin-top:2px;}
+.lnk-arr{font-size:20px;color:var(--sub);font-weight:700;}
+
+/* CONSTRAINT CARDS */
+.cstr-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;}
+.cstr-card{background:var(--surface);border:1px solid var(--border);border-top:3px solid var(--doc);border-radius:0 0 6px 6px;padding:13px 15px;}
+.cstr-hdr{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.cstr-tag{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;color:#b45309;background:#fef3c7;padding:2px 8px;border-radius:3px;}
+.cstr-name{font-size:12px;font-weight:700;color:var(--text);flex:1;}
+.cstr-name .ko{font-size:10px;font-weight:400;color:var(--sub);display:block;}
+.cstr-def{margin-top:6px;padding:7px 10px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:10px;background:#fffbeb;border:1px solid #fde68a;color:#92400e;line-height:1.6;}
+.cstr-desc{font-size:10px;color:var(--sub);line-height:1.6;margin-top:6px;}
+
+/* BR MINI */
+.br-mini{width:100%;border-collapse:collapse;font-size:11px;background:var(--surface);border:1px solid var(--border);border-radius:6px;overflow:hidden;}
+.br-mini th{background:#fffbeb;color:#92400e;padding:8px 10px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;border-bottom:1px solid #fde68a;}
+.br-mini td{padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:top;}
+.br-mini tr:last-child td{border-bottom:none;}
+.br-mini .br-id{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;color:var(--brand-dk);white-space:nowrap;}
+.br-mini .br-en{font-size:11px;color:var(--text);line-height:1.6;}
+.br-mini .br-ko{font-size:10px;color:var(--sub);line-height:1.6;margin-top:3px;}
+.br-mini .br-act{text-align:center;}
+.br-mini .br-act span{display:inline-block;font-size:9px;font-weight:700;padding:2px 7px;border-radius:3px;}
+.br-mini .br-act .blk{background:#fee2e2;color:#991b1b;}
+.br-mini .br-act .alt{background:#fef9c3;color:#92400e;}
+.br-mini .br-act .aut{background:#fef3c7;color:#92400e;}
+
+.page-footer{padding:24px 48px;border-top:1px solid #e5eaf0;background:#f6f8fa;color:#94a3b8;display:flex;justify-content:space-between;align-items:center;font-size:10px;}
+.page-footer .pf-l{font-family:'JetBrains Mono',monospace;letter-spacing:.5px;}
+.page-footer .pf-r{color:#047857;font-family:'JetBrains Mono',monospace;}
+
+@media(max-width:1100px){.ov-grid{grid-template-columns:1fr;}.cstr-grid{grid-template-columns:1fr;}.scr-id-block{flex-direction:column;align-items:flex-start;gap:6px;}.scr-id{font-size:42px;}.scr-title-en{font-size:32px;}}
+</style>
+</head>
+<body>
+<nav class="uo-nav"><div class="uo-nav-inner">
+  <a href="index.html" class="nav-home"><span class="nav-home-logo">UOCM</span><span class="nav-home-sub">Index</span></a>
+  <a href="VOL01_Overview.html" class="nav-vol"><span class="nv-code" style="color:#10b981;">OV</span><span>Overview</span></a>
+  <a href="VOL02_DOC_Document_Management.html" class="nav-vol"><span class="nv-code" style="color:#2563eb;">DOC</span><span>Document</span></a>
+  <a href="VOL03_LBL_Label_Management.html" class="nav-vol"><span class="nv-code" style="color:#7c3aed;">LBL</span><span>Label</span></a>
+  <a href="VOL04_ORG_Origin_Management.html" class="nav-vol"><span class="nv-code" style="color:#0891b2;">ORG</span><span>Origin</span></a>
+  <a href="VOL05_AUD_Audit_Support.html" class="nav-vol"><span class="nv-code" style="color:#dc2626;">AUD</span><span>Audit</span></a>
+  <a href="VOL06_INT_Integration.html" class="nav-vol"><span class="nv-code" style="color:#6366f1;">INT</span><span>Integration</span></a>
+  <a href="VOL07_SYS_System.html" class="nav-vol"><span class="nv-code" style="color:#64748b;">SYS</span><span>System</span></a>
+  <a href="VOL08_MD_Master_Data.html" class="nav-vol active"><span class="nv-code" style="color:#d97706;">MD</span><span>Master Data</span></a>
+</div></nav>
+
+<div class="l3-crumb">
+  <span class="lvl">L1</span><a href="index.html">UOCM Index</a>
+  <span class="arr">▸</span>
+  <span class="lvl">L2</span><a href="VOL08_MD_Master_Data.html">VOL.8 · MD Master Data</a>
+  <span class="arr">▸</span>
+  <span class="lvl">L3</span><span class="current">MD-04 · Country</span>
+</div>
+
+<div class="page-wrap">
+<nav class="sidebar">
+  <div class="sb-head">
+    <div class="sb-vol">VOL.8 · MD MODULE</div>
+    <div class="sb-mod-en">MASTER DATA</div>
+    <div class="sb-mod-ko">기준정보 관리</div>
+  </div>
+  <div class="sb-section">MD Entities · 기준정보 엔티티</div>
+  <a class="sb-link" href="VOL08_MD01_Supplier.html"><span class="sl-id">MD-01</span><div><div class="sl-en">Supplier</div><div class="sl-ko">공급사</div></div></a>
+  <a class="sb-link" href="VOL08_MD02_Part.html"><span class="sl-id">MD-02</span><div><div class="sl-en">Part</div><div class="sl-ko">품목</div></div></a>
+  <a class="sb-link" href="VOL08_MD03_BOM.html"><span class="sl-id">MD-03</span><div><div class="sl-en">BOM</div><div class="sl-ko">자재명세서</div></div></a>
+  <a class="sb-link on" href="VOL08_MD04_Country.html"><span class="sl-id">MD-04</span><div><div class="sl-en">Country</div><div class="sl-ko">국가</div></div></a>
+  <a class="sb-link" href="VOL08_MD05_HS_Code.html"><span class="sl-id">MD-05</span><div><div class="sl-en">HS Code</div><div class="sl-ko">HS 코드</div></div></a>
+  <a class="sb-link" href="VOL08_MD06_Document_Type.html"><span class="sl-id">MD-06</span><div><div class="sl-en">Document Type</div><div class="sl-ko">증빙 유형</div></div></a>
+  <a class="sb-link" href="VOL08_MD07_UOM.html"><span class="sl-id">MD-07</span><div><div class="sl-en">UOM</div><div class="sl-ko">단위</div></div></a>
+  <a class="sb-link" href="VOL08_MD08_User_Role.html"><span class="sl-id">MD-08</span><div><div class="sl-en">User &amp; Role</div><div class="sl-ko">사용자·권한</div></div></a>
+  <div class="sb-toc">
+    <div class="sb-toc-title">On this page</div>
+    <a href="#s1"><span class="num">01</span>Entity Overview</a>
+    <a href="#s2"><span class="num">02</span>Table Design</a>
+    <a href="#s3"><span class="num">03</span>Relationships</a>
+    <a href="#s4"><span class="num">04</span>Indexes &amp; Constraints</a>
+    <a href="#s5"><span class="num">05</span>Sample Data</a>
+    <a href="#s6"><span class="num">06</span>Business Rules</a>
+  </div>
+</nav>
+
+<div class="main">
+  <div class="scr-hdr">
+    <div class="scr-hdr-inner">
+      <div class="scr-eyebrow"><span class="dot"></span>VOL.8 · MD · Master Data · 국가 기준정보 (ISO 3166)</div>
+      <div class="scr-id-block">
+        <div class="scr-id">MD-04</div>
+        <div><div class="scr-title-en">Country</div></div>
+      </div>
+      <div class="scr-title-ko">국 가</div>
+      <div class="scr-meta">
+        <div class="meta-chip phase"><span class="mc-lbl">Type</span><span class="mc-val">기준정보 (코드성)</span></div>
+        <div class="meta-chip web"><span class="mc-lbl">Table</span><span class="mc-val" style="font-family:'JetBrains Mono',monospace;">md_country</span></div>
+        <div class="meta-chip"><span class="mc-lbl">Source</span><span class="mc-val">수기 / 표준 (ISO 3166)</span></div>
+        <div class="meta-chip"><span class="mc-lbl">Owner</span><span class="mc-val">MD Admin</span></div>
+        <div class="meta-chip role"><span class="mc-lbl">RBAC</span><span class="mc-val" style="font-family:'JetBrains Mono',monospace;">MD.Edit</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="content">
+
+  <!-- 1. ENTITY OVERVIEW -->
+  <section class="sec" id="s1">
+    <div class="sec-hdr"><div class="sec-num">01</div><div class="sec-title-wrap"><div class="sec-title-en">Entity Overview</div><div class="sec-title-ko">엔티티 개요</div></div><div class="sec-line"></div></div>
+    <div class="ov-grid">
+      <div class="ov-desc">
+        <div class="ov-desc-en">The <strong>Country</strong> entity is the ISO 3166 country reference table shared across the entire UOCM system. Every supplier, part default origin, origin declaration, and certificate references a single canonical country code, eliminating free-text country values. Its most critical attribute is <strong>usmca_member</strong>, the flag that drives origin and preference logic: parts and materials sourced from USMCA member countries (US / MX / CA) are eligible to be treated as <em>originating</em>, while non-member sources (KR / CN / etc.) are <em>non-originating</em> and must be qualified through tariff-shift or RVC rules. As a coded master, country values are standardized to ISO 3166-1 alpha-2 codes and are never deleted while referenced — only deactivated.</div>
+        <div class="ov-desc-ko"><strong>국가</strong> 엔티티는 UOCM 전 시스템이 공유하는 ISO 3166 국가 기준 테이블입니다. 모든 공급사·품목 기본원산지·원산지 신고·증빙이 단일 표준 국가코드를 참조하여 자유입력 국가값을 제거합니다. 가장 핵심 속성은 <strong>usmca_member</strong> 플래그로, 원산지·특혜 판정 로직을 좌우합니다. USMCA 회원국(US/MX/CA) 조달 품목·자재는 <em>역내산(originating)</em> 대상이 될 수 있고, 비회원국(KR/CN 등)은 <em>역외산(non-originating)</em>으로서 세번변경·RVC 규칙으로 자격을 충족해야 합니다. 코드성 기준정보로서 ISO 3166-1 alpha-2 로 표준화되며, 참조 중인 국가는 삭제 불가하고 비활성만 가능합니다.</div>
+      </div>
+      <div class="ov-meta">
+        <div class="ov-meta-row"><div class="ov-meta-k">Entity ID</div><div class="ov-meta-v"><code>MD-04</code></div></div>
+        <div class="ov-meta-row"><div class="ov-meta-k">Table</div><div class="ov-meta-v"><code>md_country</code></div></div>
+        <div class="ov-meta-row"><div class="ov-meta-k">Type</div><div class="ov-meta-v">기준정보 · 코드성 (Code Master)</div></div>
+        <div class="ov-meta-row"><div class="ov-meta-k">PK</div><div class="ov-meta-v"><code>country_code</code> <span class="ko">ISO alpha-2</span></div></div>
+        <div class="ov-meta-row"><div class="ov-meta-k">Source</div><div class="ov-meta-v">수기 / 표준 <span class="ko">ISO 3166</span></div></div>
+        <div class="ov-meta-row"><div class="ov-meta-k">Owner</div><div class="ov-meta-v">MD Admin</div></div>
+        <div class="ov-meta-row"><div class="ov-meta-k">RBAC</div><div class="ov-meta-v"><code>MD.View</code> / <code>MD.Edit</code></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. TABLE DESIGN -->
+  <section class="sec" id="s2">
+    <div class="sec-hdr"><div class="sec-num">02</div><div class="sec-title-wrap"><div class="sec-title-en">Table Design</div><div class="sec-title-ko">테이블 설계 — md_country</div></div><div class="sec-line"></div></div>
+    <table class="cs-tbl">
+      <thead><tr><th style="width:170px;">Column <span class="th-ko">컬럼</span></th><th style="width:150px;">Type</th><th style="width:50px;">Null</th><th style="width:90px;">Key</th><th>Description <span class="th-ko">설명</span></th></tr></thead>
+      <tbody>
+        <tr><td class="c-name">country_code<span class="ko">국가코드</span></td><td><span class="c-type">CHAR(2)</span></td><td class="c-req n">N</td><td><span class="b b-i">PK</span></td><td class="c-validation">ISO 3166-1 alpha-2 코드 (예: <code>KR</code>, <code>US</code>). 전 시스템 표준 참조 키.</td></tr>
+        <tr><td class="c-name">country_code3<span class="ko">3자리 코드</span></td><td><span class="c-type">CHAR(3)</span></td><td class="c-req y">Y</td><td><span class="b b-n">UQ</span></td><td class="c-validation">ISO 3166-1 alpha-3 코드 (예: <code>KOR</code>, <code>USA</code>). 대외 연계·EDI 용.</td></tr>
+        <tr><td class="c-name">country_name<span class="ko">국가명(영문)</span></td><td><span class="c-type">NVARCHAR(80)</span></td><td class="c-req n">N</td><td></td><td class="c-validation">영문 국가명 (예: Republic of Korea).</td></tr>
+        <tr><td class="c-name">country_name_ko<span class="ko">국가명(국문)</span></td><td><span class="c-type">NVARCHAR(80)</span></td><td class="c-req y">Y</td><td></td><td class="c-validation">국문 국가명 (예: 대한민국).</td></tr>
+        <tr><td class="c-name">region<span class="ko">지역/대륙</span></td><td><span class="c-type">NVARCHAR(40)</span></td><td class="c-req y">Y</td><td></td><td class="c-validation">지역·대륙 구분 (예: Asia, North America). 그룹 필터용.</td></tr>
+        <tr><td class="c-name">usmca_member<span class="ko">USMCA 회원국</span></td><td><span class="c-type">BIT</span></td><td class="c-req n">N</td><td></td><td class="c-validation">USMCA 회원 여부. <code>default 0</code>. 원산지/특혜 판정 핵심 플래그.</td></tr>
+        <tr><td class="c-name">fta_flags<span class="ko">FTA 표식</span></td><td><span class="c-type">NVARCHAR(100)</span></td><td class="c-req y">Y</td><td></td><td class="c-validation">적용 FTA 식별자 (예: <code>KORUS</code> 등). 다중값 콤마 구분.</td></tr>
+        <tr><td class="c-name">is_active<span class="ko">사용 여부</span></td><td><span class="c-type">BIT</span></td><td class="c-req n">N</td><td></td><td class="c-validation">활성 여부. <code>default 1</code>. 참조 중 국가는 0(비활성)만 가능.</td></tr>
+        <tr><td class="c-name">sort_order<span class="ko">정렬순서</span></td><td><span class="c-type">INT</span></td><td class="c-req y">Y</td><td></td><td class="c-validation">드롭다운 노출 정렬 (KR/US/MX/CN 우선).</td></tr>
+        <tr><td class="c-name">created_by<span class="ko">생성자</span></td><td><span class="c-type">NVARCHAR(50)</span></td><td class="c-req n">N</td><td></td><td class="c-validation">레코드 생성 사용자 ID.</td></tr>
+        <tr><td class="c-name">created_at<span class="ko">생성일시</span></td><td><span class="c-type">DATETIME</span></td><td class="c-req n">N</td><td></td><td class="c-validation">레코드 생성 일시. <code>default GETDATE()</code>.</td></tr>
+        <tr><td class="c-name">updated_by<span class="ko">수정자</span></td><td><span class="c-type">NVARCHAR(50)</span></td><td class="c-req y">Y</td><td></td><td class="c-validation">최종 수정 사용자 ID.</td></tr>
+        <tr><td class="c-name">updated_at<span class="ko">수정일시</span></td><td><span class="c-type">DATETIME</span></td><td class="c-req y">Y</td><td></td><td class="c-validation">최종 수정 일시.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- 3. RELATIONSHIPS -->
+  <section class="sec" id="s3">
+    <div class="sec-hdr"><div class="sec-num">03</div><div class="sec-title-wrap"><div class="sec-title-en">Relationships</div><div class="sec-title-ko">관계 — 참조 관계</div></div><div class="sec-line"></div></div>
+    <div class="lnk-wrap">
+      <div class="lnk-row">
+        <div class="lnk-node cur"><div class="lnk-id">MD-04</div><div class="lnk-name">md_country</div><div class="lnk-ko">국가 마스터 (PK: country_code)</div></div>
+      </div>
+      <div style="text-align:center;font-size:10px;color:var(--sub);margin:14px 0;">▼ Referenced by · 다음 엔티티가 country_code 를 참조 ▼</div>
+      <div class="lnk-row">
+        <a class="lnk-node down" href="VOL08_MD01_Supplier.html"><div class="lnk-id">MD-01</div><div class="lnk-name">md_supplier</div><div class="lnk-ko">.country_code</div></a>
+        <a class="lnk-node down" href="VOL08_MD02_Part.html"><div class="lnk-id">MD-02</div><div class="lnk-name">md_part</div><div class="lnk-ko">.default_origin_country</div></a>
+        <a class="lnk-node down" href="VOL04_ORG_Origin_Management.html"><div class="lnk-id">ORG</div><div class="lnk-name">org_part_origin</div><div class="lnk-ko">.origin_country</div></a>
+        <a class="lnk-node down" href="VOL02_DOC_Document_Management.html"><div class="lnk-id">DOC</div><div class="lnk-name">doc_certificate</div><div class="lnk-ko">.origin_country</div></a>
+      </div>
+      <div style="text-align:center;font-size:10px;color:var(--sub);margin-top:14px;">모든 참조는 FK → md_country.country_code · 참조 무결성 보장 (BR-MD-04)</div>
+    </div>
+  </section>
+
+  <!-- 4. INDEXES & CONSTRAINTS -->
+  <section class="sec" id="s4">
+    <div class="sec-hdr"><div class="sec-num">04</div><div class="sec-title-wrap"><div class="sec-title-en">Indexes &amp; Constraints</div><div class="sec-title-ko">인덱스 · 제약조건</div></div><div class="sec-line"></div></div>
+    <div class="cstr-grid">
+      <div class="cstr-card">
+        <div class="cstr-hdr"><span class="cstr-tag">PK</span><span class="cstr-name">Primary Key<span class="ko">기본키</span></span></div>
+        <div class="cstr-def">PRIMARY KEY (country_code)</div>
+        <div class="cstr-desc">ISO alpha-2 코드를 기본키로 사용. 클러스터드 인덱스.</div>
+      </div>
+      <div class="cstr-card">
+        <div class="cstr-hdr"><span class="cstr-tag">UQ</span><span class="cstr-name">Unique<span class="ko">고유키</span></span></div>
+        <div class="cstr-def">UNIQUE (country_code3)</div>
+        <div class="cstr-desc">alpha-3 코드 중복 방지. 대외 연계 시 유일성 보장.</div>
+      </div>
+      <div class="cstr-card">
+        <div class="cstr-hdr"><span class="cstr-tag">IX</span><span class="cstr-name">Index<span class="ko">인덱스</span></span></div>
+        <div class="cstr-def">INDEX IX_country_usmca (usmca_member)</div>
+        <div class="cstr-desc">회원국/비회원국 필터·집계 가속. 원산지 판정 조회 빈번.</div>
+      </div>
+      <div class="cstr-card">
+        <div class="cstr-hdr"><span class="cstr-tag">CK</span><span class="cstr-name">Check<span class="ko">체크 제약</span></span></div>
+        <div class="cstr-def">CHECK (LEN(country_code) = 2)</div>
+        <div class="cstr-desc">국가코드 길이 2자 강제. ISO alpha-2 형식 보장.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. SAMPLE DATA -->
+  <section class="sec" id="s5">
+    <div class="sec-hdr"><div class="sec-num">05</div><div class="sec-title-wrap"><div class="sec-title-en">Sample Data</div><div class="sec-title-ko">샘플 데이터</div></div><div class="sec-line"></div></div>
+    <table class="tbl">
+      <thead><tr>
+        <th style="width:70px;">code<span class="th-ko">코드</span></th>
+        <th style="width:64px;">code3<span class="th-ko">3자리</span></th>
+        <th>name_ko<span class="th-ko">국가명(국문)</span></th>
+        <th>country_name<span class="th-ko">국가명(영문)</span></th>
+        <th style="width:100px;">region<span class="th-ko">지역</span></th>
+        <th style="width:84px;">usmca_member</th>
+        <th style="width:90px;">fta_flags</th>
+        <th style="width:60px;">active</th>
+      </tr></thead>
+      <tbody>
+        <tr class="rw"><td class="mono">KR</td><td class="mono">KOR</td><td>대한민국</td><td>Republic of Korea</td><td>Asia</td><td><span class="b b-n">0</span></td><td class="mono">KORUS</td><td><span class="b b-ok">1</span></td></tr>
+        <tr class="rok"><td class="mono">US</td><td class="mono">USA</td><td>미국</td><td>United States</td><td>North America</td><td><span class="b b-i">1</span></td><td class="mono">—</td><td><span class="b b-ok">1</span></td></tr>
+        <tr class="rok"><td class="mono">MX</td><td class="mono">MEX</td><td>멕시코</td><td>Mexico</td><td>North America</td><td><span class="b b-i">1</span></td><td class="mono">—</td><td><span class="b b-ok">1</span></td></tr>
+        <tr class="rw"><td class="mono">CN</td><td class="mono">CHN</td><td>중국</td><td>China</td><td>Asia</td><td><span class="b b-n">0</span></td><td class="mono">—</td><td><span class="b b-ok">1</span></td></tr>
+      </tbody>
+    </table>
+    <div style="margin-top:8px;font-size:9px;color:var(--sub);">녹색 행 = USMCA 회원국(역내산 대상) · 노랑 행 = 비회원국(역외산, 세번변경·RVC 자격 필요)</div>
+  </section>
+
+  <!-- 6. BUSINESS RULES -->
+  <section class="sec" id="s6">
+    <div class="sec-hdr"><div class="sec-num">06</div><div class="sec-title-wrap"><div class="sec-title-en">Business Rules</div><div class="sec-title-ko">업무 규칙</div></div><div class="sec-line"></div></div>
+    <table class="br-mini">
+      <thead><tr><th style="width:96px;">ID</th><th>Rule · 규칙</th><th style="width:80px;">Action</th></tr></thead>
+      <tbody>
+        <tr><td class="br-id">BR-MD-02</td><td><div class="br-en">Code standardization — country codes must follow the ISO 3166 standard (alpha-2 PK, alpha-3 unique); no free-text or non-standard codes.</div><div class="br-ko">코드 표준 — 국가코드는 ISO 3166 표준(alpha-2 PK, alpha-3 고유)을 따라야 하며 자유입력·비표준 코드 불가.</div></td><td class="br-act"><span class="blk">차단</span></td></tr>
+        <tr><td class="br-id">BR-MD-04</td><td><div class="br-en">Referential protection — a country referenced by any entity cannot be deleted; only deactivated (is_active=0). Delete is blocked while in use.</div><div class="br-ko">참조 보호 — 다른 엔티티가 참조 중인 국가는 삭제 불가, 비활성(is_active=0)만 허용. 사용 중 삭제 차단.</div></td><td class="br-act"><span class="blk">차단</span></td></tr>
+        <tr><td class="br-id">BR-ORG-06</td><td><div class="br-en">Origin driver — usmca_member flag determines originating vs non-originating treatment in ORG origin determination; non-members require tariff-shift / RVC qualification.</div><div class="br-ko">원산지 판정 연계 — usmca_member 플래그가 ORG 원산지 판정의 역내·역외 구분을 결정. 비회원국은 세번변경·RVC 자격 필요.</div></td><td class="br-act"><span class="aut">자동</span></td></tr>
+        <tr><td class="br-id">BR-MD-01</td><td><div class="br-en">Master pre-registration — country must exist and be active in this master before it can be selected as supplier country, part origin, or certificate origin.</div><div class="br-ko">기준정보 선등록 — 공급사 국가·품목 원산지·증빙 원산지로 선택하려면 본 마스터에 국가가 사전 등록·활성 상태여야 함.</div></td><td class="br-act"><span class="blk">차단</span></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  </div>
+  <div class="page-footer">
+    <span class="pf-l">UOCM · USMCA Origin Compliance Management System</span>
+    <span class="pf-r">VOL.8 · MD-04 · Country · L3 Table Design</span>
+  </div>
+</div>
+</div>
+</body>
+</html>

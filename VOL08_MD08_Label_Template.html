@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>UOCM · VOL.8 · MD-08 · Label Template · 상세 설계서</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;600;700&family=Bebas+Neue&display=swap');
+:root{
+  --brand:#059669;--brand-dk:#047857;
+  --ink:#0a1422;--ink2:#101d2e;--ink3:#1c2c40;
+  --surface:#fff;--bg:#f4f7fa;--border:#d3dce6;--text:#1e2a38;--sub:#5b6b7d;
+  --doc:#d97706;--doc-dk:#b45309;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);font-size:13px;line-height:1.6;}
+
+/* NAV */
+.uo-nav{position:sticky;top:0;z-index:9999;background:#fff;border-bottom:1px solid #e5eaf0;box-shadow:0 1px 4px rgba(15,39,71,.06);}
+.uo-nav-inner{display:flex;align-items:stretch;overflow-x:auto;scrollbar-width:none;}
+.uo-nav-inner::-webkit-scrollbar{display:none;}
+.nav-home{display:flex;align-items:center;gap:8px;padding:0 16px;background:rgba(5,150,105,.08);border-right:1px solid #e5eaf0;text-decoration:none;flex-shrink:0;min-height:42px;}
+.nav-home-logo{font-family:'Bebas Neue',sans-serif;font-size:17px;color:var(--brand);letter-spacing:2px;}
+.nav-home-sub{font-size:9px;color:#94a3b8;}
+.nav-vol{display:flex;align-items:center;gap:5px;padding:0 12px;text-decoration:none;font-size:10px;font-weight:700;color:#5b6b7d;border-bottom:2px solid transparent;white-space:nowrap;min-height:42px;transition:color .12s;}
+.nav-vol:hover{color:#0f2747;background:#f6f8fa;}
+.nav-vol.active{color:#0f2747;border-bottom-color:#059669;}
+.nav-vol .nv-code{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;}
+
+/* BREADCRUMB */
+.l3-crumb{background:#f6f8fa;border-bottom:1px solid #e5eaf0;padding:7px 24px;display:flex;align-items:center;gap:8px;font-size:10px;color:#5b6b7d;font-family:'JetBrains Mono',monospace;letter-spacing:.5px;}
+.l3-crumb a{color:#5b6b7d;text-decoration:none;transition:color .12s;}
+.l3-crumb a:hover{color:#0f2747;}
+.l3-crumb .arr{color:#cbd5e1;}
+.l3-crumb .current{color:#047857;font-weight:700;}
+.l3-crumb .lvl{font-size:8px;padding:1px 6px;border:1px solid #d3dce6;border-radius:2px;color:#94a3b8;margin-right:4px;}
+
+/* LAYOUT */
+.page-wrap{display:flex;}
+.sidebar{width:240px;min-width:240px;background:#f6f8fa;position:sticky;top:69px;height:calc(100vh - 69px);overflow-y:auto;scrollbar-width:thin;border-right:1px solid #e5eaf0;}
+.sb-head{padding:16px 14px 12px;border-bottom:1px solid #e5eaf0;}
+.sb-vol{font-family:'JetBrains Mono',monospace;font-size:9px;color:#047857;letter-spacing:2px;margin-bottom:4px;}
+.sb-mod-en{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1px;color:#0f2747;}
+.sb-mod-ko{font-size:10px;color:#94a3b8;}
+.sb-section{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#94a3b8;padding:14px 14px 6px;}
+.sb-link{display:flex;align-items:center;gap:7px;padding:6px 14px;text-decoration:none;color:#5b6b7d;font-size:11px;border-left:2px solid transparent;transition:all .12s;}
+.sb-link:hover{color:#0f2747;background:#eef2f7;}
+.sb-link.on{color:#0f2747;border-left-color:#059669;background:rgba(5,150,105,.08);}
+.sb-link .sl-id{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;width:44px;flex-shrink:0;color:#d97706;}
+.sb-link.on .sl-id{color:#047857;}
+.sb-link .sl-en{font-size:10px;font-weight:600;}
+.sb-link .sl-ko{font-size:9px;color:#94a3b8;margin-top:1px;}
+.sb-toc{padding:6px 14px 14px;border-top:1px solid #e5eaf0;margin-top:6px;}
+.sb-toc-title{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#047857;margin-bottom:6px;}
+.sb-toc a{display:block;padding:4px 8px;border-radius:3px;font-size:10px;color:#5b6b7d;text-decoration:none;transition:all .12s;}
+.sb-toc a:hover{color:#0f2747;background:#eef2f7;}
+.sb-toc a .num{font-family:'JetBrains Mono',monospace;color:#059669;font-size:9px;margin-right:6px;}
+
+.main{flex:1;min-width:0;}
+
+/* SCREEN HEADER */
+.scr-hdr{padding:32px 48px 26px;background:linear-gradient(135deg,#fffaf0,#ffffff);position:relative;overflow:hidden;border-bottom:1px solid #e5eaf0;}
+.scr-hdr::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(217,119,6,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(217,119,6,.05) 1px,transparent 1px);background-size:32px 32px;pointer-events:none;}
+.scr-hdr::after{content:'';position:absolute;top:-40%;right:-10%;width:380px;height:380px;background:radial-gradient(circle,rgba(217,119,6,.12),transparent 70%);pointer-events:none;}
+.scr-hdr-inner{position:relative;z-index:1;}
+.scr-eyebrow{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#d97706;margin-bottom:12px;display:flex;align-items:center;gap:10px;}
+.scr-eyebrow .dot{width:5px;height:5px;background:#fbbf24;border-radius:50%;box-shadow:0 0 8px #fbbf24;}
+.scr-id-block{display:flex;align-items:flex-end;gap:18px;margin-bottom:14px;}
+.scr-id{font-family:'Bebas Neue',sans-serif;font-size:54px;letter-spacing:2px;color:#d97706;line-height:.9;text-shadow:0 0 22px rgba(217,119,6,.25);}
+.scr-title-en{font-family:'Bebas Neue',sans-serif;font-size:46px;letter-spacing:1.5px;color:#0f2747;line-height:.95;}
+.scr-title-ko{font-size:13px;color:#5b6b7d;letter-spacing:3px;}
+.scr-meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px;}
+.meta-chip{display:flex;align-items:center;gap:6px;padding:5px 11px;background:#f6f8fa;border:1px solid #d3dce6;border-radius:3px;font-size:10px;color:#1e2a38;}
+.meta-chip .mc-lbl{font-family:'JetBrains Mono',monospace;font-size:8px;color:#94a3b8;letter-spacing:1px;text-transform:uppercase;}
+.meta-chip .mc-val{font-weight:700;}
+.meta-chip.web{border-color:rgba(217,119,6,.3);color:#d97706;}
+.meta-chip.phase{border-color:rgba(16,185,129,.3);color:#047857;}
+.meta-chip.role{border-color:rgba(251,191,36,.3);color:#d97706;}
+
+.content{padding:0 48px 60px;}
+.sec{margin-top:36px;}
+.sec-hdr{display:flex;align-items:center;gap:14px;margin-bottom:16px;}
+.sec-num{font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--doc);letter-spacing:1px;line-height:1;min-width:42px;}
+.sec-title-wrap{flex:1;}
+.sec-title-en{font-size:18px;font-weight:800;color:var(--text);letter-spacing:-.3px;}
+.sec-title-ko{font-size:11px;color:var(--sub);margin-top:1px;}
+.sec-line{flex:1;height:1px;background:linear-gradient(90deg,var(--doc),transparent);max-width:200px;}
+
+/* OVERVIEW */
+.ov-grid{display:grid;grid-template-columns:1.6fr 1fr;gap:14px;}
+.ov-desc{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--doc);border-radius:0 6px 6px 0;padding:16px 18px;}
+.ov-desc-en{font-size:12px;color:var(--text);line-height:1.85;margin-bottom:10px;}
+.ov-desc-ko{font-size:11px;color:var(--sub);line-height:1.85;padding-top:10px;border-top:1px dashed var(--border);}
+.ov-meta{background:var(--surface);border:1px solid var(--border);border-radius:6px;overflow:hidden;}
+.ov-meta-row{display:flex;border-bottom:1px solid var(--border);font-size:11px;}
+.ov-meta-row:last-child{border-bottom:none;}
+.ov-meta-k{flex:0 0 110px;background:#f6f8fa;padding:8px 12px;font-weight:700;color:var(--sub);font-size:10px;letter-spacing:.5px;text-transform:uppercase;border-right:1px solid var(--border);}
+.ov-meta-v{flex:1;padding:8px 12px;color:var(--text);}
+.ov-meta-v .ko{font-size:10px;color:var(--sub);margin-left:6px;}
+.ov-meta-v code{font-family:'JetBrains Mono',monospace;font-size:10px;background:#f0f3f7;padding:1px 6px;border-radius:3px;color:var(--doc);}
+
+/* COMPONENT SPEC */
+.cs-tbl{width:100%;border-collapse:collapse;font-size:11px;background:var(--surface);border:1px solid var(--border);border-radius:6px;overflow:hidden;}
+.cs-tbl th{background:#fffbeb;color:#b45309;padding:9px 10px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;border-bottom:1px solid #fde68a;}
+.cs-tbl th .th-ko{display:block;color:#d6a55a;font-weight:400;font-size:9px;letter-spacing:0;text-transform:none;margin-top:1px;}
+.cs-tbl td{padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:top;}
+.cs-tbl tr:last-child td{border-bottom:none;}
+.cs-tbl tr:hover td{background:#f9fafb;}
+.cs-tbl .c-id{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;color:var(--doc);}
+.cs-tbl .c-name{font-weight:700;color:var(--text);}
+.cs-tbl .c-name .ko{font-size:10px;font-weight:400;color:var(--sub);display:block;margin-top:1px;}
+.cs-tbl .c-type{font-family:'JetBrains Mono',monospace;font-size:10px;color:#7c3aed;background:#f5f3ff;padding:2px 6px;border-radius:3px;display:inline-block;}
+.cs-tbl .c-req.y{color:#dc2626;font-weight:700;font-family:'JetBrains Mono',monospace;font-size:9px;}
+.cs-tbl .c-req.n{color:var(--sub);font-family:'JetBrains Mono',monospace;font-size:9px;}
+.cs-tbl .c-validation{font-size:10px;color:var(--text);line-height:1.6;}
+.cs-tbl .c-validation code{font-family:'JetBrains Mono',monospace;font-size:9px;background:#fff7ed;color:#9a3412;padding:1px 5px;border-radius:2px;}
+
+/* TABLE */
+.tbl{width:100%;border-collapse:collapse;font-size:11px;}
+.tbl th{background:#f0f3f7;padding:7px 9px;font-weight:700;border:1px solid var(--border);text-align:left;font-size:10px;color:var(--text);}
+.tbl th .th-ko{font-weight:400;color:var(--sub);font-size:9px;display:block;}
+.tbl td{padding:6px 9px;border:1px solid var(--border);vertical-align:middle;}
+.tbl .rok td{background:#f0fdf4;}
+.tbl .rw td{background:#fffbeb;}
+.tbl .rd td{background:#fef2f2;}
+.tbl tr:hover td{filter:brightness(.98);}
+.tbl .mono{font-family:'JetBrains Mono',monospace;font-size:10px;}
+.b{display:inline-block;font-size:9px;font-weight:700;padding:2px 7px;border-radius:8px;}
+.b-ok{background:#dcfce7;color:#166534;}.b-w{background:#fef9c3;color:#92400e;}.b-e{background:#fee2e2;color:#991b1b;}.b-i{background:#fef3c7;color:#92400e;}.b-n{background:#f1f5f9;color:#475569;}
+
+/* LINKAGE */
+.lnk-wrap{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:20px 24px;}
+.lnk-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:center;}
+.lnk-node{padding:12px 16px;border-radius:6px;text-align:center;min-width:128px;border:2px solid;text-decoration:none;}
+.lnk-node.up{background:#f0fdf4;border-color:#22c55e;}
+.lnk-node.cur{background:linear-gradient(135deg,#0e2148,#b45309);border-color:#fbbf24;color:#fff;box-shadow:0 4px 16px rgba(217,119,6,.25);}
+.lnk-node.down{background:#fef3c7;border-color:#f59e0b;}
+.lnk-id{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;letter-spacing:.5px;margin-bottom:3px;}
+.lnk-node.up .lnk-id{color:#15803d;}
+.lnk-node.cur .lnk-id{color:#fcd34d;}
+.lnk-node.down .lnk-id{color:#92400e;}
+.lnk-name{font-size:11px;font-weight:700;color:var(--text);}
+.lnk-node.cur .lnk-name{color:#fff;}
+.lnk-ko{font-size:9px;opacity:.7;margin-top:2px;}
+.lnk-arr{font-size:20px;color:var(--sub);font-weight:700;}
+
+/* BR MINI */
+.br-mini{width:100%;border-collapse:collapse;font-size:11px;background:var(--surface);border:1px solid var(--border);border-radius:6px;overflow:hidden;}
+.br-mini th{background:#fffbeb;color:#92400e;padding:8px 10px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;border-bottom:1px solid #fde68a;}
+.br-mini td{padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:top;}
+.br-mini tr:last-child td{border-bottom:none;}
+.br-mini .br-id{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;color:var(--brand-dk);white-space:nowrap;}
+.br-mini .br-en{font-size:11px;color:var(--text);line-height:1.6;}
+.br-mini .br-ko{font-size:10px;color:var(--sub);line-height:1.6;margin-top:3px;}
+.br-mini .br-act{text-align:center;}
+.br-mini .br-act span{display:inline-block;font-size:9px;font-weight:700;padding:2px 7px;border-radius:3px;}
+.br-mini .br-act .blk{background:#fee2e2;color:#991b1b;}
+.br-mini .br-act .alt{background:#fef9c3;color:#92400e;}
+.br-mini .br-act .aut{background:#fef3c7;color:#92400e;}
+
+.page-footer{padding:24px 48px;border-top:1px solid #e5eaf0;background:#f6f8fa;color:#94a3b8;display:flex;justify-content:space-between;align-items:center;font-size:10px;}
+.page-footer .pf-l{font-family:'JetBrains Mono',monospace;letter-spacing:.5px;}
+.page-footer .pf-r{color:#047857;font-family:'JetBrains Mono',monospace;}
+
+@media(max-width:1100px){.ov-grid{grid-template-columns:1fr;}.scr-id-block{flex-direction:column;align-items:flex-start;gap:6px;}.scr-id{font-size:42px;}.scr-title-en{font-size:32px;}}
+</style>
+</head>
+<body>
+<nav class="uo-nav"><div class="uo-nav-inner">
+  <a href="index.html" class="nav-home"><span class="nav-home-logo">UOCM</span><span class="nav-home-sub">Index</span></a>
+  <a href="VOL01_Overview.html" class="nav-vol"><span class="nv-code" style="color:#10b981;">OV</span><span>Overview</span></a>
+  <a href="VOL02_DOC_Document_Management.html" class="nav-vol"><span class="nv-code" style="color:#2563eb;">DOC</span><span>Document</span></a>
+  <a href="VOL03_LBL_Label_Management.html" class="nav-vol"><span class="nv-code" style="color:#7c3aed;">LBL</span><span>Label</span></a>
+  <a href="VOL04_ORG_Origin_Management.html" class="nav-vol"><span class="nv-code" style="color:#0891b2;">ORG</span><span>Origin</span></a>
+  <a href="VOL05_AUD_Audit_Support.html" class="nav-vol"><span class="nv-code" style="color:#dc2626;">AUD</span><span>Audit</span></a>
+  <a href="VOL06_INT_Integration.html" class="nav-vol"><span class="nv-code" style="color:#6366f1;">INT</span><span>Integration</span></a>
+  <a href="VOL07_SYS_System.html" class="nav-vol"><span class="nv-code" style="color:#64748b;">SYS</span><span>System</span></a>
+  <a href="VOL08_MD_Master_Data.html" class="nav-vol active"><span class="nv-code" style="color:#d97706;">MD</span><span>Master Data</span></a>
+</div></nav>
+
+<div class="l3-crumb">
+  <span class="lvl">L1</span><a href="index.html">UOCM Index</a>
+  <span class="arr">▸</span>
+  <span class="lvl">L2</span><a href="VOL08_MD_Master_Data.html">VOL.8 · MD Master Data</a>
+  <span class="arr">▸</span>
+  <span class="lvl">L3</span><span class="current">MD-08 · Label Template</span>
+</div>
+
+<div class="page-wrap">
+<nav class="sidebar">
+  <div class="sb-head">
+    <div class="sb-vol">VOL.8 · MD MODULE</div>
+    <div class="sb-mod-en">MASTER DATA</div>
+    <div class="sb-mod-ko">기준정보 관리</div>
+  </div>
+  <div class="sb-section">MD Entities · 엔티티 상세</div>
+  <a class="sb-link" href="VOL08_MD01_Supplier.html"><span class="sl-id">MD-01</span><div><div class="sl-en">Supplier</div><div class="sl-ko">공급사</div></div></a>
+  <a class="sb-link" href="VOL08_MD02_Part.html"><span class="sl-id">MD-02</span><div><div class="sl-en">Part</div><div class="sl-ko">품목</div></div></a>
+  <a class="sb-link" href="VOL08_MD03_BOM.html"><span class="sl-id">MD-03</span><div><div class="sl-en">BOM</div><div class="sl-ko">자재명세</div></div></a>
+  <a class="sb-link" href="VOL08_MD04_OEM_Customer.html"><span class="sl-id">MD-04</span><div><div class="sl-en">OEM Customer</div><div class="sl-ko">OEM 고객</div></div></a>
+  <a class="sb-link" href="VOL08_MD05_HTS_Code.html"><span class="sl-id">MD-05</span><div><div class="sl-en">HTS Code</div><div class="sl-ko">HTS 코드</div></div></a>
+  <a class="sb-link" href="VOL08_MD06_Country.html"><span class="sl-id">MD-06</span><div><div class="sl-en">Country</div><div class="sl-ko">국가</div></div></a>
+  <a class="sb-link" href="VOL08_MD07_Document_Type.html"><span class="sl-id">MD-07</span><div><div class="sl-en">Document Type</div><div class="sl-ko">증빙 유형</div></div></a>
+  <a class="sb-link on" href="VOL08_MD08_Label_Template.html"><span class="sl-id">MD-08</span><div><div class="sl-en">Label Template</div><div class="sl-ko">라벨 템플릿</div></div></a>
+  <div class="sb-toc">
+    <div class="sb-toc-title">On this page</div>
+    <a href="#s1"><span class="num">01</span>Entity Overview</a>
+    <a href="#s2"><span class="num">02</span>Table Design</a>
+    <a href="#s3"><span class="num">03</span>Relationships</a>
+    <a href="#s4"><span class="num">04</span>Indexes &amp; Constraints</a>
+    <a href="#s5"><span class="num">05</span>Sample Data</a>
+    <a href="#s6"><span class="num">06</span>Business Rules</a>
+  </div>
+</nav>
+
+<div class="main">
+  <div class="scr-hdr">
+    <div class="scr-hdr-inner">
+      <div class="scr-eyebrow"><span class="dot"></span>VOL.8 · MD · Master Data · 라벨 템플릿 기준정보</div>
+      <div class="scr-id-block">
+        <div class="scr-id">MD-08</div>
+        <div><div class="scr-title-en">Label Template</div></div>
+      </div>
+      <div class="scr-title-ko">라 벨 템 플 릿</div>
+      <div class="scr-meta">
+        <div class="meta-chip web"><span class="mc-lbl">Type</span><span class="mc-val">기준정보</span></div>
+        <div class="meta-chip"><span class="mc-lbl">Table</span><span class="mc-val" style="font-family:'JetBrains Mono',monospace;">md_label_template <span style="color:#94a3b8;">+ md_label_template_field</span></span></div>
+        <div class="meta-chip"><span class="mc-lbl">Source</span><span class="mc-val">수기 (LBL-01 디자이너)</span></div>
+        <div class="meta-chip phase"><span class="mc-lbl">Owner</span><span class="mc-val">Label Admin</span></div>
+        <div class="meta-chip role"><span class="mc-lbl">RBAC</span><span class="mc-val">MD.Edit / LBL.Admin</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="content">
+
+  <!-- 1. ENTITY OVERVIEW -->
+  <section class="sec" id="s1">
+    <div class="sec-hdr"><div class="sec-num">01</div><div class="sec-title-wrap"><div class="sec-title-en">Entity Overview</div><div class="sec-title-ko">엔티티 개요</div></div><div class="sec-line"></div></div>
+    <div class="ov-grid">
+      <div class="ov-desc">
+        <div class="ov-desc-en">The <strong>Label Template</strong> entity defines reusable label layout definitions per OEM and country-of-origin (COO) form used by the Label module (LBL). Each template is a <strong>parent record</strong> (<code>md_label_template</code>) carrying paper size, barcode type, version and approval status, plus a set of <strong>child field rows</strong> (<code>md_label_template_field</code>) that map each printable field — origin country, part, lot, certificate no., serial — to a data source and a physical position (X / Y) on the label. Templates are <strong>approval-gated</strong>: only an <em>approved</em> template (BR-LBL-02) may be selected at print time, guaranteeing every issued label conforms to a controlled, versioned layout. Standard COO forms are OEM-agnostic; OEM-specific templates carry an <code>oem_id</code> and may enforce additional required fields (BR-LBL-05).</div>
+        <div class="ov-desc-ko"><strong>라벨 템플릿</strong> 엔티티는 라벨 모듈(LBL)에서 사용하는 OEM·원산지(COO) 양식별 재사용 라벨 레이아웃을 정의합니다. 각 템플릿은 용지 규격·바코드 종류·버전·승인상태를 담는 <strong>부모 레코드</strong>(<code>md_label_template</code>)와, 인쇄 필드(원산지국·품목·LOT·인증서번호·시리얼)를 데이터 소스와 라벨상의 물리 좌표(X/Y)에 매핑하는 <strong>자식 필드 행</strong>(<code>md_label_template_field</code>)으로 구성됩니다. 템플릿은 <strong>승인 게이트</strong> 대상으로, 발행 시 <em>승인됨</em> 템플릿만 선택 가능(BR-LBL-02)하여 모든 발행 라벨이 통제·버전관리된 레이아웃을 따르도록 보장합니다. COO 표준 양식은 OEM 무관이며, OEM 전용 템플릿은 <code>oem_id</code>를 가지고 추가 필수 필드를 강제할 수 있습니다(BR-LBL-05).</div>
+      </div>
+      <div class="ov-meta">
+        <div class="ov-meta-row"><div class="ov-meta-k">Entity ID</div><div class="ov-meta-v"><code>MD-08</code></div></div>
+        <div class="ov-meta-row"><div class="ov-meta-k">Parent Table</div><div class="ov-meta-v"><code>md_label_template</code></div></div>
+        <div class="ov-meta-row"><div class="ov-meta-k">Child Table</div><div class="ov-meta-v"><code>md_label_template_field</code></div></div>
+        <div class="ov-meta-row"><div class="ov-meta-k">Type</div><div class="ov-meta-v">기준정보 (Master) · 승인 게이트</div></div>
+        <div class="ov-meta-row"><div class="ov-meta-k">Source</div><div class="ov-meta-v">수기 입력 <span class="ko">LBL-01 디자이너</span></div></div>
+        <div class="ov-meta-row"><div class="ov-meta-k">Owner</div><div class="ov-meta-v">Label Admin</div></div>
+        <div class="ov-meta-row"><div class="ov-meta-k">RBAC</div><div class="ov-meta-v"><code>MD.Edit</code> / <code>LBL.Admin</code></div></div>
+        <div class="ov-meta-row"><div class="ov-meta-k">Consumed by</div><div class="ov-meta-v">LBL 발행 (lbl_issue)</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. TABLE DESIGN -->
+  <section class="sec" id="s2">
+    <div class="sec-hdr"><div class="sec-num">02</div><div class="sec-title-wrap"><div class="sec-title-en">Table Design</div><div class="sec-title-ko">테이블 설계 — 부모 + 자식</div></div><div class="sec-line"></div></div>
+
+    <h3 style="font-size:12px;font-weight:700;color:var(--sub);margin:6px 0 8px;">2.1 <code style="font-family:'JetBrains Mono',monospace;color:var(--doc);">md_label_template</code> <span style="font-weight:400;">· 라벨 템플릿 (부모)</span></h3>
+    <table class="cs-tbl">
+      <thead><tr><th style="width:170px;">Column <span class="th-ko">컬럼</span></th><th style="width:160px;">Type</th><th style="width:50px;">Key</th><th style="width:50px;">Null</th><th>Description <span class="th-ko">설명</span></th></tr></thead>
+      <tbody>
+        <tr><td class="c-name">template_id<span class="ko">템플릿 ID</span></td><td><span class="c-type">BIGINT IDENTITY</span></td><td class="c-req y">PK</td><td class="c-req n">N</td><td class="c-validation">대리키. 자동 증가.</td></tr>
+        <tr><td class="c-name">template_code<span class="ko">템플릿 코드</span></td><td><span class="c-type">NVARCHAR(20)</span></td><td class="c-req y">UQ</td><td class="c-req n">N</td><td class="c-validation">업무 식별 코드. <code>version</code>과 조합 유니크.</td></tr>
+        <tr><td class="c-name">template_name<span class="ko">템플릿 명</span></td><td><span class="c-type">NVARCHAR(100)</span></td><td class="c-req n">—</td><td class="c-req n">N</td><td class="c-validation">표시 명칭.</td></tr>
+        <tr><td class="c-name">oem_id<span class="ko">OEM</span></td><td><span class="c-type">BIGINT</span></td><td class="c-req y">FK</td><td class="c-req n">Y</td><td class="c-validation">→ <code>md_oem_customer</code>. COO 표준 템플릿은 NULL.</td></tr>
+        <tr><td class="c-name">label_type<span class="ko">라벨 유형</span></td><td><span class="c-type">NVARCHAR(20)</span></td><td class="c-req n">—</td><td class="c-req n">N</td><td class="c-validation"><code>COO</code> / <code>OEM</code>.</td></tr>
+        <tr><td class="c-name">paper_size<span class="ko">용지 규격</span></td><td><span class="c-type">NVARCHAR(20)</span></td><td class="c-req n">—</td><td class="c-req n">N</td><td class="c-validation">예: <code>100x150mm</code>, <code>A6</code>.</td></tr>
+        <tr><td class="c-name">barcode_type<span class="ko">바코드 종류</span></td><td><span class="c-type">NVARCHAR(20)</span></td><td class="c-req n">—</td><td class="c-req n">N</td><td class="c-validation"><code>Code128</code> / <code>QR</code> / <code>DataMatrix</code>.</td></tr>
+        <tr><td class="c-name">version<span class="ko">버전</span></td><td><span class="c-type">INT</span></td><td class="c-req n">—</td><td class="c-req n">N</td><td class="c-validation">기본값 <code>1</code>. 갱신 시 증가.</td></tr>
+        <tr><td class="c-name">approval_status<span class="ko">승인상태</span></td><td><span class="c-type">NVARCHAR(10)</span></td><td class="c-req n">—</td><td class="c-req n">N</td><td class="c-validation"><code>draft</code> / <code>approved</code>. 발행은 approved만(BR-LBL-02).</td></tr>
+        <tr><td class="c-name">is_active<span class="ko">사용 여부</span></td><td><span class="c-type">BIT</span></td><td class="c-req n">—</td><td class="c-req n">N</td><td class="c-validation">기본값 <code>1</code>. 논리 삭제용.</td></tr>
+        <tr><td class="c-name">created_by<span class="ko">생성자</span></td><td><span class="c-type">NVARCHAR(50)</span></td><td class="c-req n">—</td><td class="c-req n">N</td><td class="c-validation">생성 사용자.</td></tr>
+        <tr><td class="c-name">created_at<span class="ko">생성일시</span></td><td><span class="c-type">DATETIME2</span></td><td class="c-req n">—</td><td class="c-req n">N</td><td class="c-validation">기본값 <code>SYSUTCDATETIME()</code>.</td></tr>
+        <tr><td class="c-name">updated_by<span class="ko">수정자</span></td><td><span class="c-type">NVARCHAR(50)</span></td><td class="c-req n">—</td><td class="c-req n">Y</td><td class="c-validation">최종 수정 사용자.</td></tr>
+        <tr><td class="c-name">updated_at<span class="ko">수정일시</span></td><td><span class="c-type">DATETIME2</span></td><td class="c-req n">—</td><td class="c-req n">Y</td><td class="c-validation">최종 수정 일시.</td></tr>
+      </tbody>
+    </table>
+
+    <h3 style="font-size:12px;font-weight:700;color:var(--sub);margin:18px 0 8px;">2.2 <code style="font-family:'JetBrains Mono',monospace;color:var(--doc);">md_label_template_field</code> <span style="font-weight:400;">· 라벨 필드 (자식)</span></h3>
+    <table class="cs-tbl">
+      <thead><tr><th style="width:170px;">Column <span class="th-ko">컬럼</span></th><th style="width:160px;">Type</th><th style="width:50px;">Key</th><th style="width:50px;">Null</th><th>Description <span class="th-ko">설명</span></th></tr></thead>
+      <tbody>
+        <tr><td class="c-name">field_id<span class="ko">필드 ID</span></td><td><span class="c-type">BIGINT IDENTITY</span></td><td class="c-req y">PK</td><td class="c-req n">N</td><td class="c-validation">대리키. 자동 증가.</td></tr>
+        <tr><td class="c-name">template_id<span class="ko">템플릿 ID</span></td><td><span class="c-type">BIGINT</span></td><td class="c-req y">FK</td><td class="c-req n">N</td><td class="c-validation">→ <code>md_label_template</code>. 부모 삭제 시 cascade.</td></tr>
+        <tr><td class="c-name">field_key<span class="ko">필드 키</span></td><td><span class="c-type">NVARCHAR(40)</span></td><td class="c-req n">—</td><td class="c-req n">N</td><td class="c-validation"><code>origin_country</code> / <code>part</code> / <code>lot</code> / <code>cert_no</code> / <code>serial</code>.</td></tr>
+        <tr><td class="c-name">label_text<span class="ko">표시 라벨</span></td><td><span class="c-type">NVARCHAR(60)</span></td><td class="c-req n">—</td><td class="c-req n">N</td><td class="c-validation">라벨에 인쇄될 항목 명칭.</td></tr>
+        <tr><td class="c-name">data_source<span class="ko">데이터 소스</span></td><td><span class="c-type">NVARCHAR(60)</span></td><td class="c-req n">—</td><td class="c-req n">N</td><td class="c-validation">값을 바인딩할 소스 경로/필드.</td></tr>
+        <tr><td class="c-name">is_required<span class="ko">필수 여부</span></td><td><span class="c-type">BIT</span></td><td class="c-req n">—</td><td class="c-req n">N</td><td class="c-validation">발행 시 값 필수 여부(BR-LBL-05).</td></tr>
+        <tr><td class="c-name">pos_x<span class="ko">X 좌표</span></td><td><span class="c-type">INT</span></td><td class="c-req n">—</td><td class="c-req n">N</td><td class="c-validation">라벨 내 수평 위치(dot/mm).</td></tr>
+        <tr><td class="c-name">pos_y<span class="ko">Y 좌표</span></td><td><span class="c-type">INT</span></td><td class="c-req n">—</td><td class="c-req n">N</td><td class="c-validation">라벨 내 수직 위치(dot/mm).</td></tr>
+        <tr><td class="c-name">sort_order<span class="ko">정렬 순서</span></td><td><span class="c-type">INT</span></td><td class="c-req n">—</td><td class="c-req n">N</td><td class="c-validation">필드 렌더링/표시 순서.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- 3. RELATIONSHIPS -->
+  <section class="sec" id="s3">
+    <div class="sec-hdr"><div class="sec-num">03</div><div class="sec-title-wrap"><div class="sec-title-en">Relationships</div><div class="sec-title-ko">관계</div></div><div class="sec-line"></div></div>
+    <div class="lnk-wrap">
+      <div class="lnk-row">
+        <a class="lnk-node up" href="VOL08_MD04_OEM_Customer.html"><div class="lnk-id">MD-04</div><div class="lnk-name">OEM Customer</div><div class="lnk-ko">oem_id → md_oem_customer</div></a>
+        <span class="lnk-arr">→</span>
+        <div class="lnk-node cur"><div class="lnk-id">MD-08</div><div class="lnk-name">Label Template</div><div class="lnk-ko">현재 엔티티 (부모)</div></div>
+        <span class="lnk-arr">→</span>
+        <div class="lnk-node down"><div class="lnk-id">CHILD</div><div class="lnk-name">Template Field</div><div class="lnk-ko">md_label_template_field</div></div>
+      </div>
+      <div class="lnk-row" style="margin-top:14px;">
+        <a class="lnk-node down" href="VOL03_LBL_Label_Management.html"><div class="lnk-id">LBL</div><div class="lnk-name">Label Issue</div><div class="lnk-ko">lbl_issue.template_id</div></a>
+        <a class="lnk-node down" href="VOL08_MD04_OEM_Customer.html"><div class="lnk-id">MD-04</div><div class="lnk-name">OEM Customer</div><div class="lnk-ko">default_label_template_id</div></a>
+      </div>
+      <div style="text-align:center;font-size:10px;color:var(--sub);margin-top:14px;">
+        <strong>FK 출력:</strong> <code style="font-family:'JetBrains Mono',monospace;">oem_id → md_oem_customer</code> ·
+        <strong>자식:</strong> <code style="font-family:'JetBrains Mono',monospace;">md_label_template_field</code> ·
+        <strong>참조처:</strong> <code style="font-family:'JetBrains Mono',monospace;">lbl_issue.template_id</code>, <code style="font-family:'JetBrains Mono',monospace;">md_oem_customer.default_label_template_id</code>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. INDEXES & CONSTRAINTS -->
+  <section class="sec" id="s4">
+    <div class="sec-hdr"><div class="sec-num">04</div><div class="sec-title-wrap"><div class="sec-title-en">Indexes &amp; Constraints</div><div class="sec-title-ko">인덱스 · 제약</div></div><div class="sec-line"></div></div>
+    <table class="cs-tbl">
+      <thead><tr><th style="width:140px;">Name</th><th style="width:90px;">Kind</th><th style="width:230px;">Column(s)</th><th>Note <span class="th-ko">설명</span></th></tr></thead>
+      <tbody>
+        <tr><td class="c-id">PK_label_template</td><td><span class="b b-i">PK</span></td><td><span class="c-type">template_id</span></td><td class="c-validation">부모 기본키 (clustered).</td></tr>
+        <tr><td class="c-id">UQ_template_code_ver</td><td><span class="b b-ok">UNIQUE</span></td><td><span class="c-type">template_code, version</span></td><td class="c-validation">코드+버전 유니크 (BR-MD-04).</td></tr>
+        <tr><td class="c-id">PK_label_field</td><td><span class="b b-i">PK</span></td><td><span class="c-type">field_id</span></td><td class="c-validation">자식 기본키.</td></tr>
+        <tr><td class="c-id">FK_field_template</td><td><span class="b b-n">FK</span></td><td><span class="c-type">field.template_id → template.template_id</span></td><td class="c-validation"><code>ON DELETE CASCADE</code> — 부모 삭제 시 필드 동반 삭제.</td></tr>
+        <tr><td class="c-id">FK_template_oem</td><td><span class="b b-n">FK</span></td><td><span class="c-type">oem_id → md_oem_customer</span></td><td class="c-validation">NULL 허용 (COO 표준).</td></tr>
+        <tr><td class="c-id">IX_template_oem</td><td><span class="b b-w">INDEX</span></td><td><span class="c-type">oem_id</span></td><td class="c-validation">OEM별 템플릿 조회 가속.</td></tr>
+        <tr><td class="c-id">CK_approval_status</td><td><span class="b b-e">CHECK</span></td><td><span class="c-type">approval_status</span></td><td class="c-validation"><code>IN ('draft','approved')</code> 열거 강제.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- 5. SAMPLE DATA -->
+  <section class="sec" id="s5">
+    <div class="sec-hdr"><div class="sec-num">05</div><div class="sec-title-wrap"><div class="sec-title-en">Sample Data</div><div class="sec-title-ko">샘플 데이터</div></div><div class="sec-line"></div></div>
+
+    <h3 style="font-size:12px;font-weight:700;color:var(--sub);margin:6px 0 8px;">5.1 <code style="font-family:'JetBrains Mono',monospace;color:var(--doc);">md_label_template</code> <span style="font-weight:400;">· 템플릿 행</span></h3>
+    <table class="tbl">
+      <thead><tr>
+        <th style="width:60px;">id</th>
+        <th>code</th>
+        <th>name<span class="th-ko">템플릿명</span></th>
+        <th style="width:80px;">oem<span class="th-ko">OEM</span></th>
+        <th style="width:60px;">type</th>
+        <th style="width:90px;">paper</th>
+        <th style="width:80px;">barcode</th>
+        <th style="width:50px;">ver</th>
+        <th style="width:90px;">status<span class="th-ko">승인</span></th>
+      </tr></thead>
+      <tbody>
+        <tr class="rok"><td class="mono">1</td><td class="mono">COO-STD</td><td>COO 표준 라벨 (Standard COO)</td><td>— <span style="color:#94a3b8;">(NULL)</span></td><td><span class="b b-i">COO</span></td><td class="mono">100x150mm</td><td class="mono">Code128</td><td class="mono">1</td><td><span class="b b-ok">approved</span></td></tr>
+        <tr class="rok"><td class="mono">2</td><td class="mono">OEM-HMC</td><td>현대 HMC 라벨 (Hyundai HMC)</td><td>HMC</td><td><span class="b b-n">OEM</span></td><td class="mono">100x150mm</td><td class="mono">QR</td><td class="mono">2</td><td><span class="b b-ok">approved</span></td></tr>
+        <tr class="rw"><td class="mono">3</td><td class="mono">OEM-HMC</td><td>현대 HMC 라벨 (개정 작업)</td><td>HMC</td><td><span class="b b-n">OEM</span></td><td class="mono">100x150mm</td><td class="mono">QR</td><td class="mono">3</td><td><span class="b b-w">draft</span></td></tr>
+      </tbody>
+    </table>
+
+    <h3 style="font-size:12px;font-weight:700;color:var(--sub);margin:18px 0 8px;">5.2 <code style="font-family:'JetBrains Mono',monospace;color:var(--doc);">md_label_template_field</code> <span style="font-weight:400;">· 필드 행 (template_id = 2, 현대 HMC v2)</span></h3>
+    <table class="tbl">
+      <thead><tr>
+        <th style="width:60px;">field_id</th>
+        <th style="width:70px;">tmpl</th>
+        <th>field_key</th>
+        <th>label_text<span class="th-ko">표시</span></th>
+        <th>data_source</th>
+        <th style="width:60px;">req</th>
+        <th style="width:70px;">pos_x</th>
+        <th style="width:70px;">pos_y</th>
+        <th style="width:50px;">sort</th>
+      </tr></thead>
+      <tbody>
+        <tr><td class="mono">11</td><td class="mono">2</td><td class="mono">origin_country</td><td>원산지국</td><td class="mono">org_result.coo</td><td><span class="b b-e">Y</span></td><td class="mono">20</td><td class="mono">20</td><td class="mono">1</td></tr>
+        <tr><td class="mono">12</td><td class="mono">2</td><td class="mono">part</td><td>품목</td><td class="mono">md_part.part_no</td><td><span class="b b-e">Y</span></td><td class="mono">20</td><td class="mono">60</td><td class="mono">2</td></tr>
+        <tr><td class="mono">13</td><td class="mono">2</td><td class="mono">lot</td><td>LOT</td><td class="mono">lbl_issue.lot_no</td><td><span class="b b-e">Y</span></td><td class="mono">20</td><td class="mono">100</td><td class="mono">3</td></tr>
+        <tr><td class="mono">14</td><td class="mono">2</td><td class="mono">cert_no</td><td>QR (인증서번호)</td><td class="mono">doc_certificate.cert_no</td><td><span class="b b-e">Y</span></td><td class="mono">300</td><td class="mono">20</td><td class="mono">4</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- 6. BUSINESS RULES -->
+  <section class="sec" id="s6">
+    <div class="sec-hdr"><div class="sec-num">06</div><div class="sec-title-wrap"><div class="sec-title-en">Business Rules</div><div class="sec-title-ko">업무 규칙</div></div><div class="sec-line"></div></div>
+    <table class="br-mini">
+      <thead><tr><th style="width:96px;">ID</th><th>Rule · 규칙</th><th style="width:80px;">Action</th></tr></thead>
+      <tbody>
+        <tr><td class="br-id">BR-MD-01</td><td><div class="br-en">Master data integrity — required attributes (code, name, label type, paper/barcode) must be present before a template can be saved.</div><div class="br-ko">기준정보 무결성 — 코드·명칭·라벨유형·용지/바코드 등 필수 속성 입력 후에만 저장 가능.</div></td><td class="br-act"><span class="blk">차단</span></td></tr>
+        <tr><td class="br-id">BR-MD-04</td><td><div class="br-en">Unique key — <code style="font-family:'JetBrains Mono',monospace;">template_code + version</code> must be unique; the same code may exist only once per version.</div><div class="br-ko">유니크 키 — <code style="font-family:'JetBrains Mono',monospace;">template_code + version</code> 조합은 유일해야 하며 동일 코드는 버전당 1건만 허용.</div></td><td class="br-act"><span class="blk">차단</span></td></tr>
+        <tr><td class="br-id">BR-MD-05</td><td><div class="br-en">Soft delete — templates are never physically removed; <code style="font-family:'JetBrains Mono',monospace;">is_active=0</code> retires a template while preserving issued-label references.</div><div class="br-ko">논리 삭제 — 템플릿은 물리 삭제하지 않고 <code style="font-family:'JetBrains Mono',monospace;">is_active=0</code> 으로 비활성화, 발행 라벨 참조 보존.</div></td><td class="br-act"><span class="aut">자동</span></td></tr>
+        <tr><td class="br-id">BR-LBL-02</td><td><div class="br-en">Approval-gated use — only <code style="font-family:'JetBrains Mono',monospace;">approval_status='approved'</code> templates are selectable at print time; draft templates are hidden from issuance.</div><div class="br-ko">승인 게이트 — 발행 시 <code style="font-family:'JetBrains Mono',monospace;">approval_status='approved'</code> 템플릿만 선택 가능, draft는 발행 목록에서 제외.</div></td><td class="br-act"><span class="blk">차단</span></td></tr>
+        <tr><td class="br-id">BR-LBL-05</td><td><div class="br-en">OEM required fields — OEM templates may flag fields as required (<code style="font-family:'JetBrains Mono',monospace;">is_required=1</code>); issuance is blocked if any required field has no value.</div><div class="br-ko">OEM 필수 필드 — OEM 템플릿은 필드를 필수(<code style="font-family:'JetBrains Mono',monospace;">is_required=1</code>)로 지정 가능, 필수 값 누락 시 발행 차단.</div></td><td class="br-act"><span class="blk">차단</span></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  </div>
+  <div class="page-footer">
+    <span class="pf-l">UOCM · USMCA Origin Compliance Management System</span>
+    <span class="pf-r">VOL.8 · MD-08 · Label Template · L3 Table Design</span>
+  </div>
+</div>
+</div>
+</body>
+</html>
